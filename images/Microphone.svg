@@ -1,0 +1,13 @@
+<svg width="950" height="950" viewBox="0 0 950 950" fill="none" id="microphone"
+    xmlns="http://www.w3.org/2000/svg">
+    <g id="mic_diaphragm">
+    <rect x="295" y="20" width="360" height="685" rx="180" stroke="black" stroke-width="40"/>
+    <line x1="295" y1="180" x2="645" y2="180" stroke="black" stroke-width="40" stroke-dasharray="200 200"/>
+    <line x1="295" y1="280" x2="645" y2="280" stroke="black" stroke-width="40" stroke-dasharray="200 200"/>
+    </g>
+    <g id="mic_stand">
+    <path d="M225 500V525C225 663.071 336.929 775 475 775V775V775C613.071 775 725 663.071 725 525V500" stroke="black" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="345" y1="930" x2="605" y2="930" stroke="black" stroke-width="40" stroke-linecap="round"/>
+    <line x1="475" y1="775" x2="475" y2="950" stroke="black" stroke-width="40"/>
+    </g>
+</svg>
