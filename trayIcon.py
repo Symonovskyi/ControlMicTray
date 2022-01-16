@@ -1,62 +1,53 @@
 import sys
-from ctypes import wintypes, WinDLL
-import win32api
-import win32gui
-from ctypes import windll
 from PyQt5 import QtGui, QtWidgets
+from microphoneUtil import AudioUtilities as audio
 
-
-WM_APPCOMMAND = 0x319
-WM_HOTKEY = 0x0312
-APPCOMMAND_MICROPHONE_VOLUME_MUTE = 0x180000
-VAL = 0x0002
 
 class Main(QtWidgets.QSystemTrayIcon):
     def __init__(self):
         super().__init__()
-        # Два состояния - 1 и 0
-        self.status = bool()
+        self.audio = audio()
 
-        self.dll = WinDLL("winmm")
+        self.trayInit()
 
+    def trayInit(self):
         self.menu = QtWidgets.QMenu()
         self.turnMicro = self.menu.addAction("Вкл\выкл. микрофон")
         self.turnMicro.triggered.connect(self.microControl)
         self.turnMicro.setCheckable(True)
-        
-        # self.testMenuItem = self.menu.addAction("Для тестов...")
-        # self.testMenuItem.triggered.connect(self.testFunc)
-        # self.testMenuItem.setCheckable(True)
 
         quantityOfActiveMics = self.menu.addAction(
-            f"Кол-ство микрофонов: {windll.winmm.waveInGetNumDevs()}")
+            f"Кол-ство микрофонов: {len(self.audio.micsCount)}")
+        # quantityOfActiveMics.setEnabled(False)
+        quantityOfActiveMics.triggered.connect(self.t)
 
         exitAction = self.menu.addAction("Выход")
         exitAction.triggered.connect(sys.exit)
 
-        self.setIcon(QtGui.QIcon("images\\Microphone_dark.png"))
         self.setContextMenu(self.menu)
         self.setToolTip("Статус микрофона")
+        
+        self.IsMutedCheck()
+
         self.show()
+
+    def IsMutedCheck(self):
+        if self.audio.GetMicrophoneState() == 0:
+            self.setIcon(QtGui.QIcon("images\\Microphone_dark_ON.svg"))
+        else:
+            self.setIcon(QtGui.QIcon("images\\Microphone_dark_OFF.svg"))
+        return
 
     def microControl(self):
         if self.turnMicro.isChecked():
-            hwnd_active = win32gui.GetForegroundWindow()
-            win32api.SendMessage(hwnd_active, WM_APPCOMMAND, None,
-            APPCOMMAND_MICROPHONE_VOLUME_MUTE)
-            self.setIcon(QtGui.QIcon("images\\Microphone_dark_ON.png"))
+            self.audio.UnMuteMicrophone()
+            self.setIcon(QtGui.QIcon("images\\Microphone_dark_ON.svg"))
         else:
-            hwnd_active = win32gui.GetForegroundWindow()
-            win32api.SendMessage(hwnd_active, WM_APPCOMMAND, None,
-            APPCOMMAND_MICROPHONE_VOLUME_MUTE)
-            self.setIcon(QtGui.QIcon("images\\Microphone_dark_OFF.png"))
+            self.audio.MuteMicrophone()
+            self.setIcon(QtGui.QIcon("images\\Microphone_dark_OFF.svg"))
 
-    # def testFunc(self):
-    #     if self.testMenuItem.isEnabled():
-    #         hwnd_active = win32gui.GetForegroundWindow()
-    #         print(win32gui.PostMessage(hwnd_active, WM_APPCOMMAND,
-    #             None, APPCOMMAND_MICROPHONE_VOLUME_MUTE))
-
+    def t(self):
+        print(self.audio.GetMicrophoneState())
 
 
 if __name__ == '__main__':
