@@ -108,24 +108,32 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         self.setToolTip("ControlMicTray")
 
         # Cheking mic status on startup.
-        self.CheckIfMuted()
+        self.CheckIfMuted(mode="Startup")
 
         self.show()
 
-    def CheckIfMuted(self):
+    def CheckIfMuted(self, mode=None):
         ''' According to mic status, these changes are applied:
         - Tray Icon;
         - Mute/Unmute microphone;
         - Change text of the first menu element.
         '''
-        if self.mic.GetMicMuteState == 0:
-            self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
-            self.mic.MuteMic()
-            self.turnMicro.setText("Выключить микрофон")
-        elif self.mic.GetMicMuteState == 1:
-            self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
-            self.mic.UnMuteMic()
-            self.turnMicro.setText("Включить микрофон")
+        if mode == "Startup":
+            if self.mic.GetMicMuteState == 0:
+                self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
+                self.turnMicro.setText("Выключить микрофон")
+            elif self.mic.GetMicMuteState == 1:
+                self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
+                self.turnMicro.setText("Включить микрофон")
+        else:
+            if self.mic.GetMicMuteState == 0:
+                self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
+                self.mic.MuteMic()
+                self.turnMicro.setText("Выключить микрофон")
+            elif self.mic.GetMicMuteState == 1:
+                self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
+                self.mic.UnMuteMic()
+                self.turnMicro.setText("Включить микрофон")
 
     def MicrophoneControl(self):
         if self.turnMicro.isChecked():
