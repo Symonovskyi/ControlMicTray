@@ -17,12 +17,12 @@ class MicrophoneController():
     Class that uses "pycaw" module to operate with microphone.
 
     Methods:
-    \nMuteMic() - mutes the mic.
-    \nUnMuteMic() - unmutes the mic.
+    - MuteMic() - mutes the mic.
+    - UnMuteMic() - unmutes the mic.
 
     Properties:
-    \nGetDevicesCount - returns microphones count that are active in system.
-    \nGetMicMuteState - returns the actual state of mic: muted or not.
+    - GetDevicesCount - holds microphones count that are active in system.
+    - GetMicMuteState - holds the actual state of mic: muted or not.
     '''
     def __init__(self):
         mic_device = aUtils.GetMicrophone()
@@ -52,13 +52,13 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
     Also, this class configures the behaviour of menu items.
 
     Methods:
-    TrayInit() - initializates all tray menu elements and configuring them.
-    \nCheckIfMuted() - checks the actual state of mic, and mutes/unmutes it 
+    - TrayInit() - initializates all tray menu elements and configuring them.
+    - CheckIfMuted() - checks the actual state of mic, and mutes/unmutes it 
     according to its status. Also, changes the tray icon and check mark on 
     the first element menu.
-    \nMicrophoneControl() - mutes or unmutes mic. The first menu item signal is 
+    - MicrophoneControl() - mutes or unmutes mic. The first menu item signal is 
     connected to this slot (func).
-    \nHotkeyControl() - does the same as MicrophoneControl(), but when pressing
+    - HotkeyControl() - does the same as MicrophoneControl(), but when pressing
     preset keyboard shortcut.
     '''
     def __init__(self):
@@ -84,6 +84,7 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         # Adding and configuring "Mics quantity: {quantity}" menu element.
         quantityOfActiveMics = self.menu.addAction(
             f"Кол-ство микрофонов: {self.mic.GetDevicesCount}")
+        quantityOfActiveMics.setIcon(QIcon("images\\Microphone_light.svg"))
         quantityOfActiveMics.setEnabled(False)
 
         # Adding and configuring "Settings" menu element.
@@ -115,23 +116,28 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
     def CheckIfMuted(self, mode=None):
         ''' According to mic status, these changes are applied:
         - Tray Icon;
+        - First menu element icon;
         - Mute/Unmute microphone;
         - Change text of the first menu element.
         '''
         if mode == "Startup":
             if self.mic.GetMicMuteState == 0:
                 self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
+                self.turnMicro.setIcon(QIcon("images\\on.png"))
                 self.turnMicro.setText("Выключить микрофон")
             elif self.mic.GetMicMuteState == 1:
                 self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
+                self.turnMicro.setIcon(QIcon("images\\off.png"))
                 self.turnMicro.setText("Включить микрофон")
         else:
             if self.mic.GetMicMuteState == 0:
                 self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
+                self.turnMicro.setIcon(QIcon("images\\on.png"))
                 self.mic.MuteMic()
                 self.turnMicro.setText("Выключить микрофон")
             elif self.mic.GetMicMuteState == 1:
                 self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
+                self.turnMicro.setIcon(QIcon("images\\off.png"))
                 self.mic.UnMuteMic()
                 self.turnMicro.setText("Включить микрофон")
 
