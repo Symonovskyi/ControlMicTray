@@ -5,8 +5,6 @@ from microphoneController import MicrophoneController
 # "pip install" modules.
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
-from comtypes import COMObject
-from pycaw.pycaw import IAudioEndpointVolumeCallback
 from keyboard import add_hotkey
 
 
@@ -72,9 +70,6 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         # Cheking mic status on startup.
         self.CheckIfMuted(mode="InterfaceOnly")
 
-        self.mic.getMic.RegisterControlChangeNotify(
-            AudioEndpointVolumeCallback())
-
         self.show()
 
     def CheckIfMuted(self, mode=None):
@@ -101,23 +96,6 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
             elif micStatus == 1:
                 self.mic.UnMuteMic()
                 self.CheckIfMuted(mode="InterfaceOnly")
-
-    # @classmethod
-    # def UpdateInterface(cls):
-    #     # cls.CheckIfMuted(cls, mode='InterfaceOnly')
-    #     mic = MicrophoneController()
-    #     if mic.getMicMuteState == 0:
-    #         print(1)
-    #         cls.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
-    #     elif mic.getMicMuteState == 1:
-    #         cls.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
-
-
-class AudioEndpointVolumeCallback(COMObject):
-    _com_interfaces_ = [IAudioEndpointVolumeCallback]
-
-    def OnNotify(self, pNotify):
-        TrayApp.CheckIfMuted(mode="InterfaceOnly")
 
 
 if __name__ == '__main__':
