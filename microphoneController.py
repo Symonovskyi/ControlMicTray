@@ -1,10 +1,10 @@
 
 from ctypes import POINTER, cast
-
-from comtypes import CLSCTX_ALL, CLSCTX_INPROC_SERVER, CoCreateInstance
+from pycaw.constants import CLSID_MMDeviceEnumerator
 from pycaw.pycaw import AudioUtilities as aUtils, IAudioEndpointVolume,\
     IMMDeviceEnumerator, EDataFlow, ERole
-from pycaw.constants import CLSID_MMDeviceEnumerator
+
+from comtypes import CLSCTX_ALL, CLSCTX_INPROC_SERVER, CoCreateInstance
 
 
 class MicrophoneController(aUtils):
