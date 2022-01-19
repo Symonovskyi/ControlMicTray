@@ -8,7 +8,6 @@ from PyQt5.QtGui import QIcon
 from comtypes import CLSCTX_ALL, COMObject
 from pycaw.pycaw import AudioUtilities as aUtils
 from pycaw.pycaw import IAudioEndpointVolume, IAudioEndpointVolumeCallback
-# from pynput import keyboard
 from keyboard import add_hotkey
 
 
@@ -56,10 +55,6 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
     - CheckIfMuted() - checks the actual state of mic, and mutes/unmutes it 
     according to its status. Also, changes the tray icon and check mark on 
     the first element menu.
-    - MicrophoneControl() - mutes or unmutes mic. The first menu item signal is 
-    connected to this slot (func).
-    - HotkeyControl() - does the same as MicrophoneControl(), but when pressing
-    preset keyboard shortcut.
     '''
     def __init__(self):
         super().__init__()
@@ -72,12 +67,13 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         self.TrayInit()
 
         # Adding hotkey for controling mic.
-        add_hotkey('ctrl + shift + z', self.HotkeyControl)
+        add_hotkey('ctrl + shift + z', self.CheckIfMuted)
 
     def TrayInit(self):
         # Adding and configuring "On\Off Microphone" menu element.
         self.turnMicro = self.menu.addAction("Вкл\выкл. микрофон")
-        self.turnMicro.triggered.connect(self.MicrophoneControl)
+        # Connecting menu element to appropriate method.
+        self.turnMicro.triggered.connect(self.CheckIfMuted)
 
         self.menu.addSeparator()
 
@@ -109,7 +105,7 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         self.setToolTip("ControlMicTray")
 
         # Cheking mic status on startup.
-        self.CheckIfMuted(mode="Startup")
+        self.CheckIfMuted(mode="InterfaceOnly")
 
         self.show()
 
@@ -117,10 +113,10 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         ''' According to mic status, these changes are applied:
         - Tray Icon;
         - First menu element icon;
-        - Mute/Unmute microphone;
-        - Change text of the first menu element.
+        - Change text of the first menu element;
+        - Mute/Unmute microphone if mode =! "InterfaceOnly".
         '''
-        if mode == "Startup":
+        if mode == "InterfaceOnly":
             if self.mic.GetMicMuteState == 0:
                 self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
                 self.turnMicro.setIcon(QIcon("images\\on.png"))
@@ -131,24 +127,11 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
                 self.turnMicro.setText("Включить микрофон")
         else:
             if self.mic.GetMicMuteState == 0:
-                self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
-                self.turnMicro.setIcon(QIcon("images\\on.png"))
                 self.mic.MuteMic()
-                self.turnMicro.setText("Выключить микрофон")
+                self.CheckIfMuted(mode="InterfaceOnly")
             elif self.mic.GetMicMuteState == 1:
-                self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
-                self.turnMicro.setIcon(QIcon("images\\off.png"))
                 self.mic.UnMuteMic()
-                self.turnMicro.setText("Включить микрофон")
-
-    def MicrophoneControl(self):
-        if self.turnMicro.isChecked():
-            self.CheckIfMuted()
-        else:
-            self.CheckIfMuted()
-
-    def HotkeyControl(self):
-        self.CheckIfMuted()
+                self.CheckIfMuted(mode="InterfaceOnly")
 
 
 # class AudioEndpointVolumeCallback(COMObject):
@@ -156,8 +139,7 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
 #     t = TrayApp
 
 #     def OnNotify(self, pNotify):
-#         # self.t().CheckIfMuted()
-#         print(1)
+#         self.t().CheckIfMuted(mode="Starup")
 
 
 if __name__ == '__main__':
