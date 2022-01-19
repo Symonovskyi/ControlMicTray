@@ -1,53 +1,13 @@
 # Built-in modules.
 from sys import argv, exit
-from ctypes import POINTER, cast
+from microphoneController import MicrophoneController
 
 # "pip install" modules.
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
-from comtypes import CLSCTX_ALL, COMObject
-from pycaw.pycaw import AudioUtilities as aUtils
-from pycaw.pycaw import IAudioEndpointVolume, IAudioEndpointVolumeCallback
+from comtypes import COMObject
+from pycaw.pycaw import IAudioEndpointVolumeCallback
 from keyboard import add_hotkey
-
-
-class MicrophoneController():
-    '''
-    Class that uses "pycaw" module to operate with microphone.
-
-    Methods:
-    - MuteMic() - mutes the mic.
-    - UnMuteMic() - unmutes the mic.
-
-    Properties:
-    - GetDevicesCount - holds microphones count that are active in system.
-    - GetMicMuteState - holds the actual state of mic: muted or not.
-    - GetMic - holds the actual microphone instance.
-    '''
-    def __init__(self):
-        mic_device = aUtils.GetMicrophone()
-        interface = mic_device.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL,\
-            None)
-        self.mic = cast(interface, POINTER(IAudioEndpointVolume))
-
-    #TODO: get the real count of microphones only.
-    @property
-    def GetDevicesCount(self):
-        return len(aUtils.GetAllDevices())
-
-    @property
-    def GetMicMuteState(self):
-        return self.mic.GetMute()
-
-    @property
-    def GetMic(self):
-        return self.mic
-
-    def MuteMic(self):
-        self.mic.SetMute(True, None)
-
-    def UnMuteMic(self):
-        self.mic.SetMute(False, None)
 
 
 class TrayApp(QtWidgets.QSystemTrayIcon):
