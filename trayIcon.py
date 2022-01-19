@@ -22,6 +22,7 @@ class MicrophoneController():
     Properties:
     - GetDevicesCount - holds microphones count that are active in system.
     - GetMicMuteState - holds the actual state of mic: muted or not.
+    - GetMic - holds the actual microphone instance.
     '''
     def __init__(self):
         mic_device = aUtils.GetMicrophone()
@@ -37,6 +38,10 @@ class MicrophoneController():
     @property
     def GetMicMuteState(self):
         return self.mic.GetMute()
+
+    @property
+    def GetMic(self):
+        return self.mic
 
     def MuteMic(self):
         self.mic.SetMute(True, None)
@@ -67,7 +72,7 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         self.TrayInit()
 
         # Adding hotkey for controling mic.
-        add_hotkey('ctrl + shift + z', self.CheckIfMuted)
+        add_hotkey('CTRL + SHIFT + Z', self.CheckIfMuted)
 
     def TrayInit(self):
         # Adding and configuring "On\Off Microphone" menu element.
@@ -107,6 +112,9 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         # Cheking mic status on startup.
         self.CheckIfMuted(mode="InterfaceOnly")
 
+        self.mic.GetMic.RegisterControlChangeNotify(
+            AudioEndpointVolumeCallback())
+
         self.show()
 
     def CheckIfMuted(self, mode=None):
@@ -133,26 +141,25 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
                 self.mic.UnMuteMic()
                 self.CheckIfMuted(mode="InterfaceOnly")
 
+    # @classmethod
+    # def UpdateInterface(cls):
+    #     # cls.CheckIfMuted(cls, mode='InterfaceOnly')
+    #     mic = MicrophoneController()
+    #     if mic.GetMicMuteState == 0:
+    #         print(1)
+    #         cls.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
+    #     elif mic.GetMicMuteState == 1:
+    #         cls.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
 
-# class AudioEndpointVolumeCallback(COMObject):
-#     _com_interfaces_ = [IAudioEndpointVolumeCallback]
-#     t = TrayApp
 
-#     def OnNotify(self, pNotify):
-#         self.t().CheckIfMuted(mode="Starup")
+class AudioEndpointVolumeCallback(COMObject):
+    _com_interfaces_ = [IAudioEndpointVolumeCallback]
+
+    def OnNotify(self, pNotify):
+        TrayApp.CheckIfMuted(mode="InterfaceOnly")
 
 
 if __name__ == '__main__':
-    #TODO: When the actual status of mic changes, call CheckIfMuted() method.
-    # The whole stuff below is for to do above stuff.
-
-    # devices = aUtils.GetMicrophone()
-    # interface = devices.Activate(
-    #     IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    # volume = cast(interface, POINTER(IAudioEndpointVolume))
-    # callback = AudioEndpointVolumeCallback()
-    # volume.RegisterControlChangeNotify(callback)
-
     app = QtWidgets.QApplication(argv)
     win = TrayApp()
     exit(app.exec())
