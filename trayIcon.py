@@ -44,7 +44,7 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
 
         # Adding and configuring "Mics quantity: {quantity}" menu element.
         quantityOfActiveMics = self.menu.addAction(
-            f"Кол-ство микрофонов: {self.mic.GetDevicesCount}")
+            f"Кол-ство микрофонов: {self.mic.getDevicesCount}")
         quantityOfActiveMics.setIcon(QIcon("images\\Microphone_light.svg"))
         quantityOfActiveMics.setEnabled(False)
 
@@ -72,7 +72,7 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         # Cheking mic status on startup.
         self.CheckIfMuted(mode="InterfaceOnly")
 
-        self.mic.GetMic.RegisterControlChangeNotify(
+        self.mic.getMic.RegisterControlChangeNotify(
             AudioEndpointVolumeCallback())
 
         self.show()
@@ -84,20 +84,21 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         - Change text of the first menu element;
         - Mute/Unmute microphone if mode =! "InterfaceOnly".
         '''
+        micStatus = self.mic.getMicMuteState
         if mode == "InterfaceOnly":
-            if self.mic.GetMicMuteState == 0:
+            if micStatus == 0:
                 self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
                 self.turnMicro.setIcon(QIcon("images\\on.png"))
                 self.turnMicro.setText("Выключить микрофон")
-            elif self.mic.GetMicMuteState == 1:
+            elif micStatus == 1:
                 self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
                 self.turnMicro.setIcon(QIcon("images\\off.png"))
                 self.turnMicro.setText("Включить микрофон")
         else:
-            if self.mic.GetMicMuteState == 0:
+            if micStatus == 0:
                 self.mic.MuteMic()
                 self.CheckIfMuted(mode="InterfaceOnly")
-            elif self.mic.GetMicMuteState == 1:
+            elif micStatus == 1:
                 self.mic.UnMuteMic()
                 self.CheckIfMuted(mode="InterfaceOnly")
 
@@ -105,10 +106,10 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
     # def UpdateInterface(cls):
     #     # cls.CheckIfMuted(cls, mode='InterfaceOnly')
     #     mic = MicrophoneController()
-    #     if mic.GetMicMuteState == 0:
+    #     if mic.getMicMuteState == 0:
     #         print(1)
     #         cls.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
-    #     elif mic.GetMicMuteState == 1:
+    #     elif mic.getMicMuteState == 1:
     #         cls.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
 
 
