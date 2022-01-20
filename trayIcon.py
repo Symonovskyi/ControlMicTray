@@ -1,22 +1,21 @@
 # Built-in modules.
-from os import environ
 from sys import argv, exit
 from microphoneController import MicrophoneController
 
 # "pip install" modules.
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QApplication
 from PyQt5.QtGui import QIcon
 from keyboard import add_hotkey
 
 
-class TrayApp(QtWidgets.QSystemTrayIcon):
+class TrayApp(QSystemTrayIcon):
     '''
     Class that actually creates the tray icon and it's menu elements.
     Also, this class configures the behaviour of menu items.
 
     Methods:
     - TrayInit() - initializates all tray menu elements and configuring them.
-    - CheckIfMuted() - checks the actual state of mic, and mutes/unmutes it 
+    - CheckMicIfMuted() - checks the actual state of mic, and mutes/unmutes it 
     according to its status. Also, changes the tray icon and check mark on 
     the first element menu.
     '''
@@ -28,19 +27,19 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         self.mic = MicrophoneController()
 
         # Creating menu of tray.
-        self.menu = QtWidgets.QMenu()
+        self.menu = QMenu()
 
         # Calling the initialization func.
         self.TrayInit()
 
         # Adding hotkey for controling mic.
-        add_hotkey('CTRL + SHIFT + Z', self.CheckIfMuted)
+        add_hotkey('CTRL + SHIFT + Z', self.CheckMicIfMuted)
 
     def TrayInit(self):
         # Adding and configuring "On\Off Microphone" menu element.
         self.turnMicro = self.menu.addAction("Вкл\выкл. микрофон")
         # Connecting menu element to appropriate method.
-        self.turnMicro.triggered.connect(self.CheckIfMuted)
+        self.turnMicro.triggered.connect(self.CheckMicIfMuted)
 
         self.menu.addSeparator()
 
@@ -72,11 +71,11 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         self.setToolTip("ControlMicTray")
 
         # Cheking mic status on startup.
-        self.CheckIfMuted(mode="InterfaceOnly")
+        self.CheckMicIfMuted(mode="InterfaceOnly")
 
         self.show()
 
-    def CheckIfMuted(self, mode=None):
+    def CheckMicIfMuted(self, mode=None):
         ''' According to mic status, these changes are applied:
         - Tray Icon;
         - First menu element icon;
@@ -96,13 +95,13 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
         else:
             if micStatus == 0:
                 self.mic.MuteMic()
-                self.CheckIfMuted(mode="InterfaceOnly")
+                self.CheckMicIfMuted(mode="InterfaceOnly")
             elif micStatus == 1:
                 self.mic.UnMuteMic()
-                self.CheckIfMuted(mode="InterfaceOnly")
+                self.CheckMicIfMuted(mode="InterfaceOnly")
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(argv)
+    app = QApplication(argv)
     win = TrayApp()
     exit(app.exec())
