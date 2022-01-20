@@ -1,4 +1,5 @@
 # Built-in modules.
+from os import environ
 from sys import argv, exit
 from microphoneController import MicrophoneController
 
@@ -20,7 +21,10 @@ class TrayApp(QtWidgets.QSystemTrayIcon):
     the first element menu.
     '''
     def __init__(self):
+        # For initializing Qt things.
         super().__init__()
+
+        # Creating Microphone Controller class instance.
         self.mic = MicrophoneController()
 
         # Creating menu of tray.

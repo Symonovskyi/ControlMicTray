@@ -1,39 +1,28 @@
-
+# Built-in modules.
 from ctypes import POINTER, cast
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
-from comtypes import CLSCTX_ALL, CLSCTX_INPROC_SERVER, CoCreateInstance
-from pycaw.pycaw import AudioUtilities as aUtils, IAudioEndpointVolume,\
-    IMMDeviceEnumerator, EDataFlow, ERole
-from pycaw.constants import CLSID_MMDeviceEnumerator
+# "pip install" modules.
+from comtypes import CLSCTX_ALL
 
 
-class MicrophoneController(aUtils):
+class MicrophoneController(AudioUtilities):
     '''
     Class that uses "pycaw" module to operate with microphone.
 
     Methods:
-    - getMicDevice() - staticmethod - allows to get microphone in 
-    inactivated state.
     - MuteMic() - mutes the mic.
     - UnMuteMic() - unmutes the mic.
 
     Properties:
-    - getMic - holds the actual activated microphone instance.
+    - getMic - holds the actual microphone instance.
     - getDevicesCount - holds microphones count that are active in system.
     - getMicMuteState - holds the actual state of mic: muted or not.
     '''
     def __init__(self):
-        interface = self.getMicDevice().Activate(IAudioEndpointVolume._iid_,\
+        interface = self.GetMicrophone().Activate(IAudioEndpointVolume._iid_,\
             CLSCTX_ALL, None)
         self.mic = cast(interface, POINTER(IAudioEndpointVolume))
-
-    @staticmethod
-    def getMicDevice():
-        deviceEnumerator = CoCreateInstance(
-            CLSID_MMDeviceEnumerator, IMMDeviceEnumerator, CLSCTX_INPROC_SERVER)
-        microphone = deviceEnumerator.GetDefaultAudioEndpoint(
-            EDataFlow.eCapture.value, ERole.eMultimedia.value)
-        return microphone
 
     def MuteMic(self):
         self.mic.SetMute(True, None)
