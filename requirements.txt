@@ -1,13 +1,7 @@
 comtypes==1.1.10
-enum34==1.1.10
 future==0.18.2
-idna==3.3
 keyboard==0.13.5
 psutil==5.9.0
-pyparsing==3.0.6
 PyQt5==5.15.6
 PyQt5-Qt5==5.15.2
 PyQt5-sip==12.9.0
-pywin32-ctypes==0.2.0
-requests==2.27.1
-sip==6.5.0
