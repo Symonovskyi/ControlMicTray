@@ -20,8 +20,11 @@ class DatabaseController:
                     UserHotkey text,
                     AppTheme bool);""")
 
+                db.commit()
+
                 cursor.execute(f"""
-                UPDATE UserSettings SET UserName = \'{self.__user_name}\'
+                INSERT INTO UserSettings VALUES\
+                    (\'{self.__user_name}\', NULL, NULL)
                 """)
 
                 db.commit()
