@@ -1,4 +1,4 @@
-# Built-in modules.
+# Built-in modules and own classes.
 from ctypes import POINTER, cast
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 

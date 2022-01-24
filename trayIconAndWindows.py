@@ -1,14 +1,14 @@
-# Built-in modules.
-from sys import argv, exit
+# Built-in modules and own classes.
 from microphoneController import MicrophoneController
+from databaseController import DatabaseController
 
 # "pip install" modules.
-from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QApplication
+from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QMenu
 from PyQt5.QtGui import QIcon
-from keyboard import add_hotkey
+from keyboard import add_hotkey, remove_all_hotkeys
 
 
-class TrayApp(QSystemTrayIcon):
+class TrayIcon(QSystemTrayIcon):
     '''
     Class that actually creates the tray icon and it's menu elements.
     Also, this class configures the behaviour of menu items.
@@ -23,10 +23,16 @@ class TrayApp(QSystemTrayIcon):
         # For initializing Qt things.
         super().__init__()
 
-        # Creating Microphone Controller class instance.
+        # Microphone Controller class instance.
         self.mic = MicrophoneController()
 
-        # Creating menu of tray.
+        # Database Controller class instance.
+        self.db = DatabaseController()
+
+        # Settings Window class instance.
+        self.settingsWin = SettingsWindow()
+
+        # Menu of tray.
         self.menu = QMenu()
 
         # Calling the initialization func.
@@ -36,37 +42,38 @@ class TrayApp(QSystemTrayIcon):
         add_hotkey('CTRL + SHIFT + Z', self.CheckMicIfMuted)
 
     def TrayInit(self):
-        # Adding and configuring "On\Off Microphone" menu element.
+        # Initializing and configuring "On\Off Microphone" menu element.
         self.turnMicro = self.menu.addAction("Вкл\выкл. микрофон")
         # Connecting menu element to appropriate method.
         self.turnMicro.triggered.connect(self.CheckMicIfMuted)
 
         self.menu.addSeparator()
 
-        # Adding and configuring "Mics quantity: {quantity}" menu element.
+        # Initializing and configuring "Mics quantity: {quantity}" menu element.
         quantityOfActiveMics = self.menu.addAction(
             f"Кол-ство микрофонов: {self.mic.getDevicesCount}")
         quantityOfActiveMics.setIcon(QIcon("images\\Microphone_light.svg"))
         quantityOfActiveMics.setEnabled(False)
 
-        # Adding and configuring "Settings" menu element.
+        # Initializing and configuring "Settings" menu element.
         settingsAction = self.menu.addAction("Настройки")
         settingsAction.setIcon(QIcon("images\\settings.png"))
+        settingsAction.triggered.connect(self.settingsWin.show)
         settingsAction.setEnabled(False)
 
         self.menu.addSeparator()
 
-        # Adding and configuring "About..." menu element.
+        # Initializing and configuring "About..." menu element.
         aboutAction = self.menu.addAction("О программе...")
         aboutAction.setIcon(QIcon("images\\about.png"))
         aboutAction.setEnabled(False)
 
-        # Adding and configuring "Exit" menu element.
+        # Initializing and configuring "Exit" menu element.
         exitAction = self.menu.addAction("Выход")
         exitAction.setIcon(QIcon("images\\exit.png"))
         exitAction.triggered.connect(exit)
 
-        # Connecting menu with tray.
+        # Connecting menu with tray and setting tooltip for tray icon.
         self.setContextMenu(self.menu)
         self.setToolTip("ControlMicTray")
 
@@ -101,7 +108,8 @@ class TrayApp(QSystemTrayIcon):
                 self.CheckMicIfMuted(mode="InterfaceOnly")
 
 
-if __name__ == '__main__':
-    app = QApplication(argv)
-    win = TrayApp()
-    exit(app.exec())
+class SettingsWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        # self.setStyleSheet()
