@@ -3,9 +3,10 @@ from microphoneController import MicrophoneController
 from databaseController import DatabaseController
 
 # "pip install" modules.
-from PyQt5.QtWidgets import QWidget, QSystemTrayIcon, QMenu
+from PyQt5.QtWidgets import (
+    QWidget, QSystemTrayIcon, QMenu, QGridLayout, QLabel, QComboBox)
 from PyQt5.QtGui import QIcon
-from keyboard import add_hotkey, remove_all_hotkeys
+from keyboard import add_hotkey
 
 
 class TrayIcon(QSystemTrayIcon):
@@ -14,11 +15,13 @@ class TrayIcon(QSystemTrayIcon):
     Also, this class configures the behaviour of menu items.
 
     Methods:
-    - TrayInit() - initializates all tray menu elements and configuring them.
-    - CheckMicIfMuted() - checks the actual state of mic, and mutes/unmutes it 
+    - tray_init() - initializates all tray menu elements and configuring them.
+    - check_mic_if_muted() - checks the actual state of mic, and mutes/unmutes it 
     according to its status. Also, changes the tray icon and check mark on 
     the first element menu.
+    - check_push_to_talk() - checks if the "Walkie-Talkie" mode is enabled.
     '''
+
     def __init__(self):
         # For initializing Qt things.
         super().__init__()
@@ -36,80 +39,124 @@ class TrayIcon(QSystemTrayIcon):
         self.menu = QMenu()
 
         # Calling the initialization func.
-        self.TrayInit()
+        self.tray_init()
 
         # Adding hotkey for controling mic.
-        add_hotkey('CTRL + SHIFT + Z', self.CheckMicIfMuted)
+        add_hotkey('CTRL + SHIFT + Z', self.check_mic_if_muted)
 
-    def TrayInit(self):
+    def tray_init(self):
         # Initializing and configuring "On\Off Microphone" menu element.
-        self.turnMicro = self.menu.addAction("Вкл\выкл. микрофон")
+        self.turn_micro = self.menu.addAction("Вкл\выкл. микрофон")
+
         # Connecting menu element to appropriate method.
-        self.turnMicro.triggered.connect(self.CheckMicIfMuted)
+        self.turn_micro.triggered.connect(self.check_mic_if_muted)
+
+        # Initializing and configuring "Walkie-talkie mode (push-to-talk)" menu element.
+        self.push_to_talk = self.menu.addAction("Режим рации (push-to-talk)")
+        self.push_to_talk.triggered.connect(self.check_push_to_talk)
+        self.push_to_talk.setEnabled(False)
 
         self.menu.addSeparator()
 
         # Initializing and configuring "Mics quantity: {quantity}" menu element.
-        quantityOfActiveMics = self.menu.addAction(
+        quantity_of_active_mics = self.menu.addAction(
             f"Кол-ство микрофонов: {self.mic.getDevicesCount}")
-        quantityOfActiveMics.setIcon(QIcon("images\\Microphone_light.svg"))
-        quantityOfActiveMics.setEnabled(False)
+        quantity_of_active_mics.setIcon(QIcon("images\\Microphone_light.svg"))
+        quantity_of_active_mics.setEnabled(False)
 
         # Initializing and configuring "Settings" menu element.
-        settingsAction = self.menu.addAction("Настройки")
-        settingsAction.setIcon(QIcon("images\\settings.png"))
-        settingsAction.triggered.connect(self.settingsWin.show)
-        settingsAction.setEnabled(False)
+        settings_action = self.menu.addAction("Настройки")
+        settings_action.setIcon(QIcon("images\\settings.png"))
+        settings_action.triggered.connect(self.settingsWin.show)
+        # settings_action.setEnabled(False)
 
         self.menu.addSeparator()
 
         # Initializing and configuring "About..." menu element.
-        aboutAction = self.menu.addAction("О программе...")
-        aboutAction.setIcon(QIcon("images\\about.png"))
-        aboutAction.setEnabled(False)
+        about_action = self.menu.addAction("О программе...")
+        about_action.setIcon(QIcon("images\\about.png"))
+        about_action.setEnabled(False)
+
+        self.menu.addSeparator()
 
         # Initializing and configuring "Exit" menu element.
-        exitAction = self.menu.addAction("Выход")
-        exitAction.setIcon(QIcon("images\\exit.png"))
-        exitAction.triggered.connect(exit)
+        exit_action = self.menu.addAction("Выход")
+        exit_action.setIcon(QIcon("images\\exit.png"))
+        exit_action.triggered.connect(exit)
 
         # Connecting menu with tray and setting tooltip for tray icon.
         self.setContextMenu(self.menu)
         self.setToolTip("ControlMicTray")
 
         # Cheking mic status on startup.
-        self.CheckMicIfMuted(mode="InterfaceOnly")
+        self.check_mic_if_muted(mode="InterfaceOnly")
 
         self.show()
 
-    def CheckMicIfMuted(self, mode=None):
+    def check_mic_if_muted(self, mode=None):
         ''' According to mic status, these changes are applied:
         - Tray Icon;
         - First menu element icon;
         - Change text of the first menu element;
         - Mute/Unmute microphone if mode =! "InterfaceOnly".
         '''
-        micStatus = self.mic.getMicMuteState
+        mic_status = self.mic.getMicMuteState
         if mode == "InterfaceOnly":
-            if micStatus == 0:
-                self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
-                self.turnMicro.setIcon(QIcon("images\\on.png"))
-                self.turnMicro.setText("Выключить микрофон")
-            elif micStatus == 1:
+            if mic_status:
                 self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
-                self.turnMicro.setIcon(QIcon("images\\off.png"))
-                self.turnMicro.setText("Включить микрофон")
+                self.turn_micro.setIcon(QIcon("images\\off.png"))
+                self.turn_micro.setText("Включить микрофон")
+            else:
+                self.setIcon(QIcon("images\\Microphone_dark_ON.svg"))
+                self.turn_micro.setIcon(QIcon("images\\on.png"))
+                self.turn_micro.setText("Выключить микрофон")
         else:
-            if micStatus == 0:
-                self.mic.MuteMic()
-                self.CheckMicIfMuted(mode="InterfaceOnly")
-            elif micStatus == 1:
+            if mic_status:
                 self.mic.UnMuteMic()
-                self.CheckMicIfMuted(mode="InterfaceOnly")
+                self.check_mic_if_muted(mode="InterfaceOnly")
+            else:
+                self.mic.MuteMic()
+                self.check_mic_if_muted(mode="InterfaceOnly")
+
+    def check_push_to_talk(self):
+        pass
 
 
 class SettingsWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        # self.setStyleSheet()
+        # Configuring window.
+        self.__configureWin()
+
+    def closeEvent(self, event):
+        self.destroy()
+
+    def __configureWin(self):
+        self.setFixedHeight(500)
+        self.setFixedWidth(500)
+        self.setWindowTitle('Настройки')
+        self.setWindowIcon(QIcon('images\\Microphone_dark.svg'))
+
+        lay = QGridLayout(self)
+
+        lang_selection_label = QLabel("Выбрать язык:")
+
+        combo = QComboBox()
+        combo.addItems(
+            ["Русский", "Английский", "Украинский", "Китайский"])
+
+        lay.addWidget(lang_selection_label)
+        lay.addWidget(combo)
+
+        self.setLayout(lay)
+        self.__setStyles()
+
+    def __setStyles(self):
+        self.setStyleSheet("""
+            background-color: #234768;
+        """)
+
+
+class AboutWindow(QWidget):
+    pass
