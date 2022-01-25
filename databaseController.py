@@ -5,6 +5,14 @@ from getpass import getuser
 
 
 class DatabaseController:
+    """
+    This class operates with database, which contains user settings.
+
+    Properties:
+    - get_user_hotkey - holds info about the current hotkey user combination.
+    - get_user_theme - holds info about the app theme that have beem chosen 
+    by user.
+    """
     def __init__(self):
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
@@ -31,7 +39,7 @@ class DatabaseController:
             db.close()
 
     @property
-    def getUserHotkey(self):
+    def get_user_hotkey(self):
         with connect(self.__db_name) as db:
             cursor = db.cursor()
 
@@ -43,7 +51,7 @@ class DatabaseController:
         return user_hotkey
 
     @property
-    def getUserTheme(self):
+    def get_user_theme(self):
         with connect(self.__db_name) as db:
             cursor = db.cursor()
 

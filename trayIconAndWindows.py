@@ -59,7 +59,7 @@ class TrayIcon(QSystemTrayIcon):
 
         # Initializing and configuring "Mics quantity: {quantity}" menu element.
         quantity_of_active_mics = self.menu.addAction(
-            f"Кол-ство микрофонов: {self.mic.getDevicesCount}")
+            f"Кол-ство микрофонов: {self.mic.get_devices_count}")
         quantity_of_active_mics.setIcon(QIcon("images\\Microphone_light.svg"))
         quantity_of_active_mics.setEnabled(False)
 
@@ -99,7 +99,7 @@ class TrayIcon(QSystemTrayIcon):
         - Change text of the first menu element;
         - Mute/Unmute microphone if mode =! "InterfaceOnly".
         '''
-        mic_status = self.mic.getMicMuteState
+        mic_status = self.mic.get_mic_muted_state
         if mode == "InterfaceOnly":
             if mic_status:
                 self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
@@ -111,10 +111,10 @@ class TrayIcon(QSystemTrayIcon):
                 self.turn_micro.setText("Выключить микрофон")
         else:
             if mic_status:
-                self.mic.UnMuteMic()
+                self.mic.unmute_mic()
                 self.check_mic_if_muted(mode="InterfaceOnly")
             else:
-                self.mic.MuteMic()
+                self.mic.mute_mic()
                 self.check_mic_if_muted(mode="InterfaceOnly")
 
     def check_push_to_talk(self):
