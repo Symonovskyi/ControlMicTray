@@ -15,7 +15,6 @@ class TrayIcon(QSystemTrayIcon):
     Also, this class configures the behaviour of menu items.
 
     Methods:
-    - tray_init() - initializates all tray menu elements and configuring them.
     - check_mic_if_muted() - checks the actual state of mic, and mutes/unmutes it 
     according to its status. Also, changes the tray icon and check mark on 
     the first element menu.
@@ -39,12 +38,12 @@ class TrayIcon(QSystemTrayIcon):
         self.menu = QMenu()
 
         # Calling the initialization func.
-        self.tray_init()
+        self.__tray_init()
 
         # Adding hotkey for controling mic.
         add_hotkey('CTRL + SHIFT + Z', self.check_mic_if_muted)
 
-    def tray_init(self):
+    def __tray_init(self):
         # Initializing and configuring "On\Off Microphone" menu element.
         self.turn_micro = self.menu.addAction("Вкл\выкл. микрофон")
 

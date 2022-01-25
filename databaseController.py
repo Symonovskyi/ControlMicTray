@@ -17,17 +17,18 @@ class DatabaseController:
 
                 cursor.execute("""CREATE TABLE UserSettings(
                     UserName text,
+                    UserLanguage text,
                     UserHotkey text,
+                    OnSysStartup bool,
                     AppTheme bool);""")
-
-                db.commit()
 
                 cursor.execute(f"""
                 INSERT INTO UserSettings VALUES\
-                    (\'{self.__user_name}\', NULL, NULL)
-                """)
+                    (\'{self.__user_name}\', 'en', 'CTRL + SHIFT + Z',\
+                        '1', '1')""")
 
                 db.commit()
+            db.close()
 
     @property
     def getUserHotkey(self):
@@ -36,9 +37,10 @@ class DatabaseController:
 
             user_hotkey = cursor.execute(f"""SELECT UserHotkey FROM\
                 UserSettings WHERE UserName = \'{self.__user_name}\'""")
-
+        
             db.commit()
-            return user_hotkey
+        db.close()
+        return user_hotkey
 
     @property
     def getUserTheme(self):
@@ -49,4 +51,5 @@ class DatabaseController:
                 WHERE UserName = \'{self.__user_name}\'""")
 
             db.commit()
-            return user_theme
+        db.close()
+        return user_theme

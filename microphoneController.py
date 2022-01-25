@@ -34,9 +34,9 @@ class MicrophoneController(AudioUtilities):
     def getMic(self):
         return self.mic
 
-    #TODO: get the real count of microphones only.
     @property
     def getDevicesCount(self):
+        #TODO: get the real count of microphones only.
         return len(self.GetAllDevices())
 
     @property
