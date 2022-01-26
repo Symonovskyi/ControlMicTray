@@ -1,11 +1,15 @@
 # Built-in modules and own classes.
+from ctypes import alignment
 from microphoneController import MicrophoneController
 from databaseController import DatabaseController
 
 # "pip install" modules.
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
-    QWidget, QSystemTrayIcon, QMenu, QGridLayout, QLabel, QComboBox)
+    QWidget, QSystemTrayIcon, QMenu, QFormLayout, QLabel, QComboBox,
+        QPushButton)
 from PyQt5.QtGui import QIcon
+from pyqt5Custom import ToggleSwitch
 from keyboard import add_hotkey, on_press, hook
 
 
@@ -15,8 +19,8 @@ class TrayIcon(QSystemTrayIcon):
     Also, this class configures the behaviour of menu items.
 
     Methods:
-    - check_mic_if_muted() - checks the actual state of mic, and mutes/unmutes it 
-    according to its status. Also, changes the tray icon and check mark on 
+    - check_mic_if_muted() - checks the actual state of mic, and mutes/unmutes
+    it according to its status. Also, changes the tray icon and check mark on 
     the first element menu.
     - check_push_to_talk() - checks if the "Walkie-Talkie" mode is enabled.
     '''
@@ -133,29 +137,77 @@ class SettingsWindow(QWidget):
         self.destroy()
 
     def __configureWin(self):
+        languages = [
+            "Русский", "English", "Українська", "Français", "Español",\
+                "Português", "हिन्दी", "中国人", "عرب"]
+        
+        notifications = ["Выключить", "Всплывающие уведомления",\
+            "Звуковые уведомления", "Свой звук..."]
+
         self.setFixedHeight(500)
         self.setFixedWidth(500)
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle('CntrolMicTray - Settings')
         self.setWindowIcon(QIcon('images\\Microphone_dark.svg'))
 
-        lay = QGridLayout(self)
+        lay = QFormLayout(self)
 
-        lang_selection_label = QLabel("Выбрать язык:")
+        self.lang_selection_label = QLabel("Язык")
+        self.lang_selection_combo = QComboBox()
+        self.lang_selection_combo.addItems(languages)
 
-        combo = QComboBox()
-        combo.addItems(
-            ["Русский", "Английский", "Украинский", "Китайский"])
+        self.notifications_label = QLabel("Оповещения")
+        self.notifications_combo = QComboBox()
+        self.notifications_combo.addItems(notifications)
 
-        lay.addWidget(lang_selection_label)
-        lay.addWidget(combo)
+        self.dark_theme_label = QLabel("Тёмная тема")
+        self.dark_theme_switch = ToggleSwitch(style="android")
+        
+        self.on_sys_startup_label = QLabel("Автозапуск с ОС")
+        self.on_sys_startup_switch = ToggleSwitch(style="android")
+
+        self.confidential_label = QLabel("Конфиденциальность")
+        self.confidential_switch = ToggleSwitch(style="android")
+
+        self.mute_mic_on_startup_label = QLabel("Выкл. микрофон при запуске")
+        self.mute_mic_on_startup_switch = ToggleSwitch(style="android")
+        
+        self.mic_hotkey_label = QLabel("Микрофон Вкл./Выкл.")
+        # self.mic_hotkey_ = 
+
+        self.check_for_upd_btn = QPushButton("Проверить обновления")
+
+        lay.addRow(self.lang_selection_label, self.lang_selection_combo)
+        lay.addRow(self.notifications_label, self.notifications_combo)
+        lay.addRow(self.dark_theme_label, self.dark_theme_switch)
+        lay.addRow(self.on_sys_startup_label, self.on_sys_startup_switch)
+        lay.addRow(self.confidential_label, self.confidential_switch)
+        lay.addRow(self.mute_mic_on_startup_label,\
+            self.mute_mic_on_startup_switch)
+
+        # lay.addRow(self.lang_selection_label, self.combo)
+        lay.addWidget(self.check_for_upd_btn)
 
         self.setLayout(lay)
         self.__setStyles()
 
     def __setStyles(self):
         self.setStyleSheet("""
-            background-color: #234768;
-        """)
+            background: #273238;""")
+
+        self.setStyleSheet("""QLabel {
+            position: absolute;
+            width: 35px;
+            height: 16px;
+            left: 20px;
+            top: 60px;
+
+            font-family: Roboto;
+            font-style: normal;
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 16px;
+
+            color: #BECBD1;}""")
 
 
 class AboutWindow(QWidget):

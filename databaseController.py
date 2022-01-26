@@ -40,7 +40,7 @@ class DatabaseController:
                 # Appending settings by default.
                 cursor.execute(f"""
                     INSERT INTO UserSettings VALUES\
-                        (\'{self.__user_name}\', 'en', 'CTRL + SHIFT + Z',\
+                        (\'{self.__user_name}\', 'en', 'Scroll lock',\
                             'HOME', '1', '1')""")
 
                 db.commit()
