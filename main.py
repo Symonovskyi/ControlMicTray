@@ -10,3 +10,4 @@ if __name__ == '__main__':
     app = QApplication(argv)
     win = TrayIcon()
     exit(app.exec())
+    
