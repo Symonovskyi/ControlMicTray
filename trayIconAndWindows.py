@@ -6,7 +6,7 @@ from databaseController import DatabaseController
 from PyQt5.QtWidgets import (
     QWidget, QSystemTrayIcon, QMenu, QGridLayout, QLabel, QComboBox)
 from PyQt5.QtGui import QIcon
-from keyboard import add_hotkey
+from keyboard import add_hotkey, on_press, hook
 
 
 class TrayIcon(QSystemTrayIcon):
@@ -20,7 +20,6 @@ class TrayIcon(QSystemTrayIcon):
     the first element menu.
     - check_push_to_talk() - checks if the "Walkie-Talkie" mode is enabled.
     '''
-
     def __init__(self):
         # For initializing Qt things.
         super().__init__()
@@ -40,14 +39,12 @@ class TrayIcon(QSystemTrayIcon):
         # Calling the initialization func.
         self.__tray_init()
 
-        # Adding hotkey for controling mic.
-        add_hotkey('CTRL + SHIFT + Z', self.check_mic_if_muted)
+        # Applying user settings.
+        self.__apply_user_settings()
 
     def __tray_init(self):
         # Initializing and configuring "On\Off Microphone" menu element.
         self.turn_micro = self.menu.addAction("Вкл\выкл. микрофон")
-
-        # Connecting menu element to appropriate method.
         self.turn_micro.triggered.connect(self.check_mic_if_muted)
 
         # Initializing and configuring "Walkie-talkie mode (push-to-talk)" menu element.
@@ -91,6 +88,10 @@ class TrayIcon(QSystemTrayIcon):
         self.check_mic_if_muted(mode="InterfaceOnly")
 
         self.show()
+
+    def __apply_user_settings(self):
+        # Adding hotkey for controling mic.
+        add_hotkey(self.db.user_hotkey_mic, self.check_mic_if_muted)
 
     def check_mic_if_muted(self, mode=None):
         ''' According to mic status, these changes are applied:
