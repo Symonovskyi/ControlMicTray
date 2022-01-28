@@ -11,34 +11,34 @@ class MicrophoneController(AudioUtilities):
     Class that uses "pycaw" module to operate with microphone.
 
     Methods:
-    - MuteMic() - mutes the mic.
-    - UnMuteMic() - unmutes the mic.
+    - mute_mic() - mutes the mic.
+    - unmute_mic() - unmutes the mic.
 
     Properties:
-    - getMic - holds the actual microphone instance.
-    - getDevicesCount - holds microphones count that are active in system.
-    - getMicMuteState - holds the actual state of mic: muted or not.
+    - get_mic - holds the actual microphone instance.
+    - get_devices_count - holds microphones count that are active in system.
+    - get_mic_muted_state - holds the actual state of mic: muted or not.
     '''
     def __init__(self):
         interface = self.GetMicrophone().Activate(IAudioEndpointVolume._iid_,\
             CLSCTX_ALL, None)
         self.mic = cast(interface, POINTER(IAudioEndpointVolume))
 
-    def MuteMic(self):
+    def mute_mic(self):
         self.mic.SetMute(True, None)
 
-    def UnMuteMic(self):
+    def unmute_mic(self):
         self.mic.SetMute(False, None)
 
     @property
-    def getMic(self):
+    def get_mic(self):
         return self.mic
 
-    #TODO: get the real count of microphones only.
     @property
-    def getDevicesCount(self):
+    def get_devices_count(self):
+        #TODO: get the real count of microphones only.
         return len(self.GetAllDevices())
 
     @property
-    def getMicMuteState(self):
+    def get_mic_muted_state(self):
         return self.mic.GetMute()
