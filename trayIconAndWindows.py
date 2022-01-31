@@ -1,16 +1,15 @@
 # Built-in modules and own classes.
-from ctypes import alignment
+from sys import exit
 from microphoneController import MicrophoneController
 from databaseController import DatabaseController
 
 # "pip install" modules.
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QWidget, QSystemTrayIcon, QMenu, QFormLayout, QLabel, QComboBox,
         QPushButton)
 from PyQt5.QtGui import QIcon
 from pyqt5Custom import ToggleSwitch
-from keyboard import add_hotkey, on_press, hook
+from keyboard import add_hotkey
 
 
 class TrayIcon(QSystemTrayIcon):
