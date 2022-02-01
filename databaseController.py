@@ -18,6 +18,7 @@ class DatabaseController:
     system boot or not'.
     - user_theme - holds boolean about the app theme. 0 - white, 1 - gray.
     """
+
     def __init__(self):
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
@@ -28,137 +29,113 @@ class DatabaseController:
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 
-                # Creating table UserSettings.
-                cursor.execute("""CREATE TABLE UserSettings(
-                    UserName text,
-                    UserLanguage text,
-                    UserHotkeyMic text,
-                    UserHotkeyWalkie text,
-                    OnSysStartup bool,
-                    AppTheme bool);""")
+                # Creating tables.
+                cursor.execute("""
+                               CREATE TABLE "User" (
+                                   "ID"	INTEGER NOT NULL UNIQUE,
+                                   "UserName"	VARCHAR(254) NOT NULL,
+                                   PRIMARY KEY("ID" AUTOINCREMENT)
+                               );
+                               """)
+                cursor.execute("""
+                               CREATE TABLE "Alerts" (
+                                   "ID"	INTEGER NOT NULL UNIQUE,
+                                   "AlertsType"	VARCHAR(254) NOT NULL,
+                                   "StandardSound"	VARCHAR(254) NOT NULL,
+                                   "OwnSound"	VARCHAR(254),
+                                   FOREIGN KEY("ID") REFERENCES "User"("ID"),
+                                   PRIMARY KEY("ID" AUTOINCREMENT)
+                               );
+                               """)
+                cursor.execute("""
+                               CREATE TABLE "Autorun" (
+                                   "ID"	INTEGER NOT NULL UNIQUE,
+                                   "EnableProgram"	INTEGER NOT NULL,
+                                   "EnableMic"	INTEGER NOT NULL,
+                                   PRIMARY KEY("ID" AUTOINCREMENT),
+                                   FOREIGN KEY("ID") REFERENCES "User"("ID")
+                               );
+                               """)
+                cursor.execute("""
+                               CREATE TABLE "Hotkey" (
+                                   "ID"	INTEGER NOT NULL UNIQUE,
+                                   "HotkeyMic"	VARCHAR(32),
+                                   "HotkeyWalkie"	VARCHAR(32),
+                                   PRIMARY KEY("ID" AUTOINCREMENT),
+                                   FOREIGN KEY("ID") REFERENCES "User"("ID")
+                               );
+                               """)
+                cursor.execute("""
+                               CREATE TABLE "Settings" (
+                                   "ID"	INTEGER NOT NULL UNIQUE,
+                                   "LanguageCode"	VARCHAR(4) NOT NULL,
+                                   "NightTheme"	INTEGER NOT NULL,
+                                   FOREIGN KEY("ID") REFERENCES "User"("ID"),
+                                   PRIMARY KEY("ID" AUTOINCREMENT)
+                               );
+                               """)
+                cursor.execute("""
+                               CREATE TABLE "About" (
+                                   "ID"	INTEGER NOT NULL UNIQUE,
+                                   "ProgramVersion"	VARCHAR(32) NOT NULL,
+                                   "WebSite"	VARCHAR(32) NOT NULL,
+                                   "Email"	VARCHAR(32) NOT NULL,
+                                   "Copyright"	VARCHAR(64) NOT NULL,
+                                   "UrlPrivacyPolicy"	VARCHAR(64) NOT NULL,
+                                   PRIMARY KEY("ID" AUTOINCREMENT)
+                               );
+                               """)
 
-                # Appending settings by default.
+                # Appending datas by default.
                 cursor.execute(f"""
-                    INSERT INTO UserSettings VALUES\
-                        (\'{self.__user_name}\', 'en', 'Scroll lock',\
-                            'HOME', '1', '1')""")
+                               INSERT INTO "User" (UserName) VALUES ('{self.__user_name}');
+                               """)
+                cursor.execute("""
+                               INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\Sound\StandardSound.mp3', (NULL));
+                               """)
+                cursor.execute("""
+                               INSERT INTO "Autorun" (EnableProgram, EnableMic) VALUES (1, 1);
+                               """)
+                cursor.execute("""
+                               INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll lock', 'HOME');
+                               """)
+                cursor.execute("""
+                               INSERT INTO "Settings" (LanguageCode, NightTheme) VALUES ('rus', 1);
+                               """)
+                cursor.execute("""
+                               INSERT INTO "About" (ProgramVersion, WebSite, Email, Copyright, UrlPrivacyPolicy) VALUES ('v.1.2022.01.31-alpha', 'https://controlmictray.pp.ua/', 'info@controlmictray.pp.ua', 'Copyright © 2022\nSimonovskiy & Lastivka\nAll rights reserved', 'https://controlmictray.pp.ua/PrivacyPolicy.html');
+                               """)
 
                 db.commit()
             db.close()
 
     # Getters.
     @property
-    def user_language(self):
+    def hotkey_mic(self):
         with connect(self.__db_name) as db:
             cursor = db.cursor()
 
-            cursor.execute(f"""SELECT UserLanguage FROM\
-                UserSettings WHERE UserName = \'{self.__user_name}\'""")
-        
-            user_lang = cursor.fetchone()
-        db.close()
-        return str(user_lang)[2:-3]
+            cursor.execute(f"""
+                           SELECT "Hotkey"."HotkeyMic"
+                           FROM "Hotkey", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
 
-    @property
-    def user_hotkey_mic(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""SELECT UserHotkeyMic FROM\
-                UserSettings WHERE UserName = \'{self.__user_name}\'""")
-        
             user_hotkey = cursor.fetchone()
         db.close()
-        return str(user_hotkey)[2:-3]
-
-    @property
-    def user_hotkey_walkie(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""SELECT UserHotkeyWalkie FROM\
-                UserSettings WHERE UserName = \'{self.__user_name}\'""")
-        
-            user_hotkey = cursor.fetchone()
-        db.close()
-        return str(user_hotkey)[2:-3]
-
-    @property
-    def user_on_startup_setting(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""SELECT OnSysStartup FROM\
-                UserSettings WHERE UserName = \'{self.__user_name}\'""")
-
-            on_sys_startup = cursor.fetchall()
-        db.close()
-        return str(on_sys_startup)[2:-3]
-
-    @property
-    def user_theme(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""SELECT AppTheme FROM UserSettings\
-                WHERE UserName = \'{self.__user_name}\'""")
-
-            user_theme = cursor.fetchall()
-        db.close()
-        return str(user_theme)[2:-3]
+        return user_hotkey[0]
 
     #Setters.
-    @user_language.setter
-    def user_language(self, lang=str):
+    @hotkey_mic.setter
+    def hotkey_mic(self, hotkey=str):
         with connect(self.__db_name) as db:
             cursor = db.cursor()
 
-            cursor.execute(f"""UPDATE UserSettings SET UserLanguage = \
-                \'{lang}\' WHERE UserName = \'{self.__user_name}\'""")
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{hotkey}\' 
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
 
-            db.commit()
-        db.close()
-
-    @user_hotkey_mic.setter
-    def user_hotkey_mic(self, hotkey=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""UPDATE UserSettings SET UserHotkeyMic = \
-                \'{hotkey}\' WHERE UserName = \'{self.__user_name}\'""")
-        
-            db.commit()
-        db.close()
-
-    @user_hotkey_walkie.setter
-    def user_hotkey_walkie(self, hotkey=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""UPDATE UserSettings SET UserHotkeyWalkie = \
-                \'{hotkey}\' WHERE UserName = \'{self.__user_name}\'""")
-        
-            db.commit()
-        db.close()
-
-    @user_on_startup_setting.setter
-    def user_on_startup_setting(self, val=bool):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""UPDATE UserSettings SET OnSysStartup = \
-                \'{val}\' WHERE UserName = \'{self.__user_name}\'""")
-        
-            db.commit()
-        db.close()
-
-    @user_theme.setter
-    def user_theme(self, val=bool):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-
-            cursor.execute(f"""UPDATE TOP (1) UserSettings SET AppTheme = \
-                \'{val}\' WHERE UserName = \'{self.__user_name}\'""")
-        
             db.commit()
         db.close()
