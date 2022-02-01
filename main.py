@@ -9,4 +9,5 @@ from PyQt5.QtWidgets import QApplication
 if __name__ == '__main__':
     app = QApplication(argv)
     win = TrayIcon()
+    win.show()
     exit(app.exec())

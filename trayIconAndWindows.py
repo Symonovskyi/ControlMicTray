@@ -1,12 +1,13 @@
 # Built-in modules and own classes.
 from sys import exit
-from microphoneController import MicrophoneController
+from microphoneController import MicrophoneController, COMObject,\
+    IAudioEndpointVolumeCallback
 from databaseController import DatabaseController
 
 # "pip install" modules.
 from PyQt5.QtWidgets import (
     QWidget, QSystemTrayIcon, QMenu, QFormLayout, QLabel, QComboBox,
-        QPushButton)
+    QPushButton)
 from PyQt5.QtGui import QIcon
 from pyqt5Custom import ToggleSwitch
 from keyboard import add_hotkey
@@ -23,6 +24,7 @@ class TrayIcon(QSystemTrayIcon):
     the first element menu.
     - check_push_to_talk() - checks if the "Walkie-Talkie" mode is enabled.
     '''
+
     def __init__(self):
         # For initializing Qt things.
         super().__init__()
@@ -90,7 +92,8 @@ class TrayIcon(QSystemTrayIcon):
         # Cheking mic status on startup.
         self.check_mic_if_muted(mode="InterfaceOnly")
 
-        self.show()
+        self.mic.register_control_change_notify(
+            self.CustomAudioEndpointVolumeCallback())
 
     def __apply_user_settings(self):
         # Adding hotkey for controling mic.
@@ -103,7 +106,7 @@ class TrayIcon(QSystemTrayIcon):
         - Change text of the first menu element;
         - Mute/Unmute microphone if mode =! "InterfaceOnly".
         '''
-        mic_status = self.mic.get_mic_muted_state
+        mic_status = self.mic.get_mic_status
         if mode == "InterfaceOnly":
             if mic_status:
                 self.setIcon(QIcon("images\\Microphone_dark_OFF.svg"))
@@ -124,6 +127,13 @@ class TrayIcon(QSystemTrayIcon):
     def check_push_to_talk(self):
         pass
 
+    class CustomAudioEndpointVolumeCallback(COMObject):
+        _com_interfaces_ = [IAudioEndpointVolumeCallback]
+
+        @staticmethod
+        def OnNotify(pNotify):
+            pass
+
 
 class SettingsWindow(QWidget):
     def __init__(self):
@@ -137,11 +147,11 @@ class SettingsWindow(QWidget):
 
     def __configureWin(self):
         languages = [
-            "Русский", "English", "Українська", "Français", "Español",\
-                "Português", "हिन्दी", "中国人", "عرب"]
-        
-        notifications = ["Выключить", "Всплывающие уведомления",\
-            "Звуковые уведомления", "Свой звук..."]
+            "Русский", "English", "Українська", "Français", "Español",
+            "Português", "हिन्दी", "中国人", "عرب"]
+
+        notifications = ["Выключить", "Всплывающие уведомления",
+                         "Звуковые уведомления", "Свой звук..."]
 
         self.setFixedHeight(500)
         self.setFixedWidth(500)
@@ -160,7 +170,7 @@ class SettingsWindow(QWidget):
 
         self.dark_theme_label = QLabel("Тёмная тема")
         self.dark_theme_switch = ToggleSwitch(style="android")
-        
+
         self.on_sys_startup_label = QLabel("Автозапуск с ОС")
         self.on_sys_startup_switch = ToggleSwitch(style="android")
 
@@ -169,9 +179,9 @@ class SettingsWindow(QWidget):
 
         self.mute_mic_on_startup_label = QLabel("Выкл. микрофон при запуске")
         self.mute_mic_on_startup_switch = ToggleSwitch(style="android")
-        
+
         self.mic_hotkey_label = QLabel("Микрофон Вкл./Выкл.")
-        # self.mic_hotkey_ = 
+        # self.mic_hotkey_ =
 
         self.check_for_upd_btn = QPushButton("Проверить обновления")
 
@@ -180,8 +190,8 @@ class SettingsWindow(QWidget):
         lay.addRow(self.dark_theme_label, self.dark_theme_switch)
         lay.addRow(self.on_sys_startup_label, self.on_sys_startup_switch)
         lay.addRow(self.confidential_label, self.confidential_switch)
-        lay.addRow(self.mute_mic_on_startup_label,\
-            self.mute_mic_on_startup_switch)
+        lay.addRow(self.mute_mic_on_startup_label,
+                   self.mute_mic_on_startup_switch)
 
         # lay.addRow(self.lang_selection_label, self.combo)
         lay.addWidget(self.check_for_upd_btn)

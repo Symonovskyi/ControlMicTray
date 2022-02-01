@@ -19,9 +19,10 @@ class MicrophoneController(AudioUtilities):
     - get_devices_count - holds microphones count that are active in system.
     - get_mic_muted_state - holds the actual state of mic: muted or not.
     '''
+
     def __init__(self):
-        interface = self.GetMicrophone().Activate(IAudioEndpointVolume._iid_,\
-            CLSCTX_ALL, None)
+        interface = self.GetMicrophone().Activate(IAudioEndpointVolume._iid_,
+                                                  CLSCTX_ALL, None)
         self.mic = cast(interface, POINTER(IAudioEndpointVolume))
 
     def mute_mic(self):
@@ -30,15 +31,18 @@ class MicrophoneController(AudioUtilities):
     def unmute_mic(self):
         self.mic.SetMute(False, None)
 
+    def register_control_change_notify(self, callback):
+        self.mic.RegisterControlChangeNotify(callback)
+
     @property
     def get_mic(self):
         return self.mic
 
     @property
     def get_devices_count(self):
-        #TODO: get the real count of microphones only.
+        # TODO: get the real count of microphones only.
         return len(self.GetAllDevices())
 
     @property
-    def get_mic_muted_state(self):
-        return self.mic.GetMute()
+    def get_mic_status(self):
+        return self.get_mic.GetMute()
