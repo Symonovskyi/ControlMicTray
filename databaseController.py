@@ -36,6 +36,8 @@ class DatabaseController:
                                    "UserName"	VARCHAR(254) NOT NULL,
                                    PRIMARY KEY("ID" AUTOINCREMENT)
                                );
+                               """)
+                cursor.execute("""
                                CREATE TABLE "Alerts" (
                                    "ID"	INTEGER NOT NULL UNIQUE,
                                    "AlertsType"	VARCHAR(254) NOT NULL,
@@ -44,6 +46,8 @@ class DatabaseController:
                                    FOREIGN KEY("ID") REFERENCES "User"("ID"),
                                    PRIMARY KEY("ID" AUTOINCREMENT)
                                );
+                               """)
+                cursor.execute("""
                                CREATE TABLE "Autorun" (
                                    "ID"	INTEGER NOT NULL UNIQUE,
                                    "EnableProgram"	INTEGER NOT NULL,
@@ -51,6 +55,8 @@ class DatabaseController:
                                    PRIMARY KEY("ID" AUTOINCREMENT),
                                    FOREIGN KEY("ID") REFERENCES "User"("ID")
                                );
+                               """)
+                cursor.execute("""
                                CREATE TABLE "Hotkey" (
                                    "ID"	INTEGER NOT NULL UNIQUE,
                                    "HotkeyMic"	VARCHAR(32),
@@ -58,6 +64,8 @@ class DatabaseController:
                                    PRIMARY KEY("ID" AUTOINCREMENT),
                                    FOREIGN KEY("ID") REFERENCES "User"("ID")
                                );
+                               """)
+                cursor.execute("""
                                CREATE TABLE "Settings" (
                                    "ID"	INTEGER NOT NULL UNIQUE,
                                    "LanguageCode"	VARCHAR(4) NOT NULL,
@@ -65,6 +73,8 @@ class DatabaseController:
                                    FOREIGN KEY("ID") REFERENCES "User"("ID"),
                                    PRIMARY KEY("ID" AUTOINCREMENT)
                                );
+                               """)
+                cursor.execute("""
                                CREATE TABLE "About" (
                                    "ID"	INTEGER NOT NULL UNIQUE,
                                    "ProgramVersion"	VARCHAR(32) NOT NULL,
@@ -79,12 +89,53 @@ class DatabaseController:
                 # Appending datas by default.
                 cursor.execute(f"""
                                INSERT INTO "User" (UserName) VALUES ('{self.__user_name}');
+                               """)
+                cursor.execute("""
                                INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\Sound\StandardSound.mp3', (NULL));
+                               """)
+                cursor.execute("""
                                INSERT INTO "Autorun" (EnableProgram, EnableMic) VALUES (1, 1);
+                               """)
+                cursor.execute("""
                                INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll lock', 'HOME');
+                               """)
+                cursor.execute("""
                                INSERT INTO "Settings" (LanguageCode, NightTheme) VALUES ('rus', 1);
+                               """)
+                cursor.execute("""
                                INSERT INTO "About" (ProgramVersion, WebSite, Email, Copyright, UrlPrivacyPolicy) VALUES ('v.1.2022.01.31-alpha', 'https://controlmictray.pp.ua/', 'info@controlmictray.pp.ua', 'Copyright © 2022\nSimonovskiy & Lastivka\nAll rights reserved', 'https://controlmictray.pp.ua/PrivacyPolicy.html');
                                """)
 
                 db.commit()
             db.close()
+
+    # Getters.
+    @property
+    def hotkey_mic(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+
+            cursor.execute(f"""
+                           SELECT "Hotkey"."HotkeyMic"
+                           FROM "Hotkey", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    #Setters.
+    @hotkey_mic.setter
+    def hotkey_mic(self, hotkey=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{hotkey}\' 
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+
+            db.commit()
+        db.close()

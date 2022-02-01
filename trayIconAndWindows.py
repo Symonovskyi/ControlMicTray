@@ -94,7 +94,7 @@ class TrayIcon(QSystemTrayIcon):
 
     def __apply_user_settings(self):
         # Adding hotkey for controling mic.
-        add_hotkey(self.db.user_hotkey_mic, self.check_mic_if_muted)
+        add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
 
     def check_mic_if_muted(self, mode=None):
         ''' According to mic status, these changes are applied:
