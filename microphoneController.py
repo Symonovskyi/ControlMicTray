@@ -1,9 +1,10 @@
 # Built-in modules and own classes.
 from ctypes import POINTER, cast
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
+    IAudioEndpointVolumeCallback)
 
 # "pip install" modules.
-from comtypes import CLSCTX_ALL
+from comtypes import CLSCTX_ALL, COMObject
 
 
 class MicrophoneController(AudioUtilities):
