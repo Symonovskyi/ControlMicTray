@@ -5,11 +5,11 @@ from microphoneController import MicrophoneController, COMObject,\
 from databaseController import DatabaseController
 
 # "pip install" modules.
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QSystemTrayIcon, QMenu, QFormLayout, QLabel, QComboBox,
-    QPushButton)
-from PyQt5.QtGui import QIcon
-from pyqt5Custom import ToggleSwitch
+    QPushButton, QCheckBox)
+from PyQt6.QtGui import QIcon
+# from pyqt5Custom import ToggleSwitch
 from keyboard import add_hotkey
 
 
@@ -169,29 +169,28 @@ class SettingsWindow(QWidget):
         self.notifications_combo.addItems(notifications)
 
         self.dark_theme_label = QLabel("Тёмная тема")
-        self.dark_theme_switch = ToggleSwitch(style="android")
+        self.dark_theme_check_box = QCheckBox()
 
         self.on_sys_startup_label = QLabel("Автозапуск с ОС")
-        self.on_sys_startup_switch = ToggleSwitch(style="android")
+        self.on_sys_startup_check_box = QCheckBox()
 
         self.confidential_label = QLabel("Конфиденциальность")
-        self.confidential_switch = ToggleSwitch(style="android")
+        self.confidential_check_box = QCheckBox()
 
         self.mute_mic_on_startup_label = QLabel("Выкл. микрофон при запуске")
-        self.mute_mic_on_startup_switch = ToggleSwitch(style="android")
+        self.mute_mic_on_startup_check_box = QCheckBox()
 
         self.mic_hotkey_label = QLabel("Микрофон Вкл./Выкл.")
-        # self.mic_hotkey_ =
 
         self.check_for_upd_btn = QPushButton("Проверить обновления")
 
         lay.addRow(self.lang_selection_label, self.lang_selection_combo)
         lay.addRow(self.notifications_label, self.notifications_combo)
-        lay.addRow(self.dark_theme_label, self.dark_theme_switch)
-        lay.addRow(self.on_sys_startup_label, self.on_sys_startup_switch)
-        lay.addRow(self.confidential_label, self.confidential_switch)
+        lay.addRow(self.dark_theme_label, self.dark_theme_check_box)
+        lay.addRow(self.on_sys_startup_label, self.on_sys_startup_check_box)
+        lay.addRow(self.confidential_label, self.confidential_check_box)
         lay.addRow(self.mute_mic_on_startup_label,
-                   self.mute_mic_on_startup_switch)
+                   self.mute_mic_on_startup_check_box)
 
         # lay.addRow(self.lang_selection_label, self.combo)
         lay.addWidget(self.check_for_upd_btn)
