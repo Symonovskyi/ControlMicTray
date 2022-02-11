@@ -111,31 +111,305 @@ class DatabaseController:
 
     # Getters.
     @property
+    def user_name(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "UserName"
+                           FROM "User"
+                           WHERE "UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
     def hotkey_mic(self):
         with connect(self.__db_name) as db:
             cursor = db.cursor()
-
             cursor.execute(f"""
                            SELECT "Hotkey"."HotkeyMic"
                            FROM "Hotkey", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-
             user_hotkey = cursor.fetchone()
         db.close()
         return user_hotkey[0]
 
-    #Setters.
-    @hotkey_mic.setter
-    def hotkey_mic(self, hotkey=str):
+    @property
+    def hotkey_walkie(self):
         with connect(self.__db_name) as db:
             cursor = db.cursor()
-
             cursor.execute(f"""
-                           UPDATE "Hotkey"
-                           SET "HotkeyMic" = \'{hotkey}\' 
+                           SELECT "Hotkey"."HotkeyWalkie"
+                           FROM "Hotkey", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
 
+    @property
+    def alerts_type(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Alerts"."AlertsType"
+                           FROM "Alerts", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def standard_sound(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Alerts"."StandardSound"
+                           FROM "Alerts", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def own_sound(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Alerts"."OwnSound"
+                           FROM "Alerts", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def enable_program(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Autorun"."EnableProgram"
+                           FROM "Autorun", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def enable_mic(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Autorun"."EnableMic"
+                           FROM "Autorun", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def language_code(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Settings"."LanguageCode"
+                           FROM "Settings", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def night_theme(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Settings"."NightTheme"
+                           FROM "Settings", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def program_version(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "About"."ProgramVersion"
+                           FROM "About", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def web_site(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "About"."WebSite"
+                           FROM "About", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def email(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "About"."Email"
+                           FROM "About", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def copyright(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "About"."Copyright"
+                           FROM "About", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def url_privacy_policy(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "About"."UrlPrivacyPolicy"
+                           FROM "About", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    # Setters.
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{value}\'
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{value}\'
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{value}\'
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{value}\'
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{value}\'
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=int):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = {value}
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=int):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = {value}
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=str):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = \'{value}\'
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @hotkey_mic.setter
+    def hotkey_mic(self, value=int):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Hotkey"
+                           SET "HotkeyMic" = {value}
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
             db.commit()
         db.close()
