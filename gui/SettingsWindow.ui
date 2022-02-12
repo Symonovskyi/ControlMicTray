@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsWindow</class>
+ <widget class="QWidget" name="SettingsWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>440</width>
+    <height>440</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>440</width>
+    <height>440</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>440</width>
+    <height>440</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>-1</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Настройки</string>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+	color: #BECBD1;
+	background-color: #273238;
+	border: 0;
+	font-size:14px;
+}</string>
+  </property>
+  <widget class="QPushButton" name="UrlUpdates">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>377</y>
+     <width>200</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+	color: #7D8A90;
+	border-bottom: 1px solid #1F2A30;
+}
+QPushButton::hover {
+	color: #CEDCDF;
+	border-bottom: 1px solid #04BED5;
+}</string>
+   </property>
+   <property name="text">
+    <string>Проверить обновления</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="NightThemeLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>110</y>
+     <width>343</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Тёмная тема</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="NightTheme">
+   <property name="geometry">
+    <rect>
+     <x>383</x>
+     <y>112</y>
+     <width>24</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="EnableMicLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>230</y>
+     <width>343</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Выкл. микрофон при запуске</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="EnableProgramLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>150</y>
+     <width>343</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Автозапуск с ОС</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="PrivacyStatusLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>343</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Конфиденциальность</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LanguageCodeLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>30</y>
+     <width>143</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Язык</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="AlertsTypeLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>143</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Оповещения</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="EnableProgram">
+   <property name="geometry">
+    <rect>
+     <x>383</x>
+     <y>152</y>
+     <width>24</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="PrivacyStatus">
+   <property name="geometry">
+    <rect>
+     <x>383</x>
+     <y>192</y>
+     <width>24</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="EnableMic">
+   <property name="geometry">
+    <rect>
+     <x>383</x>
+     <y>232</y>
+     <width>24</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="HotkeyWalkieLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>310</y>
+     <width>143</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Рация Вкл./Выкл</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="HotkeyMicLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>270</y>
+     <width>143</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string comment="drytgerb er t" extracomment="324123 dfsdaf">Микрофон Вкл./Выкл</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="HotkeyMic">
+   <property name="geometry">
+    <rect>
+     <x>175</x>
+     <y>267</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit{
+	border-bottom: 1px solid #444F55;
+}
+QLineEdit::hover{
+	border-bottom: 1px solid #04BED5;
+}</string>
+   </property>
+   <property name="text">
+    <string>CTRL+SHIFT+/</string>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="HotkeyWalkie">
+   <property name="geometry">
+    <rect>
+     <x>175</x>
+     <y>307</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit{
+	border-bottom: 1px solid #444F55;
+}
+QLineEdit::hover{
+	border-bottom: 1px solid #04BED5;
+}</string>
+   </property>
+   <property name="text">
+    <string>SCROLL LOCK</string>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="LanguageCode">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>27</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QComboBox {
+	border-bottom: 1px solid #444F55;
+}
+QComboBox::hover{
+	border-bottom: 1px solid #04BED5;
+}
+QComboBox QAbstractItemView {
+	background-color: #1F2A30;;
+	border: 1px solid #04BED5;
+	color: #7D8A90;
+	selection-background-color: #273238;
+	selection-color: #BECBD1;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+}</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>Русский</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Украинська</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>English</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QComboBox" name="AlertsType">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>67</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QComboBox {
+	border-bottom: 1px solid #444F55;
+}
+QComboBox::hover{
+	border-bottom: 1px solid #04BED5;
+}
+QComboBox QAbstractItemView {
+	background-color: #1F2A30;;
+	border: 1px solid #04BED5;
+	color: #7D8A90;
+	selection-background-color: #273238;
+	selection-color: #BECBD1;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+}</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>Без оповещений</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Всплывающее окно</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Звук</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Свой звук</string>
+    </property>
+   </item>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
