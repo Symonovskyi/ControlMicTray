@@ -93,54 +93,6 @@
     <string>2022.02.12</string>
    </property>
   </widget>
-  <widget class="QLabel" name="WebSite">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>70</y>
-     <width>130</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel{
-	color: #127D91;
-}
-QLabel::hover{
-	color: #04BED5;
-}</string>
-   </property>
-   <property name="text">
-    <string comment="g">controlmictray.pp.ua</string>
-   </property>
-   <property name="textFormat">
-    <enum>Qt::MarkdownText</enum>
-   </property>
-   <property name="openExternalLinks">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="Email">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>110</y>
-     <width>190</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel{
-	color: #127D91;
-}
-QLabel::hover{
-	color: #04BED5;
-}</string>
-   </property>
-   <property name="text">
-    <string>info@controlmictray.pp.ua </string>
-   </property>
-  </widget>
   <widget class="QLabel" name="Logo">
    <property name="geometry">
     <rect>
@@ -150,14 +102,19 @@ QLabel::hover{
      <height>64</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel{
+	z-index:199999;
+}</string>
+   </property>
    <property name="text">
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>resources/Logo.svg</pixmap>
+    <pixmap>../resources/Frame.svg</pixmap>
    </property>
    <property name="scaledContents">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="UrlPrivacyPolicy">
@@ -205,6 +162,74 @@ All rights reserved</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="WebSite">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>70</y>
+     <width>130</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+	color: #127D91;
+	text-align: left;
+}
+QPushButton::hover {
+	color: #04BED5;
+}</string>
+   </property>
+   <property name="text">
+    <string>controlmictray.pp.ua</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Email">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>110</y>
+     <width>190</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+	color: #127D91;
+	text-align: left;
+}
+QPushButton::hover {
+	color: #04BED5;
+}</string>
+   </property>
+   <property name="text">
+    <string>info@controlmictray.pp.ua </string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LogoFrame">
+   <property name="geometry">
+    <rect>
+     <x>277</x>
+     <y>26</y>
+     <width>52</width>
+     <height>52</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel{
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>../resources/Microphone.svg</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>
