@@ -1,16 +1,17 @@
 # Built-in modules and own classes.
 from sys import exit
-from microphoneController import MicrophoneController, COMObject,\
-    IAudioEndpointVolumeCallback
-from databaseController import DatabaseController
-from ui.SettingsWindow_ui import Ui_SettingsWindow as SettingsUI
-from ui.AboutWindow_ui import Ui_AboutWindow as AboutUI
 from webbrowser import open_new_tab
+from database.databaseController import DatabaseController
+from logic.microphoneController import MicrophoneController, COMObject,\
+    IAudioEndpointVolumeCallback
 
 # 'pip install' modules.
-from PyQt6.QtWidgets import QWidget, QSystemTrayIcon, QMenu
+from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
 from pynput.keyboard import Listener, GlobalHotKeys
+from ui.aboutWindow import AboutWindow
+
+from ui.settingsWindow import SettingsWindow
 
 
 class TrayIcon(QSystemTrayIcon):
@@ -35,21 +36,22 @@ class TrayIcon(QSystemTrayIcon):
         # Database Controller class instance.
         self.db = DatabaseController()
 
-        # Settings Window class instance.
-        self.settings_win = SettingsWindow()
-
-        # About Window class instance.
-        self.about_win = AboutWindow()
-
+        # Test callback for discovering mic status.
         self.callback = CustomAudioEndpointVolumeCallback()
 
-        # Calling the initialization func.
-        self.__tray_init()
+        # Creating Settings Window instance.
+        self.settings_win = SettingsWindow()
+
+        # Creating Settings Window instance.
+        self.about_win = AboutWindow()
+
+        # Calling the initialization ui func.
+        self.setup_ui()
 
         # Applying user settings.
-        self.__apply_user_settings()
+        self.apply_user_settings()
 
-    def __tray_init(self):
+    def setup_ui(self):
         # Menu of tray. Also, configuring stylesheet for menu.
         self.menu = QMenu()
         self.menu.setStyleSheet(
@@ -69,11 +71,11 @@ class TrayIcon(QSystemTrayIcon):
         self.menu.addSeparator()
 
         # Initializing and configuring 'Mics quantity: {quantity}' menu element.
-        quantity_of_active_mics = self.menu.addAction(
-            f'Кол-ство микрофонов: {self.mic.get_devices_count}')
-        quantity_of_active_mics.setIcon(
-            QIcon('ui\\resources\\Microphone_light.svg'))
-        quantity_of_active_mics.setEnabled(False)
+        # quantity_of_active_mics = self.menu.addAction(
+        #     f'Кол-ство микрофонов: {self.mic.get_devices_count}')
+        # quantity_of_active_mics.setIcon(
+        #     QIcon('ui\\resources\\Microphone_light.svg'))
+        # quantity_of_active_mics.setEnabled(False)
 
         # Initializing and configuring 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
@@ -106,7 +108,7 @@ class TrayIcon(QSystemTrayIcon):
         self.mic.register_control_change_notify(
             self.callback)
 
-    def __apply_user_settings(self):
+    def apply_user_settings(self):
         # Adding hotkeys for controling mic.
         hotkeys = GlobalHotKeys({
             '<Scroll_lock>': self.check_mic_if_muted,
@@ -135,7 +137,6 @@ class TrayIcon(QSystemTrayIcon):
         - Mute/Unmute microphone if mode =! 'init'.
         '''
         mic_status = self.mic.get_mic_status
-        # print(mic_status)
         if mode == 'init':
             if mic_status:
                 self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
@@ -164,46 +165,11 @@ class CustomAudioEndpointVolumeCallback(COMObject):
         TrayIcon().check_push_to_talk()
 
 
-class SettingsWindow(QWidget):
-    def __init__(self):
-        super().__init__()
+class TrayIconStyles:
+    tray_icon = TrayIcon()
 
-        self.settings_UI = SettingsUI()
+    def dark_theme(self):
+        pass
 
-        self.settings_UI.setupUi(self)
-        self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
-
-    def closeEvent(self, event):
-        self.destroy()
-
-
-class AboutWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.db = DatabaseController()
-
-        self.about_UI = AboutUI()
-        self.about_UI.setupUi(self)
-        self.configure_window()
-
-    def configure_window(self):
-        self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
-
-        self.about_UI.ProgramVersion.setText(self.db.program_version)
-
-        web_site = f"<a href='{self.db.web_site}'>controlmictray.pp.ua</a>"
-        self.about_UI.WebSite.setText(web_site)
-        self.about_UI.WebSite.setOpenExternalLinks(True)
-
-
-        # self.about_UI.Email.connect(self.open_email)
-
-    def open_site(self):
-        open_new_tab(self.db.web_site)
-
-    def open_email(self):
-        open_new_tab(self.db.email)
-
-    def closeEvent(self, event):
-        self.destroy()
+    def white_theme(self):
+        pass
