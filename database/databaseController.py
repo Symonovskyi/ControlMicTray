@@ -32,6 +32,8 @@ class DatabaseController:
                 
                 db.commit()
             db.close()
+        
+        
 
     # Getters.
     @property
