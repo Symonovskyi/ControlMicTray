@@ -1,5 +1,5 @@
 # Built-in modules and own classes.
-from webbrowser import open_new_tab, WindowsDefault
+from webbrowser import WindowsDefault
 from ui.ui_py.AboutWindow_ui import Ui_AboutWindow as AboutUI
 from database.databaseController import DatabaseController
 
@@ -29,12 +29,16 @@ class AboutWindow(QWidget):
         self.about_UI.ProgramVersion.setText(self.db.program_version)
         self.about_UI.WebSite.clicked.connect(self.open_site)
         self.about_UI.Email.clicked.connect(self.open_email)
+        self.about_UI.UrlPrivacyPolicy.clicked.connect(self.open_privacy)
 
     def open_site(self):
         WindowsDefault().open_new_tab(self.db.web_site)
 
     def open_email(self):
         WindowsDefault().open_new_tab(f"mailto:{self.db.email}")
+
+    def open_privacy(self):
+        WindowsDefault().open_new_tab(self.db.url_privacy_policy)
 
     def closeEvent(self, event):
         self.destroy()

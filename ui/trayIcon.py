@@ -43,6 +43,9 @@ class TrayIcon(QSystemTrayIcon):
         # Creating Settings Window instance.
         self.about_win = AboutWindow()
 
+        # Theme class.
+        # self.theme = TrayIconStyles()
+
         # Calling the initialization ui func.
         self.setup_ui()
 
@@ -50,7 +53,7 @@ class TrayIcon(QSystemTrayIcon):
         self.apply_user_settings()
 
     def setup_ui(self):
-        # Menu of tray. Also, configuring stylesheet for menu.
+        # Menu of tray.
         self.menu = QMenu()
         self.menu.setStyleSheet(
             """QMenu {
@@ -81,22 +84,28 @@ class TrayIcon(QSystemTrayIcon):
 
         # Initializing and configuring 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
-        settings_action.setIcon(QIcon('ui\\resources\\settings.svg'))
+        settings_action.setIcon(QIcon('ui\\resources\\Settings.svg'))
         settings_action.triggered.connect(self.settings_win.show)
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'About program' menu element.
         about_action = self.menu.addAction('О программе...')
-        about_action.setIcon(QIcon('ui\\resources\\about.svg'))
+        about_action.setIcon(QIcon('ui\\resources\\About.svg'))
         about_action.triggered.connect(self.about_win.show)
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'Exit' menu element.
         exit_action = self.menu.addAction('Выход')
-        exit_action.setIcon(QIcon('ui\\resources\\exit.svg'))
+        exit_action.setIcon(QIcon('ui\\resources\\Exit.svg'))
         exit_action.triggered.connect(exit)
+
+        # Applying theme according to db.
+        # if self.db.night_theme:
+        #     self.theme.dark_theme()
+        # else:
+        #     self.theme.white_theme()
 
         # Connecting menu with tray and setting tooltip for tray icon.
         self.setContextMenu(self.menu)
@@ -168,9 +177,18 @@ class CustomAudioEndpointVolumeCallback(COMObject):
 
 
 class TrayIconStyles(TrayIcon):
-    
+
     def dark_theme(self):
-        pass
+        print(1)
+        self.menu.setStyleSheet(
+            """QMenu {
+                color: #7D8A90;
+                background-color: #1F2A30;
+                border: 1px solid #444F55;
+                border-radius: 3px;
+                selection-background-color: #273238;
+                selection-color: #BECBD1;
+            }""")
 
     def white_theme(self):
-        pass
+        print(0)
