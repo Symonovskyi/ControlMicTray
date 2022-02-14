@@ -3,11 +3,12 @@ from sys import exit
 from microphoneController import MicrophoneController, COMObject,\
     IAudioEndpointVolumeCallback
 from databaseController import DatabaseController
+from ui.SettingsWindow_ui import Ui_SettingsWindow as SettingsUI
+from ui.AboutWindow_ui import Ui_AboutWindow as AboutUI
+from webbrowser import open_new_tab
 
 # 'pip install' modules.
-from PyQt6.QtWidgets import (
-    QWidget, QSystemTrayIcon, QMenu, QFormLayout, QLabel, QComboBox,
-    QPushButton, QCheckBox)
+from PyQt6.QtWidgets import QWidget, QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
 from pynput.keyboard import Listener, GlobalHotKeys
 
@@ -35,10 +36,12 @@ class TrayIcon(QSystemTrayIcon):
         self.db = DatabaseController()
 
         # Settings Window class instance.
-        self.settingsWin = SettingsWindow()
+        self.settings_win = SettingsWindow()
 
-        # Menu of tray.
-        self.menu = QMenu()
+        # About Window class instance.
+        self.about_win = AboutWindow()
+
+        self.callback = CustomAudioEndpointVolumeCallback()
 
         # Calling the initialization func.
         self.__tray_init()
@@ -47,6 +50,14 @@ class TrayIcon(QSystemTrayIcon):
         self.__apply_user_settings()
 
     def __tray_init(self):
+        # Menu of tray. Also, configuring stylesheet for menu.
+        self.menu = QMenu()
+        self.menu.setStyleSheet(
+            """QMenu { color: #BECBD1;
+            background-color: #273238;
+            border: 1px solid #04BED5;
+            border-radius: 5px; }""")
+
         # Initializing and configuring 'On\Off Microphone' menu element.
         self.turn_micro = self.menu.addAction('')
         self.turn_micro.triggered.connect(self.check_mic_if_muted)
@@ -60,27 +71,27 @@ class TrayIcon(QSystemTrayIcon):
         # Initializing and configuring 'Mics quantity: {quantity}' menu element.
         quantity_of_active_mics = self.menu.addAction(
             f'Кол-ство микрофонов: {self.mic.get_devices_count}')
-        quantity_of_active_mics.setIcon(QIcon('images\\Microphone_light.svg'))
+        quantity_of_active_mics.setIcon(
+            QIcon('ui\\resources\\Microphone_light.svg'))
         quantity_of_active_mics.setEnabled(False)
 
         # Initializing and configuring 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
-        settings_action.setIcon(QIcon('images\\settings.png'))
-        settings_action.triggered.connect(self.settingsWin.show)
-        # settings_action.setEnabled(False)
+        settings_action.setIcon(QIcon('ui\\resources\\settings.svg'))
+        settings_action.triggered.connect(self.settings_win.show)
 
         self.menu.addSeparator()
 
-        # Initializing and configuring 'About...' menu element.
+        # Initializing and configuring 'About program' menu element.
         about_action = self.menu.addAction('О программе...')
-        about_action.setIcon(QIcon('images\\about.png'))
-        about_action.setEnabled(False)
+        about_action.setIcon(QIcon('ui\\resources\\about.svg'))
+        about_action.triggered.connect(self.about_win.show)
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'Exit' menu element.
         exit_action = self.menu.addAction('Выход')
-        exit_action.setIcon(QIcon('images\\exit.png'))
+        exit_action.setIcon(QIcon('ui\\resources\\exit.svg'))
         exit_action.triggered.connect(exit)
 
         # Connecting menu with tray and setting tooltip for tray icon.
@@ -93,13 +104,13 @@ class TrayIcon(QSystemTrayIcon):
         self.check_push_to_talk(mode='init')
 
         self.mic.register_control_change_notify(
-            self.CustomAudioEndpointVolumeCallback())
+            self.callback)
 
     def __apply_user_settings(self):
         # Adding hotkeys for controling mic.
         hotkeys = GlobalHotKeys({
-            '<Scroll_lock>' : self.check_mic_if_muted,
-            '<Home>' : self.check_push_to_talk
+            '<Scroll_lock>': self.check_mic_if_muted,
+            '<Home>': self.check_push_to_talk
         })
 
         # Hotkey listener for mic.
@@ -124,14 +135,15 @@ class TrayIcon(QSystemTrayIcon):
         - Mute/Unmute microphone if mode =! 'init'.
         '''
         mic_status = self.mic.get_mic_status
+        # print(mic_status)
         if mode == 'init':
             if mic_status:
-                self.setIcon(QIcon('images\\Microphone_dark_OFF.svg'))
-                self.turn_micro.setIcon(QIcon('images\\off.png'))
+                self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
+                self.turn_micro.setIcon(QIcon('ui\\resources\\Off.svg'))
                 self.turn_micro.setText('Включить микрофон')
             else:
-                self.setIcon(QIcon('images\\Microphone_dark_ON.svg'))
-                self.turn_micro.setIcon(QIcon('images\\on.png'))
+                self.setIcon(QIcon('ui\\resources\\Microphone_dark_ON.svg'))
+                self.turn_micro.setIcon(QIcon('ui\\resources\\On.svg'))
                 self.turn_micro.setText('Выключить микрофон')
         else:
             if mic_status:
@@ -145,96 +157,53 @@ class TrayIcon(QSystemTrayIcon):
         pass
 
 
-    class CustomAudioEndpointVolumeCallback(COMObject):
-        _com_interfaces_ = [IAudioEndpointVolumeCallback]
+class CustomAudioEndpointVolumeCallback(COMObject):
+    _com_interfaces_ = [IAudioEndpointVolumeCallback]
 
-        @staticmethod
-        def OnNotify(pNotify):
-            pass
+    def OnNotify(self, pNotify):
+        TrayIcon().check_push_to_talk()
 
 
 class SettingsWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Configuring window.
-        self.__configureWin()
+        self.settings_UI = SettingsUI()
+
+        self.settings_UI.setupUi(self)
+        self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
     def closeEvent(self, event):
         self.destroy()
 
-    def __configureWin(self):
-        languages = [
-            'Русский', 'English', 'Українська', 'Français', 'Español',
-            'Português', 'हिन्दी', '中国人', 'عرب']
-
-        notifications = ['Выключить', 'Всплывающие уведомления',
-                         'Звуковые уведомления', 'Свой звук...']
-
-        self.setFixedHeight(500)
-        self.setFixedWidth(500)
-        self.setWindowTitle('CntrolMicTray - Settings')
-        self.setWindowIcon(QIcon('images\\Microphone_dark.svg'))
-
-        lay = QFormLayout(self)
-
-        self.lang_selection_label = QLabel('Язык')
-        self.lang_selection_combo = QComboBox()
-        self.lang_selection_combo.addItems(languages)
-
-        self.notifications_label = QLabel('Оповещения')
-        self.notifications_combo = QComboBox()
-        self.notifications_combo.addItems(notifications)
-
-        self.dark_theme_label = QLabel('Тёмная тема')
-        self.dark_theme_check_box = QCheckBox()
-
-        self.on_sys_startup_label = QLabel('Автозапуск с ОС')
-        self.on_sys_startup_check_box = QCheckBox()
-
-        self.confidential_label = QLabel('Конфиденциальность')
-        self.confidential_check_box = QCheckBox()
-
-        self.mute_mic_on_startup_label = QLabel('Выкл. микрофон при запуске')
-        self.mute_mic_on_startup_check_box = QCheckBox()
-
-        self.mic_hotkey_label = QLabel('Микрофон Вкл./Выкл.')
-
-        self.check_for_upd_btn = QPushButton('Проверить обновления')
-
-        lay.addRow(self.lang_selection_label, self.lang_selection_combo)
-        lay.addRow(self.notifications_label, self.notifications_combo)
-        lay.addRow(self.dark_theme_label, self.dark_theme_check_box)
-        lay.addRow(self.on_sys_startup_label, self.on_sys_startup_check_box)
-        lay.addRow(self.confidential_label, self.confidential_check_box)
-        lay.addRow(self.mute_mic_on_startup_label,
-                   self.mute_mic_on_startup_check_box)
-
-        # lay.addRow(self.lang_selection_label, self.combo)
-        lay.addWidget(self.check_for_upd_btn)
-
-        self.setLayout(lay)
-        self.__setStyles()
-
-    def __setStyles(self):
-        self.setStyleSheet('''
-            background: #273238;''')
-
-        self.setStyleSheet('''QLabel {
-            position: absolute;
-            width: 35px;
-            height: 16px;
-            left: 20px;
-            top: 60px;
-
-            font-family: Roboto;
-            font-style: normal;
-            font-weight: normal;
-            font-size: 14px;
-            line-height: 16px;
-
-            color: #BECBD1;}''')
-
 
 class AboutWindow(QWidget):
-    pass
+    def __init__(self):
+        super().__init__()
+
+        self.db = DatabaseController()
+
+        self.about_UI = AboutUI()
+        self.about_UI.setupUi(self)
+        self.configure_window()
+
+    def configure_window(self):
+        self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
+
+        self.about_UI.ProgramVersion.setText(self.db.program_version)
+
+        web_site = f"<a href='{self.db.web_site}'>controlmictray.pp.ua</a>"
+        self.about_UI.WebSite.setText(web_site)
+        self.about_UI.WebSite.setOpenExternalLinks(True)
+
+
+        # self.about_UI.Email.connect(self.open_email)
+
+    def open_site(self):
+        open_new_tab(self.db.web_site)
+
+    def open_email(self):
+        open_new_tab(self.db.email)
+
+    def closeEvent(self, event):
+        self.destroy()

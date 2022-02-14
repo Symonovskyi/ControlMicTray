@@ -15,7 +15,7 @@ class DatabaseController:
         self.__checkDatabaseForExistence()
 
     def __checkDatabaseForExistence(self):
-        if not path.exists(self.__db_name):
+        if not path.exists(f"{self.__db_name}"): #TODO: move to "database" dir
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 
@@ -23,7 +23,10 @@ class DatabaseController:
                 cursor.executescript(sql_create.read())
                 sql_create.close()
 
-                sql_data = open("database\\SQL\\CREATE_DATE.sql")
+                cursor.execute(
+                    f"INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}')")
+
+                sql_data = open("database\\SQL\\CREATE_DATA.sql")
                 cursor.executescript(sql_data.read())
                 sql_data.close()
                 
@@ -40,9 +43,9 @@ class DatabaseController:
                            FROM "User"
                            WHERE "UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def hotkey_mic(self):
@@ -53,9 +56,9 @@ class DatabaseController:
                            FROM "Hotkey", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def hotkey_walkie(self):
@@ -66,9 +69,9 @@ class DatabaseController:
                            FROM "Hotkey", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def alerts_type(self):
@@ -79,9 +82,9 @@ class DatabaseController:
                            FROM "Alerts", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def standard_sound(self):
@@ -92,9 +95,9 @@ class DatabaseController:
                            FROM "Alerts", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def own_sound(self):
@@ -105,9 +108,9 @@ class DatabaseController:
                            FROM "Alerts", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def enable_program(self):
@@ -118,9 +121,9 @@ class DatabaseController:
                            FROM "Autorun", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def enable_mic(self):
@@ -131,9 +134,9 @@ class DatabaseController:
                            FROM "Autorun", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def mic_status(self):
@@ -144,9 +147,9 @@ class DatabaseController:
                            FROM "Autorun", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def walkie_status(self):
@@ -157,9 +160,9 @@ class DatabaseController:
                            FROM "Autorun", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def language_code(self):
@@ -170,9 +173,9 @@ class DatabaseController:
                            FROM "Settings", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def night_theme(self):
@@ -183,9 +186,9 @@ class DatabaseController:
                            FROM "Settings", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def privacy_status(self):
@@ -196,9 +199,9 @@ class DatabaseController:
                            FROM "Settings", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def program_version(self):
@@ -209,9 +212,9 @@ class DatabaseController:
                            FROM "About", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def web_site(self):
@@ -222,9 +225,9 @@ class DatabaseController:
                            FROM "About", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def email(self):
@@ -235,9 +238,9 @@ class DatabaseController:
                            FROM "About", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def copyright(self):
@@ -248,9 +251,9 @@ class DatabaseController:
                            FROM "About", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     @property
     def url_privacy_policy(self):
@@ -261,9 +264,9 @@ class DatabaseController:
                            FROM "About", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
-            user_hotkey = cursor.fetchone()
+            value = cursor.fetchone()
         db.close()
-        return user_hotkey[0]
+        return value[0]
 
     # Setters.
     @hotkey_mic.setter

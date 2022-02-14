@@ -1,5 +1,5 @@
 CREATE TABLE "User" (                             -- Create a table.
-	"ID"                NOT NULL UNIQUE,          -- Create a numeric field, be sure to fill, unique value.
+	"ID"                INTEGER NOT NULL UNIQUE,  -- Create a numeric field, be sure to fill, unique value.
 	"UserName"          VARCHAR(254) NOT NULL,    -- Create a text field, be sure to fill.
 	PRIMARY KEY("ID" AUTOINCREMENT)               -- We indicate where the keys 🔑 and the fields with the meter.
 );
