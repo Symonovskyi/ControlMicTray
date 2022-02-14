@@ -10,4 +10,5 @@ if __name__ == '__main__':
     app = QApplication(argv)
     win = TrayIcon()
     win.show()
+    print("It's alive!")
     exit(app.exec())
