@@ -103,9 +103,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">QLabel{
-	z-index:199999;
-}</string>
+    <string notr="true"/>
    </property>
    <property name="text">
     <string/>

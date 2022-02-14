@@ -39,9 +39,7 @@ class Ui_AboutWindow(object):
         self.ProgramVersion.setObjectName("ProgramVersion")
         self.Logo = QtWidgets.QLabel(AboutWindow)
         self.Logo.setGeometry(QtCore.QRect(271, 20, 64, 64))
-        self.Logo.setStyleSheet("QLabel{\n"
-"    z-index:199999;\n"
-"}")
+        self.Logo.setStyleSheet("")
         self.Logo.setText("")
         self.Logo.setPixmap(QtGui.QPixmap("ui/ui_py\\../resources/Frame.svg"))
         self.Logo.setScaledContents(True)
