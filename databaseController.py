@@ -7,16 +7,6 @@ from getpass import getuser
 class DatabaseController:
     """
     This class operates with database, which contains user settings.
-
-    Properties. For all of these implemented getters and setters:
-    - user_language - holds string of current language using by user.
-    - user_hotkey_mic - holds string about the current hotkey combination for
-    turning mic on/off.
-    - user_hotkey_walkie - holds string about the current hotkey combination
-    for turning walkie-talkie mode on.
-    - on_startup_setting - holds boolean about the setting 'is app starting on
-    system boot or not'.
-    - user_theme - holds boolean about the app theme. 0 - white, 1 - gray.
     """
 
     def __init__(self):
@@ -29,11 +19,11 @@ class DatabaseController:
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 
-                sql_create = open("doc\\SQL\\CREATE_TABLES.sql")
+                sql_create = open("database\\SQL\\CREATE_TABLES.sql")
                 cursor.executescript(sql_create.read())
                 sql_create.close()
 
-                sql_data = open("doc\\SQL\\CREATE_DATE.sql")
+                sql_data = open("database\\SQL\\CREATE_DATE.sql")
                 cursor.executescript(sql_data.read())
                 sql_data.close()
                 
@@ -138,6 +128,32 @@ class DatabaseController:
             cursor = db.cursor()
             cursor.execute(f"""
                            SELECT "Autorun"."EnableMic"
+                           FROM "Autorun", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def mic_status(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Autorun"."MicStatus"
+                           FROM "Autorun", "User"
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            user_hotkey = cursor.fetchone()
+        db.close()
+        return user_hotkey[0]
+
+    @property
+    def walkie_status(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "Autorun"."WalkieStatus"
                            FROM "Autorun", "User"
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
@@ -329,6 +345,30 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Autorun"
                            SET "EnableMic" = {value}
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @mic_status.setter
+    def mic_status(self, value=int):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Autorun"
+                           SET "MicStatus" = {value}
+                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           """)
+            db.commit()
+        db.close()
+
+    @walkie_status.setter
+    def walkie_status(self, value=int):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           UPDATE "Autorun"
+                           SET "WalkieStatus" = {value}
                            WHERE "User"."UserName" = \'{self.__user_name}\'
                            """)
             db.commit()
