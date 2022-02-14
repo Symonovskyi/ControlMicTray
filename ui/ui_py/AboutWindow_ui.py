@@ -16,14 +16,12 @@ class Ui_AboutWindow(object):
         AboutWindow.resize(355, 290)
         AboutWindow.setMinimumSize(QtCore.QSize(355, 290))
         AboutWindow.setMaximumSize(QtCore.QSize(355, 290))
-        font = QtGui.QFont()
-        font.setPointSize(-1)
-        AboutWindow.setFont(font)
         AboutWindow.setStyleSheet("QWidget {\n"
 "    color: #BECBD1;\n"
 "    background-color: #273238;\n"
 "    border: 0;\n"
 "    font-size:14px;\n"
+"    font-family: Arial, sans-serif;\n"
 "}")
         self.WebSiteLabel = QtWidgets.QLabel(AboutWindow)
         self.WebSiteLabel.setGeometry(QtCore.QRect(20, 70, 100, 16))

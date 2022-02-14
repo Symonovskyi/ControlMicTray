@@ -15,15 +15,13 @@ class Ui_SettingsWindow(object):
         SettingsWindow.resize(440, 440)
         SettingsWindow.setMinimumSize(QtCore.QSize(440, 440))
         SettingsWindow.setMaximumSize(QtCore.QSize(440, 440))
-        font = QtGui.QFont()
-        font.setPointSize(-1)
-        SettingsWindow.setFont(font)
         SettingsWindow.setWindowOpacity(1.0)
         SettingsWindow.setStyleSheet("QWidget {\n"
 "    color: #BECBD1;\n"
 "    background-color: #273238;\n"
 "    border: 0;\n"
 "    font-size:14px;\n"
+"    font-family: Arial, sans-serif;\n"
 "}")
         self.UrlUpdates = QtWidgets.QPushButton(SettingsWindow)
         self.UrlUpdates.setGeometry(QtCore.QRect(120, 377, 200, 30))
