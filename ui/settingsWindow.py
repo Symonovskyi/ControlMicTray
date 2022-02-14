@@ -1,4 +1,5 @@
 # Built-in modules and own classes.
+from webbrowser import open_new_tab
 from ui.ui_py.SettingsWindow_ui import Ui_SettingsWindow as SettingsUI
 from database.databaseController import DatabaseController
 
@@ -26,12 +27,17 @@ class SettingsWindow(QWidget):
         self.settings_UI.setupUi(self)
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
+        self.settings_UI.UrlUpdates.clicked.connect(self.check_updates_btn)
+
+    def check_updates_btn(self):
+        open_new_tab("https://github.com/Sif-on/ControlMicTray/releases")
+
     def closeEvent(self, event):
         self.destroy()
 
 
-class SettingsWindowStyles(SettingsUI):
-
+class SettingsWindowStyles(SettingsWindow):
+    
     def dark_theme(self):
         pass
 

@@ -1,7 +1,8 @@
 # Built-in modules and own classes.
 from sys import exit
-from webbrowser import open_new_tab
 from database.databaseController import DatabaseController
+from ui.aboutWindow import AboutWindow
+from ui.settingsWindow import SettingsWindow
 from logic.microphoneController import MicrophoneController, COMObject,\
     IAudioEndpointVolumeCallback
 
@@ -9,9 +10,6 @@ from logic.microphoneController import MicrophoneController, COMObject,\
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
 from pynput.keyboard import Listener, GlobalHotKeys
-from ui.aboutWindow import AboutWindow
-
-from ui.settingsWindow import SettingsWindow
 
 
 class TrayIcon(QSystemTrayIcon):

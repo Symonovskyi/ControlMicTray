@@ -1,4 +1,5 @@
 # Built-in modules and own classes.
+from webbrowser import open_new_tab
 from ui.ui_py.AboutWindow_ui import Ui_AboutWindow as AboutUI
 from database.databaseController import DatabaseController
 
@@ -26,21 +27,20 @@ class AboutWindow(QWidget):
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
         self.about_UI.ProgramVersion.setText(self.db.program_version)
+        self.about_UI.WebSite.clicked.connect(self.open_site)
+        self.about_UI.Email.clicked.connect(self.open_email)
 
-        web_site = f"""<a href='{self.db.web_site}'>
-        <span style='color:white;'>controlmictray.pp.ua</span>"""
-        self.about_UI.WebSite.setText(web_site)
-        self.about_UI.WebSite.setOpenExternalLinks(True)
+    def open_site(self):
+        open_new_tab(self.db.web_site)
 
-        email_link = f"<a href='{self.db.email}'>info@controlmictray.pp.ua</a>"
-        self.about_UI.Email.setText(email_link)
-        self.about_UI.Email.setOpenExternalLinks(True)
+    def open_email(self):
+        open_new_tab(self.db.email)
 
     def closeEvent(self, event):
         self.destroy()
 
 
-class AboutWindowStyles(AboutUI):
+class AboutWindowStyles(AboutWindow):
 
     def dark_theme(self):
         pass
