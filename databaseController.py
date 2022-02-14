@@ -29,84 +29,14 @@ class DatabaseController:
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 
-                # Creating tables.
-                cursor.execute("""
-                               CREATE TABLE "User" (
-                                   "ID"	INTEGER NOT NULL UNIQUE,
-                                   "UserName"	VARCHAR(254) NOT NULL,
-                                   PRIMARY KEY("ID" AUTOINCREMENT)
-                               );
-                               """)
-                cursor.execute("""
-                               CREATE TABLE "Alerts" (
-                                   "ID"	INTEGER NOT NULL UNIQUE,
-                                   "AlertsType"	VARCHAR(254) NOT NULL,
-                                   "StandardSound"	VARCHAR(254) NOT NULL,
-                                   "OwnSound"	VARCHAR(254),
-                                   FOREIGN KEY("ID") REFERENCES "User"("ID"),
-                                   PRIMARY KEY("ID" AUTOINCREMENT)
-                               );
-                               """)
-                cursor.execute("""
-                               CREATE TABLE "Autorun" (
-                                   "ID"	INTEGER NOT NULL UNIQUE,
-                                   "EnableProgram"	INTEGER NOT NULL,
-                                   "EnableMic"	INTEGER NOT NULL,
-                                   PRIMARY KEY("ID" AUTOINCREMENT),
-                                   FOREIGN KEY("ID") REFERENCES "User"("ID")
-                               );
-                               """)
-                cursor.execute("""
-                               CREATE TABLE "Hotkey" (
-                                   "ID"	INTEGER NOT NULL UNIQUE,
-                                   "HotkeyMic"	VARCHAR(32),
-                                   "HotkeyWalkie"	VARCHAR(32),
-                                   PRIMARY KEY("ID" AUTOINCREMENT),
-                                   FOREIGN KEY("ID") REFERENCES "User"("ID")
-                               );
-                               """)
-                cursor.execute("""
-                               CREATE TABLE "Settings" (
-                                   "ID"	INTEGER NOT NULL UNIQUE,
-                                   "LanguageCode"	VARCHAR(4) NOT NULL,
-                                   "NightTheme"	INTEGER NOT NULL,
-                                   "PrivacyStatus"	INTEGER NOT NULL,
-                                   FOREIGN KEY("ID") REFERENCES "User"("ID"),
-                                   PRIMARY KEY("ID" AUTOINCREMENT)
-                               );
-                               """)
-                cursor.execute("""
-                               CREATE TABLE "About" (
-                                   "ID"	INTEGER NOT NULL UNIQUE,
-                                   "ProgramVersion"	VARCHAR(32) NOT NULL,
-                                   "WebSite"	VARCHAR(32) NOT NULL,
-                                   "Email"	VARCHAR(32) NOT NULL,
-                                   "Copyright"	VARCHAR(64) NOT NULL,
-                                   "UrlPrivacyPolicy"	VARCHAR(64) NOT NULL,
-                                   PRIMARY KEY("ID" AUTOINCREMENT)
-                               );
-                               """)
+                sql_create = open("doc\\SQL\\CREATE_TABLES.sql")
+                cursor.executescript(sql_create.read())
+                sql_create.close()
 
-                # Appending datas by default.
-                cursor.execute(f"""
-                               INSERT INTO "User" (UserName) VALUES ('{self.__user_name}');
-                               """)
-                cursor.execute("""
-                               INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\Sound\StandardSound.mp3', (NULL));
-                               """)
-                cursor.execute("""
-                               INSERT INTO "Autorun" (EnableProgram, EnableMic) VALUES (1, 1);
-                               """)
-                cursor.execute("""
-                               INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll lock', 'HOME');
-                               """)
-                cursor.execute("""
-                               INSERT INTO "Settings" (LanguageCode, NightTheme, PrivacyStatus) VALUES ('rus', 1, 0);
-                               """)
-                cursor.execute("""
-                               INSERT INTO "About" (ProgramVersion, WebSite, Email, Copyright, UrlPrivacyPolicy) VALUES ('v.1.2022.01.31-alpha', 'https://controlmictray.pp.ua/', 'info@controlmictray.pp.ua', 'Copyright © 2022\nSimonovskiy & Lastivka\nAll rights reserved', 'https://controlmictray.pp.ua/PrivacyPolicy.html');
-                               """)
-
+                sql_data = open("doc\\SQL\\CREATE_DATE.sql")
+                cursor.executescript(sql_data.read())
+                sql_data.close()
+                
                 db.commit()
             db.close()
 
@@ -320,7 +250,6 @@ class DatabaseController:
         return user_hotkey[0]
 
     # Setters.
-
     @hotkey_mic.setter
     def hotkey_mic(self, value=str):
         with connect(self.__db_name) as db:
