@@ -53,10 +53,14 @@ class TrayIcon(QSystemTrayIcon):
         # Menu of tray. Also, configuring stylesheet for menu.
         self.menu = QMenu()
         self.menu.setStyleSheet(
-            """QMenu { color: #BECBD1;
-            background-color: #273238;
-            border: 1px solid #04BED5;
-            border-radius: 5px; }""")
+            """QMenu {
+                color: #7D8A90;
+                background-color: #1F2A30;
+                border: 1px solid #444F55;
+                border-radius: 3px;
+                selection-background-color: #273238;
+                selection-color: #BECBD1;
+            }""")
 
         # Initializing and configuring 'On\Off Microphone' menu element.
         self.turn_micro = self.menu.addAction('')
