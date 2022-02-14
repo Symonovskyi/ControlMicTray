@@ -1,6 +1,6 @@
 # Built-in modules and own classes.
 from ctypes import POINTER, cast
-from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
+from logic.pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
                          IAudioEndpointVolumeCallback)
 
 # "pip install" modules.

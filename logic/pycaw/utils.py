@@ -6,11 +6,11 @@ import psutil
 from future.utils import python_2_unicode_compatible
 
 from _ctypes import COMError
-from pycaw.api.audioclient import ISimpleAudioVolume
-from pycaw.api.audiopolicy import IAudioSessionControl2, IAudioSessionManager2
-from pycaw.api.endpointvolume import IAudioEndpointVolume
-from pycaw.api.mmdeviceapi import IMMDeviceEnumerator
-from pycaw.constants import (DEVICE_STATE, STGM, AudioDeviceState,
+from logic.pycaw.api.audioclient import ISimpleAudioVolume
+from logic.pycaw.api.audiopolicy import IAudioSessionControl2, IAudioSessionManager2
+from logic.pycaw.api.endpointvolume import IAudioEndpointVolume
+from logic.pycaw.api.mmdeviceapi import IMMDeviceEnumerator
+from logic.pycaw.constants import (DEVICE_STATE, STGM, AudioDeviceState,
                              CLSID_MMDeviceEnumerator, EDataFlow, ERole,
                              IID_Empty)
 

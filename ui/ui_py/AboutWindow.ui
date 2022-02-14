@@ -111,7 +111,13 @@ QLabel::hover{
 }</string>
    </property>
    <property name="text">
-    <string>controlmictray.pp.ua</string>
+    <string comment="g">controlmictray.pp.ua</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::MarkdownText</enum>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="Email">

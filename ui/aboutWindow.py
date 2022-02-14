@@ -27,7 +27,8 @@ class AboutWindow(QWidget):
 
         self.about_UI.ProgramVersion.setText(self.db.program_version)
 
-        web_site = f"<a href='{self.db.web_site}'>controlmictray.pp.ua</a>"
+        web_site = f"""<a href='{self.db.web_site}'>
+        <span style='color:white;'>controlmictray.pp.ua</span>"""
         self.about_UI.WebSite.setText(web_site)
         self.about_UI.WebSite.setOpenExternalLinks(True)
 
@@ -39,8 +40,7 @@ class AboutWindow(QWidget):
         self.destroy()
 
 
-class AboutWindowStyles:
-    about_win = AboutUI()
+class AboutWindowStyles(AboutUI):
 
     def dark_theme(self):
         pass

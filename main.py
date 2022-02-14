@@ -6,7 +6,6 @@ from ui.trayIcon import TrayIcon
 from PyQt6.QtWidgets import QApplication
 
 
-
 if __name__ == '__main__':
     app = QApplication(argv)
     win = TrayIcon()

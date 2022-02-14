@@ -169,9 +169,8 @@ class CustomAudioEndpointVolumeCallback(COMObject):
         TrayIcon().check_push_to_talk()
 
 
-class TrayIconStyles:
-    tray_icon = TrayIcon()
-
+class TrayIconStyles(TrayIcon):
+    
     def dark_theme(self):
         pass
 

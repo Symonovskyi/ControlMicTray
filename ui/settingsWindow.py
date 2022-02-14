@@ -30,8 +30,7 @@ class SettingsWindow(QWidget):
         self.destroy()
 
 
-class SettingsWindowStyles:
-    settings_win = SettingsUI()
+class SettingsWindowStyles(SettingsUI):
 
     def dark_theme(self):
         pass
