@@ -43,10 +43,7 @@ class AboutWindow(QWidget):
     def closeEvent(self, event):
         self.destroy()
 
-
-class AboutWindowStyles(AboutWindow):
-
-    def dark_theme(self):
+    def night_theme(self):
         pass
 
     def white_theme(self):

@@ -27,7 +27,14 @@ class SettingsWindow(QWidget):
         self.settings_UI.setupUi(self)
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
+        self.settings_UI.NightTheme.clicked.connect(self.apply_theme)
         self.settings_UI.UrlUpdates.clicked.connect(self.check_updates_btn)
+
+    def apply_theme(self):
+        if self.settings_UI.NightTheme.isChecked():
+            self.db.night_theme = 1
+        else:
+            self.db.night_theme = 0
 
     def check_updates_btn(self):
         WindowsDefault().open_new_tab(
@@ -36,10 +43,7 @@ class SettingsWindow(QWidget):
     def closeEvent(self, event):
         self.destroy()
 
-
-class SettingsWindowStyles(SettingsWindow):
-    
-    def dark_theme(self):
+    def night_theme(self):
         pass
 
     def white_theme(self):
