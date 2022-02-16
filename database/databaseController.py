@@ -15,7 +15,7 @@ class DatabaseController:
         self.__checkDatabaseForExistence()
 
     def __checkDatabaseForExistence(self):
-        if not path.exists(f"{self.__db_name}"): #TODO: move to "database" dir
+        if not path.exists(f"{self.__db_name}"):  # TODO: move to "database" dir
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 
@@ -29,13 +29,25 @@ class DatabaseController:
                 sql_data = open("database\\SQL\\CREATE_DATA.sql")
                 cursor.executescript(sql_data.read())
                 sql_data.close()
-                
+
                 db.commit()
             db.close()
-        
-        
 
     # Getters.
+
+    @property
+    def user_id(self):
+        with connect(self.__db_name) as db:
+            cursor = db.cursor()
+            cursor.execute(f"""
+                           SELECT "ID"
+                           FROM "User"
+                           WHERE "UserName" = \'{self.__user_name}\'
+                           """)
+            value = cursor.fetchone()
+        db.close()
+        return value[0]
+
     @property
     def user_name(self):
         with connect(self.__db_name) as db:
@@ -278,7 +290,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Hotkey"
                            SET "HotkeyWalkie" = \'{value}\'
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -290,7 +306,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Hotkey"
                            SET "HotkeyMic" = \'{value}\'
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -302,7 +322,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Alerts"
                            SET "AlertsType" = \'{value}\'
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -314,7 +338,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Alerts"
                            SET "StandardSound" = \'{value}\'
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -326,7 +354,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Alerts"
                            SET "OwnSound" = \'{value}\'
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -338,7 +370,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Autorun"
                            SET "EnableProgram" = {value}
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -350,7 +386,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Autorun"
                            SET "EnableMic" = {value}
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -362,7 +402,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Autorun"
                            SET "MicStatus" = {value}
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -374,7 +418,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Autorun"
                            SET "WalkieStatus" = {value}
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -386,7 +434,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Settings"
                            SET "LanguageCode" = \'{value}\'
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -398,7 +450,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Settings"
                            SET "NightTheme" = {value}
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
@@ -410,7 +466,11 @@ class DatabaseController:
             cursor.execute(f"""
                            UPDATE "Settings"
                            SET "PrivacyStatus" = {value}
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
+                           WHERE ID = (
+                                       SELECT "ID"
+                                       FROM "User"
+                                       WHERE "UserName" = \'{self.__user_name}\'
+                                      )
                            """)
             db.commit()
         db.close()
