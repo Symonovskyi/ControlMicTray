@@ -1,15 +1,15 @@
 # Built-in modules and own classes.
 from sys import exit
+from keyboard import add_hotkey, hook, on_press_key, on_release_key
 from database.databaseController import DatabaseController
 from ui.aboutWindow import AboutWindow
 from ui.settingsWindow import SettingsWindow
-from logic.microphoneController import MicrophoneController, COMObject,\
-    IAudioEndpointVolumeCallback
+from logic.microphoneController import (MicrophoneController,
+    CustomAudioEndpointVolumeCallback)
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
-from pynput.keyboard import Listener, GlobalHotKeys
 
 
 class TrayIcon(QSystemTrayIcon):
@@ -35,7 +35,7 @@ class TrayIcon(QSystemTrayIcon):
         self.db = DatabaseController()
 
         # Test callback for discovering mic status.
-        self.callback = CustomAudioEndpointVolumeCallback()
+        self.callback = CustomAudioEndpointVolumeCallback(self)
 
         # Creating Settings Window instance.
         self.settings_win = SettingsWindow()
@@ -71,7 +71,7 @@ class TrayIcon(QSystemTrayIcon):
 
         # Initializing and configuring 'Walkie-talkie mode (push-to-talk)' menu element.
         self.push_to_talk = self.menu.addAction('Режим рации (push-to-talk)')
-        self.push_to_talk.triggered.connect(self.check_push_to_talk)
+        self.push_to_talk.triggered.connect(self.push_to_talk_control_state)
 
         self.menu.addSeparator()
 
@@ -121,24 +121,8 @@ class TrayIcon(QSystemTrayIcon):
 
     def apply_user_settings(self):
         # Adding hotkeys for controling mic.
-        hotkeys = GlobalHotKeys({
-            '<Scroll_lock>': self.check_mic_if_muted,
-            '<Home>': self.check_push_to_talk
-        })
-
-        # Hotkey listener for mic.
-        mic_listener = Listener(
-            on_press=hotkeys._hotkeys[0].press,
-            on_release=hotkeys._hotkeys[0].release
-        )
-        mic_listener.start()
-
-        # Hotkey listener for walkie-talkie.
-        walkie_listener = Listener(
-            on_press=hotkeys._hotkeys[1].press,
-            on_release=hotkeys._hotkeys[1].release
-        )
-        walkie_listener.start()
+        add_hotkey('ctrl+shift+/', self.check_mic_if_muted)
+        on_release_key('scroll_lock', self.check_push_to_talk)
 
     def check_mic_if_muted(self, mode=None):
         ''' According to mic status, these changes are applied:
@@ -165,15 +149,19 @@ class TrayIcon(QSystemTrayIcon):
                 self.mic.mute_mic()
                 self.check_mic_if_muted(mode='init')
 
+    def push_to_talk_control_state(self):
+        walkie_status = self.db.walkie_status
+        if walkie_status:
+            self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
+            self.turn_micro.setIcon(QIcon('ui\\resources\\Off.svg'))
+            self.turn_micro.setText('Включить микрофон')
+        else:
+            self.setIcon(QIcon('ui\\resources\\Microphone_dark_ON.svg'))
+            self.turn_micro.setIcon(QIcon('ui\\resources\\On.svg'))
+            self.turn_micro.setText('Выключить микрофон')
+
     def check_push_to_talk(self, mode=None):
         pass
-
-
-class CustomAudioEndpointVolumeCallback(COMObject):
-    _com_interfaces_ = [IAudioEndpointVolumeCallback]
-
-    def OnNotify(self, pNotify):
-        TrayIcon().check_push_to_talk()
 
 
 class TrayIconStyles(TrayIcon):

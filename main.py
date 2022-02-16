@@ -1,6 +1,6 @@
 # Built-in modules and own classes.
 from sys import argv, exit
-from ui.trayIcon import TrayIcon, TrayIconStyles
+from ui.trayIcon import TrayIcon
 
 # "pip install" modules.
 from PyQt6.QtWidgets import QApplication

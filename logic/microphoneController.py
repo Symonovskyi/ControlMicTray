@@ -46,4 +46,17 @@ class MicrophoneController(AudioUtilities):
 
     @property
     def get_mic_status(self):
-        return self.get_mic.GetMute()
+        return self.mic.GetMute()
+
+
+class CustomAudioEndpointVolumeCallback(COMObject):
+    _com_interfaces_ = [IAudioEndpointVolumeCallback]
+
+    def __init__(self, qinstance):
+        self.qinstance = qinstance
+
+    def OnNotify(self, pNotify):
+        try:
+            self.qinstance.check_mic_if_muted(mode='init')
+        except:
+            pass
