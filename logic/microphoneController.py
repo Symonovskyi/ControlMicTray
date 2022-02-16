@@ -58,5 +58,7 @@ class CustomAudioEndpointVolumeCallback(COMObject):
     def OnNotify(self, pNotify):
         try:
             self.qinstance.check_mic_if_muted(mode='init')
-        except:
-            pass
+            if self.qinstance.push_to_talk.isChecked():
+                self.qinstance.mic.mute_mic()
+        except Exception as e:
+            print(e)
