@@ -1,4 +1,5 @@
 # Built-in modules and own classes.
+from keyboard import is_pressed
 from ctypes import POINTER, cast
 from logic.pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
                          IAudioEndpointVolumeCallback)
@@ -36,10 +37,6 @@ class MicrophoneController(AudioUtilities):
         self.mic.RegisterControlChangeNotify(callback)
 
     @property
-    def get_mic(self):
-        return self.mic
-
-    @property
     def get_devices_count(self):
         # TODO: get the real count of microphones only.
         return len(self.GetAllDevices())
@@ -57,5 +54,9 @@ class CustomAudioEndpointVolumeCallback(COMObject):
 
     def OnNotify(self, pNotify):
         try:
-            self.inst.check_mic_if_muted(mode='init')
-        except Exception as e: pass
+            if self.inst.push_to_talk.isChecked() and not is_pressed(
+                self.inst.db.hotkey_walkie):
+                self.inst.mic.mute_mic()
+            else:
+                self.inst.check_mic_if_muted(mode='init')
+        except: pass
