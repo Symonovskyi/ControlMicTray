@@ -1,6 +1,6 @@
 # Built-in modules and own classes.
 from sys import exit
-from keyboard import add_hotkey, remove_hotkey, on_press_key, on_release_key
+from keyboard import add_hotkey, remove_hotkey
 from database.databaseController import DatabaseController
 from ui.aboutWindow import AboutWindow
 from ui.settingsWindow import SettingsWindow
@@ -40,9 +40,6 @@ class TrayIcon(QSystemTrayIcon):
 
         # Calling the initialization ui func.
         self.setup_ui()
-
-        # Applying user settings.
-        self.apply_user_settings()
 
     def setup_ui(self):
         # Menu of tray.
@@ -98,10 +95,6 @@ class TrayIcon(QSystemTrayIcon):
 
         self.mic.register_control_change_notify(self.callback)
 
-    def apply_user_settings(self):
-        # Adding hotkey for controling mic.
-        add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
-
     def check_mic_if_muted(self, mode=None):
         ''' According to mic status, these changes are applied:
         - Tray Icon;
@@ -136,33 +129,37 @@ class TrayIcon(QSystemTrayIcon):
             self.check_push_to_talk()
 
     def check_push_to_talk(self):
-        last_mic_status = None
+        self.db.mic_status = self.mic.get_mic_status
         if self.push_to_talk.isChecked():
-            last_mic_status = self.mic.get_mic_status
             self.mic.mute_mic()
             self.turn_micro.setEnabled(False)
             self.push_to_talk.setIcon(QIcon('ui\\resources\\On.svg'))
-            on_press_key(self.db.hotkey_walkie, self.push_to_talk_pressed)
-            on_release_key(self.db.hotkey_walkie, self.push_to_talk_released)
+            add_hotkey(self.db.hotkey_walkie, self.push_to_talk_pressed)
+            add_hotkey(
+                self.db.hotkey_walkie, self.push_to_talk_released, trigger_on_release=True)
+            try:
+                remove_hotkey(self.db.hotkey_mic)
+            except: pass
             self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
         else:
             try:
-                if last_mic_status:
+                if self.db.mic_status:
                     self.mic.mute_mic()
                 else:
                     self.mic.unmute_mic()
                 self.turn_micro.setEnabled(True)
                 self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
-                remove_hotkey(self.push_to_talk_pressed)
-                remove_hotkey(self.push_to_talk_released)
+                add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
+                try:
+                    remove_hotkey(self.db.hotkey_walkie)
+                except: pass
                 self.check_mic_if_muted(mode='init')
             except: pass
 
-    def push_to_talk_pressed(self, e):
-        print(type(e))
+    def push_to_talk_pressed(self):
         self.setIcon(QIcon('ui\\resources\\Microphone_dark_ON.svg'))
         self.mic.unmute_mic()
 
-    def push_to_talk_released(self, e):
+    def push_to_talk_released(self):
         self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
         self.mic.mute_mic()
