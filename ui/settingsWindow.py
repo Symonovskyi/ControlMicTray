@@ -1,7 +1,7 @@
 # Built-in modules and own classes.
 from webbrowser import WindowsDefault
-from ui.ui_py.SettingsWindow_ui import Ui_SettingsWindow as SettingsUI
-from ui.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
+from ui.ui_py.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
+from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
 from database.databaseController import DatabaseController
 
 # 'pip install' modules.
@@ -37,6 +37,14 @@ class SettingsWindow(QWidget):
         self.settings_UI.setupUi(self)
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
+        self.settings_UI.HotkeyMic.setReadOnly(False)
+        self.settings_UI.HotkeyMic.setPlaceholderText(
+            'e.g. "Ctrl+Shift+/"')
+
+        self.settings_UI.HotkeyWalkie.setReadOnly(False)
+        self.settings_UI.HotkeyWalkie.setPlaceholderText(
+            'e.g. "Scroll_lock"')
+
         # Going through varoius initial checks.
         self.init_check_language()
         self.init_check_notifications()
@@ -47,6 +55,7 @@ class SettingsWindow(QWidget):
         self.settings_UI.HotkeyMic.setText(self.db.hotkey_mic)
         self.settings_UI.HotkeyWalkie.setText(self.db.hotkey_walkie)
 
+        # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
         self.settings_UI.EnableProgram.clicked.connect(self.change_autorun)
         self.settings_UI.PrivacyStatus.clicked.connect(self.change_privacy)
@@ -63,9 +72,9 @@ class SettingsWindow(QWidget):
     def init_check_theme(self):
         if self.db.night_theme:
             self.settings_UI.NightTheme.setChecked(True)
-            self.tray_styles.night_theme()
-            self.settings_styles.night_theme()
-            self.about_styles.night_theme()
+            self.tray_styles.dark_theme()
+            self.settings_styles.dark_theme()
+            self.about_styles.dark_theme()
         else:
             self.settings_UI.NightTheme.setChecked(False)
             self.tray_styles.white_theme()
