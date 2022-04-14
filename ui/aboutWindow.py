@@ -1,6 +1,6 @@
 # Built-in modules and own classes.
 from webbrowser import WindowsDefault
-from ui.ui_py.AboutWindow_ui import Ui_AboutWindow as AboutUI
+from ui.ui_py.AboutWindowUI import Ui_AboutWindow as AboutUI
 from database.databaseController import DatabaseController
 
 # 'pip install' modules.

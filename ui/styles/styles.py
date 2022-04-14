@@ -2,7 +2,7 @@ class TrayIconStyles:
     def __init__(self, qinstance):
         self.tray = qinstance
 
-    def night_theme(self):
+    def dark_theme(self):
         self.tray.menu.setStyleSheet(
             """QMenu {
                 color: #7D8A90;
@@ -22,7 +22,7 @@ class SettingsWindowStyles:
     def __init__(self, qinstance):
         self.settings_win = qinstance.settings_UI
 
-    def night_theme(self):
+    def dark_theme(self):
         # self.settings_win.элемент_управления.setStyleSheet("""
         # background-color: white;
         # """)
@@ -36,7 +36,7 @@ class AboutWindowStyles:
     def __init__(self, qinstance):
         self.about_win = qinstance.about_UI
 
-    def night_theme(self):
+    def dark_theme(self):
         pass
 
     def white_theme(self):

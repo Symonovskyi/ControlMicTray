@@ -1,11 +1,12 @@
 # Built-in modules and own classes.
+from statistics import mode
 from sys import exit
 from keyboard import add_hotkey, remove_hotkey
 from database.databaseController import DatabaseController
 from ui.aboutWindow import AboutWindow
 from ui.settingsWindow import SettingsWindow
 from logic.microphoneController import (MicrophoneController,
-    CustomAudioEndpointVolumeCallback)
+                                        CustomAudioEndpointVolumeCallback)
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
@@ -46,23 +47,15 @@ class TrayIcon(QSystemTrayIcon):
         self.menu = QMenu()
 
         # Initializing and configuring 'On\Off Microphone' menu element.
-        self.turn_micro = self.menu.addAction('')
+        self.turn_micro = self.menu.addAction('Микрофон')
         self.turn_micro.triggered.connect(self.check_mic_if_muted)
 
         # Initializing and configuring 'Walkie-talkie mode (push-to-talk)' menu element.
         self.push_to_talk = self.menu.addAction('Режим рации (push-to-talk)')
         self.push_to_talk.setCheckable(True)
-        self.init_check_walkie()
         self.push_to_talk.triggered.connect(self.check_push_to_talk)
 
         self.menu.addSeparator()
-
-        # Initializing and configuring 'Mics quantity: {quantity}' menu element.
-        # quantity_of_active_mics = self.menu.addAction(
-        #     f'Кол-ство микрофонов: {self.mic.get_devices_count}')
-        # quantity_of_active_mics.setIcon(
-        #     QIcon('ui\\resources\\Microphone_light.svg'))
-        # quantity_of_active_mics.setEnabled(False)
 
         # Initializing and configuring 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
@@ -91,7 +84,14 @@ class TrayIcon(QSystemTrayIcon):
         self.setToolTip('ControlMicTray')
 
         # Cheking mic status on startup.
-        self.check_mic_if_muted(mode='init')
+        if self.db.walkie_status:
+            self.push_to_talk.setChecked(True)
+            self.check_push_to_talk()
+            self.check_mic_if_muted(mode='init')
+        else:
+            self.push_to_talk.setChecked(False)
+            self.check_push_to_talk()
+            self.check_mic_if_muted(mode='init')
 
         self.mic.register_control_change_notify(self.callback)
 
@@ -104,6 +104,7 @@ class TrayIcon(QSystemTrayIcon):
         '''
         mic_status = self.mic.get_mic_status
         if mode == 'init':
+            self.db.mic_status = mic_status
             if mic_status:
                 self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
                 self.turn_micro.setIcon(QIcon('ui\\resources\\Off.svg'))
@@ -120,41 +121,39 @@ class TrayIcon(QSystemTrayIcon):
                 self.mic.mute_mic()
                 self.check_mic_if_muted(mode='init')
 
-    def init_check_walkie(self):
-        if self.db.walkie_status:
-            self.push_to_talk.setChecked(True)
-            self.check_push_to_talk()
-        else:
-            self.push_to_talk.setChecked(False)
-            self.check_push_to_talk()
-
     def check_push_to_talk(self):
-        self.db.mic_status = self.mic.get_mic_status
         if self.push_to_talk.isChecked():
             self.mic.mute_mic()
             self.turn_micro.setEnabled(False)
             self.push_to_talk.setIcon(QIcon('ui\\resources\\On.svg'))
+            self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
+
             add_hotkey(self.db.hotkey_walkie, self.push_to_talk_pressed)
-            add_hotkey(
-                self.db.hotkey_walkie, self.push_to_talk_released, trigger_on_release=True)
+            self.hotkey_released = add_hotkey(
+                self.db.hotkey_walkie,
+                self.push_to_talk_released,
+                trigger_on_release=True)
             try:
                 remove_hotkey(self.db.hotkey_mic)
-            except: pass
-            self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
+            except:
+                pass
+            self.db.walkie_status = 1
         else:
+            if self.db.mic_status:
+                self.mic.mute_mic()
+            else:
+                self.mic.unmute_mic()
+
+            self.turn_micro.setEnabled(True)
+            self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
+            self.check_mic_if_muted(mode='init')
+
+            add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
             try:
-                if self.db.mic_status:
-                    self.mic.mute_mic()
-                else:
-                    self.mic.unmute_mic()
-                self.turn_micro.setEnabled(True)
-                self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
-                add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
-                try:
-                    remove_hotkey(self.db.hotkey_walkie)
-                except: pass
-                self.check_mic_if_muted(mode='init')
-            except: pass
+                remove_hotkey(self.db.hotkey_walkie)
+            except:
+                pass
+            self.db.walkie_status = 0
 
     def push_to_talk_pressed(self):
         self.setIcon(QIcon('ui\\resources\\Microphone_dark_ON.svg'))
