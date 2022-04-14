@@ -28,15 +28,6 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QWidget {
-	color: #BECBD1;
-	background-color: #273238;
-	border: 0;
-	font-size:14px;
-	font-family: Arial, sans-serif;
-}</string>
-  </property>
   <widget class="QPushButton" name="UrlUpdates">
    <property name="geometry">
     <rect>
@@ -45,16 +36,6 @@
      <width>200</width>
      <height>30</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QPushButton {
-	color: #7D8A90;
-	border-bottom: 1px solid #1F2A30;
-}
-QPushButton::hover {
-	color: #CEDCDF;
-	border-bottom: 1px solid #04BED5;
-}</string>
    </property>
    <property name="text">
     <string>Проверить обновления</string>
@@ -225,14 +206,6 @@ QPushButton::hover {
      <height>21</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QLineEdit{
-	border-bottom: 1px solid #444F55;
-}
-QLineEdit::hover{
-	border-bottom: 1px solid #04BED5;
-}</string>
-   </property>
    <property name="text">
     <string>CTRL+SHIFT+/</string>
    </property>
@@ -249,14 +222,6 @@ QLineEdit::hover{
      <height>21</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QLineEdit{
-	border-bottom: 1px solid #444F55;
-}
-QLineEdit::hover{
-	border-bottom: 1px solid #04BED5;
-}</string>
-   </property>
    <property name="text">
     <string>SCROLL LOCK</string>
    </property>
@@ -272,25 +237,6 @@ QLineEdit::hover{
      <width>240</width>
      <height>21</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QComboBox {
-	border-bottom: 1px solid #444F55;
-}
-QComboBox::hover{
-	border-bottom: 1px solid #04BED5;
-}
-QComboBox QAbstractItemView {
-	background-color: #1F2A30;;
-	border: 1px solid #04BED5;
-	color: #7D8A90;
-	selection-background-color: #273238;
-	selection-color: #BECBD1;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 5px;
-	border-bottom-left-radius: 5px;
-}</string>
    </property>
    <item>
     <property name="text">
@@ -316,25 +262,6 @@ QComboBox QAbstractItemView {
      <width>240</width>
      <height>21</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QComboBox {
-	border-bottom: 1px solid #444F55;
-}
-QComboBox::hover{
-	border-bottom: 1px solid #04BED5;
-}
-QComboBox QAbstractItemView {
-	background-color: #1F2A30;;
-	border: 1px solid #04BED5;
-	color: #7D8A90;
-	selection-background-color: #273238;
-	selection-color: #BECBD1;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 5px;
-	border-bottom-left-radius: 5px;
-}</string>
    </property>
    <item>
     <property name="text">

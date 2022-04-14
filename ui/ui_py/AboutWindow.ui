@@ -28,15 +28,6 @@
   <property name="windowTitle">
    <string>О программе</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QWidget {
-	color: #BECBD1;
-	background-color: #273238;
-	border: 0;
-	font-size:14px;
-	font-family: Arial, sans-serif;
-}</string>
-  </property>
   <widget class="QLabel" name="WebSiteLabel">
    <property name="geometry">
     <rect>
@@ -98,9 +89,6 @@
      <height>64</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true"/>
-   </property>
    <property name="text">
     <string/>
    </property>
@@ -120,16 +108,6 @@
      <height>30</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QPushButton {
-	color: #7D8A90;
-	border-bottom: 1px solid #1F2A30;
-}
-QPushButton::hover {
-	color: #CEDCDF;
-	border-bottom: 1px solid #04BED5;
-}</string>
-   </property>
    <property name="text">
     <string>Политика конфиденциальности</string>
    </property>
@@ -142,12 +120,6 @@ QPushButton::hover {
      <width>200</width>
      <height>40</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel{
-	color: #7D8A90;
-	font-size:10px;
-}</string>
    </property>
    <property name="text">
     <string>Copyright © 2022
@@ -167,15 +139,6 @@ All rights reserved</string>
      <height>16</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QPushButton {
-	color: #127D91;
-	text-align: left;
-}
-QPushButton::hover {
-	color: #04BED5;
-}</string>
-   </property>
    <property name="text">
     <string>controlmictray.pp.ua</string>
    </property>
@@ -189,15 +152,6 @@ QPushButton::hover {
      <height>16</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QPushButton {
-	color: #127D91;
-	text-align: left;
-}
-QPushButton::hover {
-	color: #04BED5;
-}</string>
-   </property>
    <property name="text">
     <string>info@controlmictray.pp.ua </string>
    </property>
@@ -210,11 +164,6 @@ QPushButton::hover {
      <width>52</width>
      <height>52</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel{
-	background-color: rgba(0, 0, 0, 0);
-}</string>
    </property>
    <property name="text">
     <string/>
