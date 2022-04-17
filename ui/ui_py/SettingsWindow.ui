@@ -197,38 +197,6 @@
     <string comment="drytgerb er t" extracomment="324123 dfsdaf">Микрофон Вкл./Выкл</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="HotkeyMic">
-   <property name="geometry">
-    <rect>
-     <x>175</x>
-     <y>267</y>
-     <width>240</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>CTRL+SHIFT+/</string>
-   </property>
-   <property name="readOnly">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="HotkeyWalkie">
-   <property name="geometry">
-    <rect>
-     <x>175</x>
-     <y>307</y>
-     <width>240</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>SCROLL LOCK</string>
-   </property>
-   <property name="readOnly">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QComboBox" name="LanguageCode">
    <property name="geometry">
     <rect>
@@ -283,6 +251,26 @@
      <string>Свой звук</string>
     </property>
    </item>
+  </widget>
+  <widget class="QKeySequenceEdit" name="HotkeyMic">
+   <property name="geometry">
+    <rect>
+     <x>175</x>
+     <y>267</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QKeySequenceEdit" name="HotkeyWalkie">
+   <property name="geometry">
+    <rect>
+     <x>175</x>
+     <y>307</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
   </widget>
  </widget>
  <resources/>
