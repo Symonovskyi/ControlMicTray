@@ -57,6 +57,7 @@ class CustomAudioEndpointVolumeCallback(COMObject):
             if self.inst.push_to_talk.isChecked() and not is_pressed(
                 self.inst.db.hotkey_walkie):
                 self.inst.mic.mute_mic()
+                self.inst.check_mic_if_muted(mode='init')
             else:
                 self.inst.check_mic_if_muted(mode='init')
         except: pass
