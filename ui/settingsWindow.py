@@ -37,14 +37,6 @@ class SettingsWindow(QWidget):
         self.settings_UI.setupUi(self)
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
-        self.settings_UI.HotkeyMic.setReadOnly(False)
-        self.settings_UI.HotkeyMic.setPlaceholderText(
-            'e.g. "Ctrl+Shift+/"')
-
-        self.settings_UI.HotkeyWalkie.setReadOnly(False)
-        self.settings_UI.HotkeyWalkie.setPlaceholderText(
-            'e.g. "Scroll_lock"')
-
         # Going through varoius initial checks.
         self.init_check_language()
         self.init_check_notifications()
@@ -52,8 +44,8 @@ class SettingsWindow(QWidget):
         self.init_check_autorun()
         self.init_check_privacy()
         self.init_check_mute_mic_on_startup()
-        self.settings_UI.HotkeyMic.setText(self.db.hotkey_mic)
-        self.settings_UI.HotkeyWalkie.setText(self.db.hotkey_walkie)
+        self.settings_UI.HotkeyMic.setKeySequence(self.db.hotkey_mic)
+        self.settings_UI.HotkeyWalkie.setKeySequence(self.db.hotkey_walkie)
 
         # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
