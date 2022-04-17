@@ -135,3 +135,6 @@ dmypy.json
 
 # DataBase
 ControlMicTray.db
+
+# Custom autorun
+startMic.vbs
