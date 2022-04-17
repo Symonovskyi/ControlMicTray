@@ -1,7 +1,7 @@
 class GlobalStyles:
 	border1 = "1px solid"
 	border2 = "0"
-	font_family = "Arial, sans-serif"
+	font_family = "Roboto, Arial, sans-serif"
 	font_size1 = "14px"
 	font_size2 = "10px"
 	text_align1 = "left"
@@ -11,24 +11,24 @@ class GlobalStyles:
 
 	# Dark theme
 	dark_color1 = "#7D8A90"  # Кнопки в трее, обновления, политика, копирайт.
-	dark_color2 = "#1F2A30"
+	dark_color2 = "#1F2A30"  # Фон меню в трее.
 	dark_color3 = "#444F55"
-	dark_color4 = "#273238"
-	dark_color5 = "#BECBD1"
+	dark_color4 = "#273238"  # Фон общий.
+	dark_color5 = "#BECBD1"  # Текст.
 	dark_color6 = "#04BED5"
-	dark_color7 = "#CEDCDF"
+	dark_color7 = "#CEDCDF"  # Текст кнопки активный.
 	dark_color8 = "#127D91"
 	dark_color9 = "rgba(0, 0, 0, 0)"
 
 	# White theme
 	white_color1 = "#7D8A90"  # Кнопки в трее, обновления, политика, копирайт.
-	white_color2 = "#1F2A30"
-	white_color3 = "#444F55"
-	white_color4 = "#273238"
-	white_color5 = "#BECBD1"
-	white_color6 = "#04BED5"
-	white_color7 = "#CEDCDF"
-	white_color8 = "#127D91"
+	white_color2 = "#FFFFFF"  # Фон выпадающем меню и в трее.
+	white_color3 = "#444F55"  # Подчеркивания / бордеры.
+	white_color4 = "#FFFFFF"  # Фон.
+	white_color5 = "#1F2A30"  # Текст.
+	white_color6 = "#04BED5"  # Текст hover и border.
+	white_color7 = "#1F2A30"  # Текст кнопки активный.
+	white_color8 = "#127D91"  # Текст ссылок.
 	white_color9 = "rgba(0, 0, 0, 0)"
 
 class TrayIconStyles(GlobalStyles):
