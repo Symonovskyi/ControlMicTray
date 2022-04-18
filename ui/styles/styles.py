@@ -61,7 +61,7 @@ class TrayIconStyles(GlobalStyles):
 
 
 class SettingsWindowStyles(GlobalStyles):
-	def __init__(self, qinstance):
+	def __init__(self, qinstance, settings_instance=None):
 		self.settings_win_qwidget = qinstance
 		self.settings_win = self.settings_win_qwidget.settings_UI
 
@@ -98,7 +98,7 @@ class SettingsWindowStyles(GlobalStyles):
 			"""}"""
 		)
 
-		self.settings_win.HotkeyMic.setStyleSheet(
+		self.settings_win_qwidget.HotkeyMic.setStyleSheet(
 			"""QLineEdit {"""
 				f'border-bottom: {self.border1} {self.dark_color3};'
 			"""}"""
@@ -108,7 +108,7 @@ class SettingsWindowStyles(GlobalStyles):
 			"""}"""
 		)
 
-		self.settings_win.HotkeyWalkie.setStyleSheet(
+		self.settings_win_qwidget.HotkeyWalkie.setStyleSheet(
 			"""QLineEdit {"""
 				f'border-bottom: {self.border1} {self.dark_color3};'
 			"""}"""
@@ -185,7 +185,7 @@ class SettingsWindowStyles(GlobalStyles):
 			"""}"""
 		)
 
-		self.settings_win.HotkeyMic.setStyleSheet(
+		self.settings_win_qwidget.HotkeyMic.setStyleSheet(
 			"""QLineEdit {"""
 				f'border-bottom: {self.border1} {self.white_color3};'
 			"""}"""
@@ -195,7 +195,7 @@ class SettingsWindowStyles(GlobalStyles):
 			"""}"""
 		)
 
-		self.settings_win.HotkeyWalkie.setStyleSheet(
+		self.settings_win_qwidget.HotkeyWalkie.setStyleSheet(
 			"""QLineEdit {"""
 				f'border-bottom: {self.border1} {self.white_color3};'
 			"""}"""

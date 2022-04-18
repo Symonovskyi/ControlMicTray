@@ -289,7 +289,7 @@ class DatabaseController:
             cursor = db.cursor()
             cursor.execute(f"""
                            UPDATE "Hotkey"
-                           SET "HotkeyWalkie" = \'{value}\'
+                           SET "HotkeyMic" = \'{value}\'
                            WHERE ID = (
                                        SELECT "ID"
                                        FROM "User"
@@ -305,7 +305,7 @@ class DatabaseController:
             cursor = db.cursor()
             cursor.execute(f"""
                            UPDATE "Hotkey"
-                           SET "HotkeyMic" = \'{value}\'
+                           SET "HotkeyWalkie" = \'{value}\'
                            WHERE ID = (
                                        SELECT "ID"
                                        FROM "User"

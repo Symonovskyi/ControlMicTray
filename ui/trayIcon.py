@@ -1,5 +1,4 @@
 # Built-in modules and own classes.
-from statistics import mode
 from sys import exit
 from keyboard import add_hotkey, remove_hotkey
 from database.databaseController import DatabaseController
@@ -10,7 +9,7 @@ from logic.microphoneController import (MicrophoneController,
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
 
@@ -135,18 +134,21 @@ class TrayIcon(QSystemTrayIcon):
         if self.push_to_talk.isChecked():
             self.mic.mute_mic()
             self.turn_micro.setEnabled(False)
+            self.settings_win.HotkeyMic.setEnabled(False)
+            self.settings_win.HotkeyWalkie.setEnabled(True)
+
             self.push_to_talk.setIcon(QIcon('ui\\resources\\On.svg'))
             self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
-
-            add_hotkey(self.db.hotkey_walkie, self.push_to_talk_pressed)
-            self.hotkey_released = add_hotkey(
+            
+            try:
+                add_hotkey(self.mic_hotkey)
+            except: pass
+            self.hotkey_walkie_pressed = add_hotkey(
+                self.db.hotkey_walkie, self.push_to_talk_pressed)
+            self.hotkey_walkie_released = add_hotkey(
                 self.db.hotkey_walkie,
                 self.push_to_talk_released,
                 trigger_on_release=True)
-            try:
-                remove_hotkey(self.db.hotkey_mic)
-            except:
-                pass
             self.db.walkie_status = 1
         else:
             if self.db.mic_status:
@@ -156,12 +158,14 @@ class TrayIcon(QSystemTrayIcon):
 
             self.turn_micro.setEnabled(True)
             self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
+            self.settings_win.HotkeyMic.setEnabled(True)
+            self.settings_win.HotkeyWalkie.setEnabled(False)
 
-            add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
             try:
-                remove_hotkey(self.db.hotkey_walkie)
-            except:
-                pass
+                remove_hotkey(self.push_to_talk_pressed)
+                remove_hotkey(self.push_to_talk_released)
+            except: pass
+            add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
             self.db.walkie_status = 0
 
     def push_to_talk_pressed(self):

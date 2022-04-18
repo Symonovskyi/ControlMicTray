@@ -72,12 +72,6 @@ class Ui_SettingsWindow(object):
         self.AlertsType.addItem("")
         self.AlertsType.addItem("")
         self.AlertsType.addItem("")
-        self.HotkeyMic = QtWidgets.QKeySequenceEdit(SettingsWindow)
-        self.HotkeyMic.setGeometry(QtCore.QRect(175, 267, 240, 21))
-        self.HotkeyMic.setObjectName("HotkeyMic")
-        self.HotkeyWalkie = QtWidgets.QKeySequenceEdit(SettingsWindow)
-        self.HotkeyWalkie.setGeometry(QtCore.QRect(175, 307, 240, 21))
-        self.HotkeyWalkie.setObjectName("HotkeyWalkie")
 
         self.retranslateUi(SettingsWindow)
         QtCore.QMetaObject.connectSlotsByName(SettingsWindow)

@@ -1,12 +1,46 @@
 # Built-in modules and own classes.
+from keyboard import add_hotkey, remove_hotkey
 from webbrowser import WindowsDefault
 from ui.ui_py.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
 from database.databaseController import DatabaseController
 
 # 'pip install' modules.
-from PyQt6.QtWidgets import QWidget
-from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QWidget, QKeySequenceEdit
+from PyQt6.QtGui import QIcon, QKeySequence
+from PyQt6.QtCore import QRect
+
+
+class HotkeyMicKeySequnceEdit(QKeySequenceEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setGeometry(QRect(175, 267, 240, 21))
+        self.setObjectName("HotkeyMic")
+
+    def keyReleaseEvent(self, event):
+        sequenceString = self.keySequence().toString()
+        if sequenceString:
+            last_key_stroke = sequenceString.split(',')[-1].strip()
+            self.setKeySequence(QKeySequence(last_key_stroke))
+        self.editingFinished.emit()
+        self.clearFocus()
+
+
+class HotkeyWalkieKeySequnceEdit(QKeySequenceEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setGeometry(QRect(175, 307, 240, 21))
+        self.setObjectName("HotkeyWalkie")
+
+    def keyReleaseEvent(self, event):
+        sequenceString = self.keySequence().toString()
+        if sequenceString:
+            last_key_stroke = sequenceString.split(',')[-1].strip()
+            self.setKeySequence(QKeySequence(last_key_stroke))
+        self.editingFinished.emit()
+        self.clearFocus()
 
 
 class SettingsWindow(QWidget):
@@ -22,6 +56,9 @@ class SettingsWindow(QWidget):
 
         # Database Controller class instance.
         self.db = DatabaseController()
+
+        self.HotkeyMic = HotkeyMicKeySequnceEdit(self)
+        self.HotkeyWalkie = HotkeyWalkieKeySequnceEdit(self)
 
         # Creating theme instances.
         try:
@@ -44,8 +81,7 @@ class SettingsWindow(QWidget):
         self.init_check_autorun()
         self.init_check_privacy()
         self.init_check_mute_mic_on_startup()
-        self.settings_UI.HotkeyMic.setKeySequence(self.db.hotkey_mic)
-        self.settings_UI.HotkeyWalkie.setKeySequence(self.db.hotkey_walkie)
+        self.init_set_hotkeys_in_keysequenceedits()
 
         # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
@@ -54,7 +90,10 @@ class SettingsWindow(QWidget):
         self.settings_UI.EnableMic.clicked.connect(
             self.change_mute_mic_on_startup)
         self.settings_UI.UrlUpdates.clicked.connect(self.check_updates_btn)
+        self.HotkeyMic.editingFinished.connect(self.change_mic_hotkey)
+        self.HotkeyWalkie.editingFinished.connect(self.change_walkie_hotkey)
 
+    # Next methods for init checks and applying everything up.
     def init_check_language(self):
         pass
 
@@ -93,7 +132,20 @@ class SettingsWindow(QWidget):
             self.settings_UI.EnableMic.setChecked(False)
             self.tray.mic.unmute_mic()
 
+    def init_set_hotkeys_in_keysequenceedits(self):
+        if self.db.hotkey_mic == 'Scroll_lock':
+            hotkey_mic = 'ScrollLock'
+            self.HotkeyMic.setKeySequence(hotkey_mic)
+        else:
+            self.HotkeyMic.setKeySequence(self.db.hotkey_mic)
+        
+        if self.db.hotkey_walkie == 'Scroll_lock':
+            hotkey_walkie = 'ScrollLock'
+            self.HotkeyWalkie.setKeySequence(hotkey_walkie)
+        else:
+            self.HotkeyWalkie.setKeySequence(self.db.hotkey_walkie)
 
+    # Next mehods are for interactive interface changing.
     def change_theme(self):
         if self.settings_UI.NightTheme.isChecked():
             self.db.night_theme = 1
@@ -123,6 +175,38 @@ class SettingsWindow(QWidget):
     def check_updates_btn(self):
         WindowsDefault().open_new_tab(
             "https://github.com/Sif-on/ControlMicTray/releases")
+
+    def change_mic_hotkey(self):
+        changed_hotkey = self.HotkeyMic.keySequence().toString()
+        if changed_hotkey == self.HotkeyWalkie.keySequence().toString():
+            self.HotkeyMic.clear()
+            return
+        elif changed_hotkey == 'ScrollLock':
+            changed_hotkey = 'Scroll_lock'
+        
+        try:
+            remove_hotkey(self.db.hotkey_mic)
+        except: pass
+        self.db.hotkey_mic = changed_hotkey
+        add_hotkey(self.db.hotkey_mic, self.tray.check_mic_if_muted)
+
+    def change_walkie_hotkey(self):
+        changed_hotkey = self.HotkeyWalkie.keySequence().toString()
+        if changed_hotkey == self.HotkeyMic.keySequence().toString():
+            self.HotkeyWalkie.clear()
+            return
+        elif changed_hotkey == 'ScrollLock':
+            changed_hotkey = 'Scroll_lock'
+
+        try:
+            remove_hotkey(self.db.hotkey_walkie)
+        except: pass
+        self.db.hotkey_walkie = changed_hotkey
+        add_hotkey(self.db.hotkey_walkie, self.tray.push_to_talk_pressed)
+        add_hotkey(
+            self.db.hotkey_walkie,
+            self.tray.push_to_talk_released,
+            trigger_on_release=True)
 
     def closeEvent(self, event):
         self.destroy()
