@@ -1,4 +1,5 @@
 # Built-in modules and own classes.
+from os import remove
 from sys import exit
 from keyboard import add_hotkey, remove_hotkey
 from database.databaseController import DatabaseController
@@ -133,21 +134,18 @@ class TrayIcon(QSystemTrayIcon):
     def check_push_to_talk(self):
         if self.push_to_talk.isChecked():
             self.mic.mute_mic()
+
             self.turn_micro.setEnabled(False)
             self.settings_win.HotkeyMic.setEnabled(False)
             self.settings_win.HotkeyWalkie.setEnabled(True)
-
             self.push_to_talk.setIcon(QIcon('ui\\resources\\On.svg'))
             self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
             
             try:
-                add_hotkey(self.mic_hotkey)
+                remove_hotkey(self.mic_hotkey)
             except: pass
-            self.hotkey_walkie_pressed = add_hotkey(
-                self.db.hotkey_walkie, self.push_to_talk_pressed)
-            self.hotkey_walkie_released = add_hotkey(
-                self.db.hotkey_walkie,
-                self.push_to_talk_released,
+            add_hotkey(self.db.hotkey_walkie, self.push_to_talk_pressed)
+            add_hotkey(self.db.hotkey_walkie, self.push_to_talk_released,
                 trigger_on_release=True)
             self.db.walkie_status = 1
         else:
@@ -157,13 +155,12 @@ class TrayIcon(QSystemTrayIcon):
                 self.mic.unmute_mic()
 
             self.turn_micro.setEnabled(True)
-            self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
             self.settings_win.HotkeyMic.setEnabled(True)
             self.settings_win.HotkeyWalkie.setEnabled(False)
+            self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
 
             try:
-                remove_hotkey(self.push_to_talk_pressed)
-                remove_hotkey(self.push_to_talk_released)
+                remove_hotkey(self.db.hotkey_walkie)
             except: pass
             add_hotkey(self.db.hotkey_mic, self.check_mic_if_muted)
             self.db.walkie_status = 0

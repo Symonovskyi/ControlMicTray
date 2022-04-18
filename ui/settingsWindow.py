@@ -1,4 +1,5 @@
 # Built-in modules and own classes.
+from os import remove
 from keyboard import add_hotkey, remove_hotkey
 from webbrowser import WindowsDefault
 from ui.ui_py.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
@@ -179,34 +180,26 @@ class SettingsWindow(QWidget):
     def change_mic_hotkey(self):
         changed_hotkey = self.HotkeyMic.keySequence().toString()
         if changed_hotkey == self.HotkeyWalkie.keySequence().toString():
-            self.HotkeyMic.clear()
+            self.HotkeyMic.setKeySequence(self.db.hotkey_mic)
             return
         elif changed_hotkey == 'ScrollLock':
             changed_hotkey = 'Scroll_lock'
-        
-        try:
-            remove_hotkey(self.db.hotkey_mic)
-        except: pass
+
+        remove_hotkey(self.db.hotkey_mic)
         self.db.hotkey_mic = changed_hotkey
-        add_hotkey(self.db.hotkey_mic, self.tray.check_mic_if_muted)
+        self.tray.check_push_to_talk()
 
     def change_walkie_hotkey(self):
         changed_hotkey = self.HotkeyWalkie.keySequence().toString()
         if changed_hotkey == self.HotkeyMic.keySequence().toString():
-            self.HotkeyWalkie.clear()
+            self.HotkeyWalkie.setKeySequence(self.db.hotkey_walkie)
             return
         elif changed_hotkey == 'ScrollLock':
             changed_hotkey = 'Scroll_lock'
 
-        try:
-            remove_hotkey(self.db.hotkey_walkie)
-        except: pass
+        remove_hotkey(self.db.hotkey_walkie)
         self.db.hotkey_walkie = changed_hotkey
-        add_hotkey(self.db.hotkey_walkie, self.tray.push_to_talk_pressed)
-        add_hotkey(
-            self.db.hotkey_walkie,
-            self.tray.push_to_talk_released,
-            trigger_on_release=True)
+        self.tray.check_push_to_talk()
 
     def closeEvent(self, event):
         self.destroy()
