@@ -1,10 +1,10 @@
 # Built-in modules and own classes.
-from os import remove
 from sys import exit
 from keyboard import add_hotkey, remove_hotkey
 from database.databaseController import DatabaseController
 from ui.aboutWindow import AboutWindow
 from ui.settingsWindow import SettingsWindow
+from logic.absolutePath import loadFile
 from logic.microphoneController import (MicrophoneController,
                                         CustomAudioEndpointVolumeCallback)
 
@@ -73,20 +73,20 @@ class TrayIcon(QSystemTrayIcon):
 
         # Initializing and configuring 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
-        settings_action.setIcon(QIcon('ui\\resources\\Settings.svg'))
+        settings_action.setIcon(QIcon(loadFile('ui\\resources\\Settings.svg')))
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'About program' menu element.
         about_action = self.menu.addAction('О программе...')
-        about_action.setIcon(QIcon('ui\\resources\\About.svg'))
+        about_action.setIcon(QIcon(loadFile('ui\\resources\\About.svg')))
         about_action.triggered.connect(self.about_win.show)
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'Exit' menu element.
         exit_action = self.menu.addAction('Выход')
-        exit_action.setIcon(QIcon('ui\\resources\\Exit.svg'))
+        exit_action.setIcon(QIcon(loadFile('ui\\resources\\Exit.svg')))
         exit_action.triggered.connect(exit)
 
         # For properly themes working.
@@ -120,11 +120,11 @@ class TrayIcon(QSystemTrayIcon):
         if mode == 'init':
             self.db.mic_status = mic_status
             if mic_status:
-                self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
-                self.turn_micro.setIcon(QIcon('ui\\resources\\Off.svg'))
+                self.setIcon(QIcon(loadFile('ui\\resources\\Microphone_dark_OFF.svg')))
+                self.turn_micro.setIcon(QIcon(loadFile('ui\\resources\\Off.svg')))
             else:
-                self.setIcon(QIcon('ui\\resources\\Microphone_dark_ON.svg'))
-                self.turn_micro.setIcon(QIcon('ui\\resources\\On.svg'))
+                self.setIcon(QIcon(loadFile('ui\\resources\\Microphone_dark_ON.svg')))
+                self.turn_micro.setIcon(QIcon(loadFile('ui\\resources\\On.svg')))
         else:
             if mic_status:
                 self.mic.unmute_mic()
@@ -138,8 +138,8 @@ class TrayIcon(QSystemTrayIcon):
             self.turn_micro.setEnabled(False)
             self.settings_win.HotkeyMic.setEnabled(False)
             self.settings_win.HotkeyWalkie.setEnabled(True)
-            self.push_to_talk.setIcon(QIcon('ui\\resources\\On.svg'))
-            self.setIcon(QIcon('ui\\resources\\Microphone_dark_OFF.svg'))
+            self.push_to_talk.setIcon(QIcon(loadFile('ui\\resources\\On.svg')))
+            self.setIcon(QIcon(loadFile('ui\\resources\\Microphone_dark_OFF.svg')))
             
             try:
                 remove_hotkey(self.mic_hotkey)
@@ -157,7 +157,7 @@ class TrayIcon(QSystemTrayIcon):
             self.turn_micro.setEnabled(True)
             self.settings_win.HotkeyMic.setEnabled(True)
             self.settings_win.HotkeyWalkie.setEnabled(False)
-            self.push_to_talk.setIcon(QIcon('ui\\resources\\Off.svg'))
+            self.push_to_talk.setIcon(QIcon(loadFile('ui\\resources\\Off.svg')))
 
             try:
                 remove_hotkey(self.db.hotkey_walkie)
