@@ -39,6 +39,3 @@ class AboutWindow(QWidget):
 
     def open_privacy(self):
         WindowsDefault().open_new_tab(self.db.url_privacy_policy)
-
-    def closeEvent(self, event):
-        self.destroy()

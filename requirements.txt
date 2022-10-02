@@ -1,7 +1,8 @@
-comtypes==1.1.10
+comtypes==1.1.14
 future==0.18.2
-psutil==5.9.0
-keyboard==0.11.0
-PyQt6==6.2.3
-PyQt6-Qt6==6.2.3
-PyQt6-sip==13.2.1
+psutil==5.9.2
+keyboard==0.13.5
+PyQt6==6.3.1
+PyQt6-Qt6==6.3.2
+PyQt6-sip==13.4.0
+pycaw==20220416

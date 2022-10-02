@@ -1,5 +1,4 @@
 # Built-in modules and own classes.
-from os import remove
 from keyboard import add_hotkey, remove_hotkey
 from webbrowser import WindowsDefault
 from ui.ui_py.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
@@ -200,6 +199,3 @@ class SettingsWindow(QWidget):
         remove_hotkey(self.db.hotkey_walkie)
         self.db.hotkey_walkie = changed_hotkey
         self.tray.check_push_to_talk()
-
-    def closeEvent(self, event):
-        self.destroy()

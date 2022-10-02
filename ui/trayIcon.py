@@ -18,11 +18,17 @@ class CustomQMenu(QMenu):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.RightButton:
-            return
-        return QMenu.mousePressEvent(self, event)
+    def mousePressEvent(self, e):
+        if e.button() != Qt.MouseButton.LeftButton:
+            e.ignore()
+        else:
+            super().mousePressEvent(e)
 
+    def mouseReleaseEvent(self, e):
+        if e.button() != Qt.MouseButton.LeftButton:
+            e.ignore()
+        else:
+            super().mouseReleaseEvent(e)
 
 class TrayIcon(QSystemTrayIcon):
     '''
@@ -55,10 +61,7 @@ class TrayIcon(QSystemTrayIcon):
 
     def setup_ui(self):
         # Menu of tray.
-        # self.menu = QMenu()
         self.menu = CustomQMenu()
-
-        # Disable right mouse click 
 
         # Initializing and configuring 'On\Off Microphone' menu element.
         self.turn_micro = self.menu.addAction('Вкл.\Выкл. микрофон')
