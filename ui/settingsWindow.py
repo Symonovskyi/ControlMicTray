@@ -1,5 +1,4 @@
 # Built-in modules and own classes.
-from keyboard import add_hotkey, remove_hotkey
 from webbrowser import WindowsDefault
 from ui.ui_py.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
@@ -44,11 +43,12 @@ class HotkeyWalkieKeySequnceEdit(QKeySequenceEdit):
 
 
 class SettingsWindow(QWidget):
-    def __init__(self, tray_instance=None, about_instance=None):
+    def __init__(self, tray_instance=None, about_instance=None, hotkeys_manager=None):
         # For initializing Qt things.
         super().__init__()
         self.tray = tray_instance
         self.about = about_instance
+        self.hotkeys = hotkeys_manager
 
         # UI.
         self.settings_UI = SettingsUI()
@@ -126,11 +126,10 @@ class SettingsWindow(QWidget):
 
     def init_check_mute_mic_on_startup(self):
         if self.db.enable_mic:
+            self.settings_UI.EnableMic.setChecked(False)
+        else:
             self.settings_UI.EnableMic.setChecked(True)
             self.tray.mic.mute_mic()
-        else:
-            self.settings_UI.EnableMic.setChecked(False)
-            self.tray.mic.unmute_mic()
 
     def init_set_hotkeys_in_keysequenceedits(self):
         if self.db.hotkey_mic == 'Scroll_lock':
@@ -168,9 +167,9 @@ class SettingsWindow(QWidget):
 
     def change_mute_mic_on_startup(self):
         if self.settings_UI.EnableMic.isChecked():
-            self.db.enable_mic = 1
-        else:
             self.db.enable_mic = 0
+        else:
+            self.db.enable_mic = 1
 
     def check_updates_btn(self):
         WindowsDefault().open_new_tab(
@@ -184,9 +183,8 @@ class SettingsWindow(QWidget):
         elif changed_hotkey == 'ScrollLock':
             changed_hotkey = 'Scroll_lock'
 
-        remove_hotkey(self.db.hotkey_mic)
         self.db.hotkey_mic = changed_hotkey
-        self.tray.check_push_to_talk()
+        self.hotkeys.re_register_normal_mode_hotkey()
 
     def change_walkie_hotkey(self):
         changed_hotkey = self.HotkeyWalkie.keySequence().toString()
@@ -196,6 +194,5 @@ class SettingsWindow(QWidget):
         elif changed_hotkey == 'ScrollLock':
             changed_hotkey = 'Scroll_lock'
 
-        remove_hotkey(self.db.hotkey_walkie)
         self.db.hotkey_walkie = changed_hotkey
-        self.tray.check_push_to_talk()
+        self.hotkeys.re_register_walkie_mode_hotkey()

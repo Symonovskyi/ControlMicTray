@@ -1,5 +1,4 @@
 # Built-in modules and own classes.
-from keyboard import is_pressed
 from ctypes import POINTER, cast
 from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
                          IAudioEndpointVolumeCallback)
@@ -17,7 +16,6 @@ class MicrophoneController(AudioUtilities):
     - unmute_mic() - unmutes the mic.
 
     Properties:
-    - get_mic - holds the actual microphone instance.
     - get_devices_count - holds microphones count that are active in system.
     - get_mic_muted_state - holds the actual state of mic: muted or not.
     '''
@@ -53,11 +51,4 @@ class CustomAudioEndpointVolumeCallback(COMObject):
         self.inst = qinstance
 
     def OnNotify(self, pNotify):
-        try:
-            if self.inst.push_to_talk.isChecked() and not is_pressed(
-                self.inst.db.hotkey_walkie):
-                self.inst.mic.mute_mic()
-                self.inst.check_mic_if_muted(mode='init')
-            else:
-                self.inst.check_mic_if_muted(mode='init')
-        except: pass
+        self.inst.change_icons_according_to_status()
