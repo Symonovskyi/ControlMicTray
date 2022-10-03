@@ -10,14 +10,34 @@ from PyQt6.QtGui import QIcon, QKeySequence
 from PyQt6.QtCore import QRect
 
 
-class HotkeyMicKeySequnceEdit(QKeySequenceEdit):
+class HotkeyMicKeySequenceEdit(QKeySequenceEdit):
+    '''
+    Implements all general functionality of Qt Sequence Edit field.
+
+    Reimplements method keyReleaseEvent(), changing logic of setting hotkey
+    shortcut to Qt Sequence Edit field. This class used for normal
+    app mode only.
+    '''
     def __init__(self, parent=None):
+        '''
+        Main initialization method. Sets custom location of Sequence Edit field.
+
+        Args:
+            parent (None | QObject): sets the widget parent for
+            Sequence Edit field.
+        '''
         super().__init__(parent)
 
         self.setGeometry(QRect(175, 267, 240, 21))
         self.setObjectName("HotkeyMic")
 
-    def keyReleaseEvent(self, event):
+    def keyReleaseEvent(self, e):
+        '''
+        Reimplemented method. Changes shortcut string view to human-readable.
+
+        Args:
+            - e (PyQt6.QtGui.QKeyEvent): Qt key event.
+        '''
         sequenceString = self.keySequence().toString()
         if sequenceString:
             last_key_stroke = sequenceString.split(',')[-1].strip()
@@ -26,14 +46,34 @@ class HotkeyMicKeySequnceEdit(QKeySequenceEdit):
         self.clearFocus()
 
 
-class HotkeyWalkieKeySequnceEdit(QKeySequenceEdit):
+class HotkeyWalkieKeySeqeunceEdit(QKeySequenceEdit):
+    '''
+    Implements all general functionality of Qt Sequence Edit field.
+
+    Reimplements method keyReleaseEvent(), changing logic of setting hotkey
+    shortcut to Qt Sequence Edit field. This class used for walkie-talkie
+    app mode only.
+    '''
     def __init__(self, parent=None):
+        '''
+        Main initialization method. Sets custom location of Sequence Edit field.
+
+        Args:
+            parent (None | QObject): sets the widget parent for
+            Sequence Edit field.
+        '''
         super().__init__(parent)
 
         self.setGeometry(QRect(175, 307, 240, 21))
         self.setObjectName("HotkeyWalkie")
 
-    def keyReleaseEvent(self, event):
+    def keyReleaseEvent(self, e):
+        '''
+        Reimplemented method. Changes shortcut string view to human-readable.
+
+        Args:
+            - e (PyQt6.QtGui.QKeyEvent): Qt key event.
+        '''
         sequenceString = self.keySequence().toString()
         if sequenceString:
             last_key_stroke = sequenceString.split(',')[-1].strip()
@@ -43,9 +83,39 @@ class HotkeyWalkieKeySequnceEdit(QKeySequenceEdit):
 
 
 class SettingsWindow(QWidget):
-    def __init__(self, tray_instance=None, about_instance=None, hotkeys_manager=None):
-        # For initializing Qt things.
+    # TODO: replace themes initializing into another module "appearanceManager".
+    '''
+    Implements "settings" window of app.
+    Sets actual theme of app and checkboxes of window on app startup.
+
+    Parameters:
+        - tray_instance (QSystemTrayIcon): TrayIcon class instance.
+        - about_instance (QWidget): AboutWindow class instance.
+        - hotkeys_manager (QObject): HotkeysManager class instance.
+
+    Attributes:
+        - tray (QSystemTrayIcon): TrayIcon class instance.
+        - about (QWidget): AboutWindow class instance.
+        - hotkeys (QObject): HotkeysManager class instance.
+        - settings_UI (QObject): "settings" window styles instance.
+        - db (DatabaseController): database controller class instance.
+        - hotkey_mic (QKeySequenceEdit): custom Qt Sequence Edit field for
+        normal app mode only.
+        - hotkey_walkie (QKeySequenceEdit): custom Qt Sequence Edit field for
+        walkie-talkie app mode only.
+        - tray_styles (TrayIconStyles): custom themes styles for Tray Menu
+        instance.
+        - settings_styles (SettingsStyles): custom themes styles for settings
+        window instance.
+        - about_styles (AboutStyles): custom themes styles for about window
+        instance.
+
+    '''
+    def __init__(self, tray_instance, about_instance, hotkeys_manager):
+        # For initializing Qt functionality.
         super().__init__()
+
+        # A bunch of instances for properly themes working.
         self.tray = tray_instance
         self.about = about_instance
         self.hotkeys = hotkeys_manager
@@ -57,31 +127,28 @@ class SettingsWindow(QWidget):
         # Database Controller class instance.
         self.db = DatabaseController()
 
-        self.HotkeyMic = HotkeyMicKeySequnceEdit(self)
-        self.HotkeyWalkie = HotkeyWalkieKeySequnceEdit(self)
+        # Custom Key Sequence Edits.
+        self.hotkey_mic = HotkeyMicKeySequenceEdit(self)
+        self.hotkey_walkie = HotkeyWalkieKeySeqeunceEdit(self)
 
         # Creating theme instances.
-        try:
-            self.tray_styles = TrayIconStyles(self.tray)
-            self.settings_styles = SettingsWindowStyles(self)
-            self.about_styles = AboutWindowStyles(self.about)
-        except: pass
+        self.tray_styles = TrayIconStyles(self.tray)
+        self.settings_styles = SettingsWindowStyles(self)
+        self.about_styles = AboutWindowStyles(self.about)
 
         # Calling the initialization ui func.
         self.setup_ui()
 
     def setup_ui(self):
+        '''
+        Sets icons, checkboxes in their state according with values in db and
+        connects various signals to their appropriate slots.
+        '''
         self.settings_UI.setupUi(self)
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
         # Going through varoius initial checks.
-        self.init_check_language()
-        self.init_check_notifications()
-        self.init_check_theme()
-        self.init_check_autorun()
-        self.init_check_privacy()
-        self.init_check_mute_mic_on_startup()
-        self.init_set_hotkeys_in_keysequenceedits()
+        self.init_check_everything()
 
         # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
@@ -90,17 +157,18 @@ class SettingsWindow(QWidget):
         self.settings_UI.EnableMic.clicked.connect(
             self.change_mute_mic_on_startup)
         self.settings_UI.UrlUpdates.clicked.connect(self.check_updates_btn)
-        self.HotkeyMic.editingFinished.connect(self.change_mic_hotkey)
-        self.HotkeyWalkie.editingFinished.connect(self.change_walkie_hotkey)
+        self.hotkey_mic.editingFinished.connect(self.change_mic_hotkey)
+        self.hotkey_walkie.editingFinished.connect(self.change_walkie_hotkey)
 
-    # Next methods for init checks and applying everything up.
-    def init_check_language(self):
-        pass
+    def init_check_everything(self):
+        '''
+        Does check for language and notification field and every checkbox
+        settings. Also checks muting state on startup if needed.
+        '''
+        # TODO: Cheking language setting.
+        # TODO: Checking notifications setting.
 
-    def init_check_notifications(self):
-        pass
-
-    def init_check_theme(self):
+        # Theme setting.
         if self.db.night_theme:
             self.settings_UI.NightTheme.setChecked(True)
             self.tray_styles.dark_theme()
@@ -112,73 +180,82 @@ class SettingsWindow(QWidget):
             self.settings_styles.white_theme()
             self.about_styles.white_theme()
 
-    def init_check_autorun(self):
-        if self.db.enable_program:
-            self.settings_UI.EnableProgram.setChecked(True)
-        else:
-            self.settings_UI.EnableProgram.setChecked(False)
+        # Setting autorun checkbox.
+        self.settings_UI.EnableProgram.setChecked(bool(self.db.enable_program))
 
-    def init_check_privacy(self):
-        if self.db.privacy_status:
-            self.settings_UI.PrivacyStatus.setChecked(True)
-        else:
-            self.settings_UI.PrivacyStatus.setChecked(False)
+        # Setting privacy agreement checkbox.
+        self.settings_UI.PrivacyStatus.setChecked(bool(self.db.privacy_status))
 
-    def init_check_mute_mic_on_startup(self):
-        if self.db.enable_mic:
-            self.settings_UI.EnableMic.setChecked(False)
-        else:
-            self.settings_UI.EnableMic.setChecked(True)
-            self.tray.mic.mute_mic()
+        # Checking mute state of mic on startup.
+        self.settings_UI.EnableMic.setChecked(bool(not self.db.enable_mic))
+        if self.settings_UI.EnableMic.isChecked(): self.tray.mic.mute_mic()
+
+        # Setting hotkey shortcuts in key sequence edits.
+        self.init_set_hotkeys_in_keysequenceedits()
 
     def init_set_hotkeys_in_keysequenceedits(self):
+        '''
+        Sets shortcuts of hotkeys in appropriate way.
+        Also, sets value "Scroll_lock" for "ScrollLock" button because of it's
+        unsupported case.
+        '''
         if self.db.hotkey_mic == 'Scroll_lock':
             hotkey_mic = 'ScrollLock'
-            self.HotkeyMic.setKeySequence(hotkey_mic)
+            self.hotkey_mic.setKeySequence(hotkey_mic)
         else:
-            self.HotkeyMic.setKeySequence(self.db.hotkey_mic)
+            self.hotkey_mic.setKeySequence(self.db.hotkey_mic)
         
         if self.db.hotkey_walkie == 'Scroll_lock':
             hotkey_walkie = 'ScrollLock'
-            self.HotkeyWalkie.setKeySequence(hotkey_walkie)
+            self.hotkey_walkie.setKeySequence(hotkey_walkie)
         else:
-            self.HotkeyWalkie.setKeySequence(self.db.hotkey_walkie)
+            self.hotkey_walkie.setKeySequence(self.db.hotkey_walkie)
 
     # Next mehods are for interactive interface changing.
     def change_theme(self):
-        if self.settings_UI.NightTheme.isChecked():
-            self.db.night_theme = 1
-            self.init_check_theme()
-        else:
-            self.db.night_theme = 0
-            self.init_check_theme()
+        '''
+        Chages theme value in db and applies appropriate theme dynamically.
+        '''
+        self.db.night_theme = int(self.settings_UI.NightTheme.isChecked())
+        self.init_check_everything()
 
     def change_autorun(self):
-        if self.settings_UI.EnableProgram.isChecked():
-            self.db.enable_program = 1
-        else:
-            self.db.enable_program = 0
+        '''
+        Changes value of autorun setting in database according to
+        'Autorun Program' checkbox status.
+        '''
+        self.db.enable_program = int(self.settings_UI.EnableProgram.isChecked())
 
     def change_privacy(self):
-        if self.settings_UI.PrivacyStatus.isChecked():
-            self.db.privacy_status = 1
-        else:
-            self.db.privacy_status = 0
+        '''
+        Changes value of privacy agreement setting in database according to
+        'Privacy Agreement' checkbox status.
+        '''
+        self.db.privacy_status = int(self.settings_UI.PrivacyStatus.isChecked())
 
     def change_mute_mic_on_startup(self):
-        if self.settings_UI.EnableMic.isChecked():
-            self.db.enable_mic = 0
-        else:
-            self.db.enable_mic = 1
+        '''
+        Changes value of mic muting on starup setting in database according to
+        'Mute Mic on Startup' checkbox status.
+        '''
+        self.db.enable_mic = not self.settings_UI.EnableMic.isChecked()
 
     def check_updates_btn(self):
+        '''
+        Opens new tab with program releases on github with default system browser.
+        '''
         WindowsDefault().open_new_tab(
             "https://github.com/Sif-on/ControlMicTray/releases")
 
     def change_mic_hotkey(self):
-        changed_hotkey = self.HotkeyMic.keySequence().toString()
-        if changed_hotkey == self.HotkeyWalkie.keySequence().toString():
-            self.HotkeyMic.setKeySequence(self.db.hotkey_mic)
+        '''
+        Writes shortcuts of normal mode hotkey to database in appropriate way.
+        Also, sets value "Scroll_lock" for "ScrollLock" button because of it's
+        unsupported case.
+        '''
+        changed_hotkey = self.hotkey_mic.keySequence().toString()
+        if changed_hotkey == self.hotkey_walkie.keySequence().toString():
+            self.hotkey_mic.setKeySequence(self.db.hotkey_mic)
             return
         elif changed_hotkey == 'ScrollLock':
             changed_hotkey = 'Scroll_lock'
@@ -187,9 +264,15 @@ class SettingsWindow(QWidget):
         self.hotkeys.re_register_normal_mode_hotkey()
 
     def change_walkie_hotkey(self):
-        changed_hotkey = self.HotkeyWalkie.keySequence().toString()
-        if changed_hotkey == self.HotkeyMic.keySequence().toString():
-            self.HotkeyWalkie.setKeySequence(self.db.hotkey_walkie)
+        '''
+        Writes shortcuts of walkie-talkie mode hotkey to database in
+        appropriate way.
+        Also, sets value "Scroll_lock" for "ScrollLock" button because of it's
+        unsupported case.
+        '''
+        changed_hotkey = self.hotkey_walkie.keySequence().toString()
+        if changed_hotkey == self.hotkey_mic.keySequence().toString():
+            self.hotkey_walkie.setKeySequence(self.db.hotkey_walkie)
             return
         elif changed_hotkey == 'ScrollLock':
             changed_hotkey = 'Scroll_lock'

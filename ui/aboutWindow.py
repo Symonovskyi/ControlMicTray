@@ -9,6 +9,13 @@ from PyQt6.QtGui import QIcon
 
 
 class AboutWindow(QWidget):
+    '''
+    Implements "About" window of app, which contains info about program itself.
+
+    Attributes:
+        - about_UI (AboutUI): "about" window styles class instance.
+        - db (DatabaseController): database controller class instance.
+    '''
     def __init__(self):
         # For initializing Qt things.
         super().__init__()
@@ -24,6 +31,9 @@ class AboutWindow(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        '''
+        Sets icon and title of window. Also connects signals to slots.
+        '''
         self.setWindowIcon(QIcon('ui\\resources\\Microphone_dark.svg'))
 
         self.about_UI.ProgramVersion.setText(self.db.program_version)
@@ -32,10 +42,19 @@ class AboutWindow(QWidget):
         self.about_UI.UrlPrivacyPolicy.clicked.connect(self.open_privacy)
 
     def open_site(self):
+        '''
+        Opens releases on github in new tab using default system browser.
+        '''
         WindowsDefault().open_new_tab(self.db.web_site)
 
     def open_email(self):
+        '''
+        Opens email tab using default system browser.
+        '''
         WindowsDefault().open_new_tab(f"mailto:{self.db.email}")
 
     def open_privacy(self):
+        '''
+        Opens licence of this app in new tab using default system browser.
+        '''
         WindowsDefault().open_new_tab(self.db.url_privacy_policy)

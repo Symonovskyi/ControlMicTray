@@ -9,14 +9,13 @@ class DatabaseController:
     """
     This class operates with database, which contains user settings.
     """
-
     def __init__(self):
-        self.__db_name = "ControlMicTray.db"
+        self.__db_name = "database\\ControlMicTray.db"
         self.__user_name = getuser()
         self.__checkDatabaseForExistence()
 
     def __checkDatabaseForExistence(self):
-        if not path.exists(f"{self.__db_name}"):  # TODO: move to "database" dir
+        if not path.exists(self.__db_name):
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 

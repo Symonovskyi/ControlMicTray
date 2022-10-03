@@ -5,7 +5,7 @@ from ui.aboutWindow import AboutWindow
 from ui.settingsWindow import SettingsWindow
 from logic.absolutePath import loadFile
 from logic.microphoneController import (MicrophoneController,
-    CustomAudioEndpointVolumeCallback)
+    CustomMicrophoneEndpointVolumeCallback)
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
@@ -15,64 +15,121 @@ import keyboard as kb
 
 
 class HotkeysManager(QObject):
-    normal_mode = pyqtSignal()
-    walkie_mode_on = pyqtSignal()
-    walkie_mode_off = pyqtSignal()
+    '''
+    Implements hotkey manager functionality.
+
+    Attributes:
+        - db (DatabaseController): for getting hotkeys shortcuts from database.
+        - normal_mode_hotkey_signal (pyqtSignal): Qt custom signal for normal
+        mode hotkey.
+        - walkie_mode_on_hotkey_signal (pyqtSignal): Qt custom signal for
+        walkie-talkie mode hotkey. Used when user using walkie mode and
+        holds hotkey so mic gets unmuted.
+        - walkie_mode_off_hotkey_signal (pyqtSignal): Qt custom signal for
+        walkie-talkie mode hotkey. Used when user using walkie mode and
+        releases hotkey so mic gets muted.
+        - normal_hotkey_attr (None | keyboard.KeyboardEvent): handles reference
+        to normal hotkey keyboard event.
+        - walkie_hotkey_on_attr (None | keyboard.KeyboardEvent): handles
+        reference to "walkie hotkey on" keyboard event.
+        - walkie_hotkey_off_attr (None | keyboard.KeyboardEvent): handles
+        reference to "walkie hotkey off" keyboard event.
+    '''
     db = DatabaseController()
 
-    normal_hotkey = None
-    walkie_hotkey_on = None
-    walkie_hotkey_off = None
+    normal_mode_hotkey_signal = pyqtSignal()
+    walkie_mode_on_hotkey_signal = pyqtSignal()
+    walkie_mode_off_hotkey_signal = pyqtSignal()
+
+    normal_hotkey_attr = None
+    walkie_hotkey_on_attr = None
+    walkie_hotkey_off_attr = None
 
     def register_normal_mode_hotkey(self):
+        '''
+        Registers hotkey for normal app mode using shortcuts from db and
+        removes hotkeys for walkie-talkie app mode if there are any.
+        '''
         try:
-            kb.remove_hotkey(self.walkie_hotkey_on)
-            kb.remove_hotkey(self.walkie_hotkey_off)
+            kb.remove_hotkey(self.walkie_hotkey_on_attr)
+            kb.remove_hotkey(self.walkie_hotkey_off_attr)
         except Exception: pass
 
-        self.normal_hotkey = kb.add_hotkey(
-            self.db.hotkey_mic, self.normal_mode.emit, suppress=True)
+        self.normal_hotkey_attr = kb.add_hotkey(self.db.hotkey_mic,\
+            self.normal_mode_hotkey_signal.emit, suppress=True)
 
     def register_walkie_mode_hotkey(self):
+        '''
+        Registers hotkey for walkie-talkie app mode using shortcuts from db and
+        removes hotkeys for normal app mode if there are any.
+        '''
         try:
-            kb.remove_hotkey(self.normal_hotkey)
+            kb.remove_hotkey(self.normal_hotkey_attr)
         except Exception: pass
 
-        self.walkie_hotkey_on = kb.add_hotkey(
-            self.db.hotkey_walkie.upper(), self.walkie_mode_on.emit, suppress=True,\
+        self.walkie_hotkey_on_attr = kb.add_hotkey(self.db.hotkey_walkie.upper(),\
+            self.walkie_mode_on_hotkey_signal.emit, suppress=True,\
                 trigger_on_release=False)
-        self.walkie_hotkey_off = kb.add_hotkey(
-            self.db.hotkey_walkie.lower(), self.walkie_mode_off.emit, suppress=True,\
+        self.walkie_hotkey_off_attr = kb.add_hotkey(self.db.hotkey_walkie.lower(),\
+            self.walkie_mode_off_hotkey_signal.emit, suppress=True,\
                 trigger_on_release=True)
 
     def re_register_normal_mode_hotkey(self):
-        kb.remove_hotkey(self.normal_hotkey)
-        self.normal_hotkey = kb.add_hotkey(
-            self.db.hotkey_mic, self.normal_mode.emit, suppress=True)
+        '''
+        Removes actual registered hotkey for nomral app mode and registers
+        new hotkey, using shortcut from db.
+        '''
+        kb.remove_hotkey(self.normal_hotkey_attr)
+        self.normal_hotkey_attr = kb.add_hotkey(
+            self.db.hotkey_mic, self.normal_mode_hotkey_signal.emit, suppress=True)
 
     def re_register_walkie_mode_hotkey(self):
-        kb.remove_hotkey(self.walkie_hotkey_on)
-        kb.remove_hotkey(self.walkie_hotkey_off)
+        '''
+        Removes actual registered hotkeys for walkie-talkie app mode and
+        registers new hotkeys, using shortcuts from db.
+        '''
+        kb.remove_hotkey(self.walkie_hotkey_on_attr)
+        kb.remove_hotkey(self.walkie_hotkey_off_attr)
 
-        self.walkie_hotkey_on = kb.add_hotkey(
-            self.db.hotkey_walkie.upper(), self.walkie_mode_on.emit, suppress=True,\
+        self.walkie_hotkey_on_attr = kb.add_hotkey(self.db.hotkey_walkie.upper(),\
+            self.walkie_mode_on_hotkey_signal.emit, suppress=True,\
                 trigger_on_release=False)
-        self.walkie_hotkey_off = kb.add_hotkey(
-            self.db.hotkey_walkie.lower(), self.walkie_mode_off.emit, suppress=True,\
+        self.walkie_hotkey_off_attr = kb.add_hotkey(self.db.hotkey_walkie.lower(),\
+            self.walkie_mode_off_hotkey_signal.emit, suppress=True,\
                 trigger_on_release=True)
 
 
 class CustomQMenu(QMenu):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    '''
+    Implements all general functionality of Qt Menu.
+
+    Reimplements methods mousePressEvent() and mouseReleaseEvent(), disabling
+    any mouse button pressing and releasing, except left mouse button.
+    '''
+    def __init__(self):
+        super().__init__()
 
     def mousePressEvent(self, e):
+        '''
+        Reimplemented method. Disables any mouse button pressing, except
+        left mouse button.
+
+        Args:
+            - e (PyQt6.QtGui.QMouseEvent): Qt mouse event.
+        '''
         if e.button() != Qt.MouseButton.LeftButton:
             e.ignore()
         else:
             super().mousePressEvent(e)
 
     def mouseReleaseEvent(self, e):
+        '''
+        Reimplemented method. Disables any mouse button releasing, except
+        left mouse button.
+
+        Args:
+            - e (PyQt6.QtGui.QMouseEvent): Qt mouse event.
+        '''
         if e.button() != Qt.MouseButton.LeftButton:
             e.ignore()
         else:
@@ -81,38 +138,53 @@ class CustomQMenu(QMenu):
 
 class TrayIcon(QSystemTrayIcon):
     '''
-    Class that actually creates the tray icon and it's menu elements.
-    Also, this class configures the behaviour of menu items.
+    Implements main Qt System Tray Icon functionality.
 
-    Methods:
-    - change_mic_status() - checks the actual state of mic, and mutes/unmutes
-    it according to its status. Also, changes the tray icon and check mark on
-    the first element menu.
-    - change_mode_to_walkie() - checks if the 'Walkie-Talkie' mode is enabled.
+    What happens at init stage (app startup):
+        - If this is first app startup ever, creating database and tables
+        filling them with different default app data;
+        - Generating Qt Menu custom elements;
+        - Connecting menu elements signals to their appropriate slots;
+        - Setting up all icons, registering hotkeys and callback on mic status
+        changing, accroding to app mode on startup.
+
+    Methods functionality:
+        - change_mic_status_on_mouse_click():
+        Changes mic status on single mouse click of tray icon.
+        - change_icons_according_to_status():
+        Change menu and app icons color accroding to app mode switches;
+        - change_mic_status():
+        Change mic status according to it's actual status
+        (If mic is muted it gets unmuted, conversely otherwise).
+        - mode_switcher():
+        Switches app mode according to the walkie-talkie menu element status.
     '''
+    def __init__(self):
+        # Initializing main Qt functionality of Qt System Tray Icon.
+        super().__init__()
 
-    def __init__(self, parent=None):
-        # For initializing Qt things.
-        super().__init__(parent)
-
-        # Declaring Microphone and Database Controllers class instances.
+        # Declaring a bunch of instaces:
+        # Microphone instance;
+        # Database Controller instance;
+        # Callback instance for changing icons status on mic change status;
+        # "About" Window instance;
+        # Hotkeys Manager instance.
         self.mic = MicrophoneController()
         self.db = DatabaseController()
-
-        # Test callback for discovering mic status.
-        self.callback = CustomAudioEndpointVolumeCallback(self)
-
-        # Creating About Window instance.
+        self.callback = CustomMicrophoneEndpointVolumeCallback(self)
         self.about_win = AboutWindow()
-
-        # Creating Hotkeys Manager instance.
         self.hotkeys = HotkeysManager()
 
-        # Calling the initialization ui func.
-        self.setup_ui()
+        # Calling the initialization ui method.
+        self.__setup_ui()
 
-    def setup_ui(self):
-        # Menu of tray.
+    def __setup_ui(self):
+        '''
+        Setting up all menu elements, and connecting signals to their slots.
+        For more details, see docstring to this class in
+        "What happens at init stage" section.
+        '''
+        # See docstings of this class to find out why using custom Qt Menu.
         self.menu = CustomQMenu()
 
         # Initializing and configuring 'On\Off Microphone' menu element.
@@ -126,7 +198,7 @@ class TrayIcon(QSystemTrayIcon):
 
         self.menu.addSeparator()
 
-        # Initializing and configuring 'Settings' menu element.
+        # Initializing 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
         settings_action.setIcon(QIcon(loadFile('ui\\resources\\Settings.svg')))
 
@@ -144,7 +216,8 @@ class TrayIcon(QSystemTrayIcon):
         exit_action.setIcon(QIcon(loadFile('ui\\resources\\Exit.svg')))
         exit_action.triggered.connect(exit)
 
-        # For properly themes working.
+        # Declaring Settings Window instance here for proerly
+        # theme initializing. Also configuring 'Settings' menu element.
         self.settings_win = SettingsWindow(self, self.about_win, self.hotkeys)
         settings_action.triggered.connect(self.settings_win.show)
 
@@ -153,24 +226,39 @@ class TrayIcon(QSystemTrayIcon):
         self.setToolTip('ControlMicTray')
 
         # Setting icons to menu items accordingly to ControlMicTray mode.
-        self.change_icons_according_to_status()
+        self.change_icons_according_to_mic_status()
 
         # Cheking ControlMicTray mode on startup.
         self.mode_switcher()
 
         # Connect hotkey signals to appropriate actions (slots).
-        self.hotkeys.normal_mode.connect(self.change_mic_status)
-        self.hotkeys.walkie_mode_on.connect(self.mic.unmute_mic)
-        self.hotkeys.walkie_mode_off.connect(self.mic.mute_mic)
+        self.hotkeys.normal_mode_hotkey_signal.connect(self.change_mic_status)
+        self.hotkeys.walkie_mode_on_hotkey_signal.connect(self.mic.unmute_mic)
+        self.hotkeys.walkie_mode_off_hotkey_signal.connect(self.mic.mute_mic)
+
+        # Connect single mouse click on tray icon to changing mic status.
+        self.activated.connect(self.change_mic_status_on_mouse_click)
 
         # Register callback controlling when mic changes it's state.
         self.mic.register_control_change_notify(self.callback)
 
-    def change_icons_according_to_status(self):
+    def change_mic_status_on_mouse_click(self, reason):
+        '''
+        Changes mic status by single mouse click on tray icon.
+        '''
+        if reason == self.ActivationReason.Trigger and not self.db.walkie_status:
+            self.change_mic_status()
+
+    def change_icons_according_to_mic_status(self):
+        '''Changes icons according to mic status and app mode.'''
+
         if self.db.walkie_status:
-            self.setIcon(QIcon(loadFile('ui\\resources\\Microphone_dark_OFF.svg')))
-            self.push_to_talk.setIcon(QIcon(loadFile('ui\\resources\\On.svg')))
             self.turn_micro.setIcon(QIcon(loadFile('ui\\resources\\Off.svg')))
+            self.push_to_talk.setIcon(QIcon(loadFile('ui\\resources\\On.svg')))
+            if self.mic.get_mic_status:
+                self.setIcon(QIcon(loadFile('ui\\resources\\Microphone_dark_OFF.svg')))
+            else:
+                self.setIcon(QIcon(loadFile('ui\\resources\\Microphone_dark_ON.svg')))
         else:
             self.push_to_talk.setIcon(QIcon(loadFile('ui\\resources\\Off.svg')))
             if self.mic.get_mic_status:
@@ -201,14 +289,14 @@ class TrayIcon(QSystemTrayIcon):
             # Setting walkie-talkie status turned on in db. Also cheking for
             # appropriate changing icons in menu.
             self.db.walkie_status = 1
-            self.change_icons_according_to_status()
+            self.change_icons_according_to_mic_status()
 
             # Disabling menu entry "Turn Mic On\Off" and input field for hotkey
             # of normal mode.
             self.turn_micro.setEnabled(False)
-            self.settings_win.HotkeyMic.setEnabled(False)
+            self.settings_win.hotkey_mic.setEnabled(False)
             # Enabling input field for hotkey of walkie-talkie mode.
-            self.settings_win.HotkeyWalkie.setEnabled(True)
+            self.settings_win.hotkey_walkie.setEnabled(True)
 
             # Register hotkey for this mode.
             self.hotkeys.register_walkie_mode_hotkey()
@@ -217,14 +305,14 @@ class TrayIcon(QSystemTrayIcon):
             # Setting walkie-talkie status turned off in db. Also cheking for
             # appropriate changing icons in menu.
             self.db.walkie_status = 0
-            self.change_icons_according_to_status()
+            self.change_icons_according_to_mic_status()
 
             # Enabling menu entry "Turn Mic On\Off" and input field for hotkey
             # of normal mode.
             self.turn_micro.setEnabled(True)
-            self.settings_win.HotkeyMic.setEnabled(True)
+            self.settings_win.hotkey_mic.setEnabled(True)
             # Disabling input field for hotkey of walkie-talkie mode.
-            self.settings_win.HotkeyWalkie.setEnabled(False)
+            self.settings_win.hotkey_walkie.setEnabled(False)
 
             # Register hotkey for this mode.
             self.hotkeys.register_normal_mode_hotkey()

@@ -6,11 +6,12 @@ from logic.absolutePath import loadFile
 # "pip install" modules.
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt
 
 
 if __name__ == '__main__':
+    # Creating Qt application instance.
     app = QApplication(argv)
+    # If any error will be occured, program will show dialog with error info and exit.
     try:
         tray = TrayIcon()
     except Exception as e:
@@ -24,6 +25,7 @@ if __name__ == '__main__':
         if error_diag.finished:
             exit(app.exec())
     else:
+        # Disabling exiting main thread when closing any windows.
         app.setQuitOnLastWindowClosed(False)
         tray.show()
         exit(app.exec())
