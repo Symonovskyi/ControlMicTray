@@ -1,63 +1,74 @@
 # Built-in modules and own classes.
-from keyboard import is_pressed
 from ctypes import POINTER, cast
-from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
-                         IAudioEndpointVolumeCallback)
 
 # "pip install" modules.
 from comtypes import CLSCTX_ALL, COMObject
+from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
+    IAudioEndpointVolumeCallback)
 
 
 class MicrophoneController(AudioUtilities):
     '''
-    Class that uses "pycaw" module to operate with microphone.
+    This controller uses "pycaw" module to operate with microphone states.
+    Initalizate connection to default microphone in system if any available.
 
-    Methods:
-    - mute_mic() - mutes the mic.
-    - unmute_mic() - unmutes the mic.
-
-    Properties:
-    - get_mic - holds the actual microphone instance.
-    - get_devices_count - holds microphones count that are active in system.
-    - get_mic_muted_state - holds the actual state of mic: muted or not.
+    Attributes:
+        - __mic (comtypes.POINTER(IAudioEndpointVolume)):
+        system microphone instance.
     '''
-
     def __init__(self):
-        interface = self.GetMicrophone(
-            ).Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-        self.mic = cast(interface, POINTER(IAudioEndpointVolume))
+        self.__mic = cast(self.GetMicrophone().Activate(\
+                IAudioEndpointVolume._iid_, CLSCTX_ALL, None),\
+                    POINTER(IAudioEndpointVolume))
 
     def mute_mic(self):
-        self.mic.SetMute(True, None)
+        '''
+        Mutes system microphone.
+        '''
+        self.__mic.SetMute(True, None)
 
     def unmute_mic(self):
-        self.mic.SetMute(False, None)
+        '''
+        Unmutes system microphone.
+        '''
+        self.__mic.SetMute(False, None)
 
     def register_control_change_notify(self, callback):
-        self.mic.RegisterControlChangeNotify(callback)
+        '''
+        Registers callback for changing icons status on mic change status.
+        '''
+        self.__mic.RegisterControlChangeNotify(callback)
 
     @property
-    def get_devices_count(self):
-        # TODO: get the real count of microphones only.
-        ...
-
-    @property
-    def get_mic_status(self):
-        return self.mic.GetMute()
+    def get_mic_status(self) -> bool:
+        '''
+        Returns True if mic is muted, False otherwise.
+        '''
+        return bool(self.__mic.GetMute())
 
 
-class CustomAudioEndpointVolumeCallback(COMObject):
+class CustomMicrophoneEndpointVolumeCallback(COMObject):
+    '''
+    Implements custom callback for microphone state changes.
+
+    Parameters:
+        - inst (QSystemTrayIcon): used for making a reference between classes,
+        such as this and TrayIcon class.
+
+    Attributes:
+        - _com_interfaces_ (list): contains reference to
+        IAudioEndpointVolumeCallback functionality from C language.
+    '''
     _com_interfaces_ = [IAudioEndpointVolumeCallback]
 
-    def __init__(self, qinstance):
-        self.inst = qinstance
+    def __init__(self, tray_instance):
+        self.inst = tray_instance
 
     def OnNotify(self, pNotify):
-        try:
-            if self.inst.push_to_talk.isChecked() and not is_pressed(
-                self.inst.db.hotkey_walkie):
-                self.inst.mic.mute_mic()
-                self.inst.check_mic_if_muted(mode='init')
-            else:
-                self.inst.check_mic_if_muted(mode='init')
-        except: pass
+        '''
+        Implements a callback itself.
+        Calls change_icons_according_to_mic_status() from main TrayIcon class
+        to change menu elements switchers and tray icon color when microphone
+        state changes from "muted" to "unmuted" and conversely otherwise.
+        '''
+        self.inst.change_icons_according_to_mic_status()

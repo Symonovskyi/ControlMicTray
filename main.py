@@ -1,6 +1,6 @@
 # Built-in modules and own classes.
 from sys import argv, exit
-from ui.trayIcon import TrayIcon
+from logic.trayIcon import TrayIcon
 
 # "pip install" modules.
 from PyQt6.QtWidgets import QApplication, QMessageBox
@@ -14,7 +14,7 @@ if __name__ == '__main__':
         win = TrayIcon()
     except Exception as e:
         error_diag = QMessageBox()
-        error_diag.setWindowIcon(QIcon('ui\\resources\\Microphone_light.svg'))
+        error_diag.setWindowIcon(QIcon('ui/resources/Microphone_light.svg'))
         error_diag.setWindowTitle('ContolMicTray: Error!')
         error_diag.setText(f'Произошла ошибка при запуске приложения.\n'\
             'Проверьте подключённые микрофоны в Вашей системе и перезапустите приложение.\n\n' + \
