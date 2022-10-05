@@ -36,6 +36,7 @@ test/*
 *.spec
 *.cmd
 *test*
+~*
 setup.py
 
 # Installer logs
@@ -114,7 +115,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-Pipfile
 
 # Spyder project settings
 .spyderproject
@@ -139,6 +139,3 @@ ControlMicTray.db
 
 # Custom autorun
 startMic.vbs
-
-# Other
-software/
