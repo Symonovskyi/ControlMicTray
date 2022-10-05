@@ -1,7 +1,7 @@
 # Built-in modules and own classes.
 from sys import argv, exit
 from ui.trayIcon import TrayIcon
-from logic.absolutePath import loadFile
+from absolutePath import loadFile
 
 # "pip install" modules.
 from PyQt6.QtWidgets import QApplication, QMessageBox
