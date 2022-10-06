@@ -72,10 +72,10 @@ An application **for Windows** that allows you to monitor and control your micro
 
 | **Language** | **Files** | **Lines** | **Code** | **Comments** | **Blanks** |
 | :----------- | :-------: | :-------: | :------: | :----------: | :--------: |
-| Markdown     |    1      |     55    |      0   |    39        |    16      |
+| Markdown     |    1      |     81    |      0   |    57        |    24      |
 | PowerShell   |    1      |      1    |      1   |     0        |     0      |
-| Python       |   15      |   1863    |   1545   |    97        |   221      |
+| Python       |   15      |   1869    |   1550   |    97        |   222      |
 | SQL          |    4      |     63    |     60   |     3        |     0      |
 | SVG          |   14      |    108    |    108   |     0        |     0      |
 | Plain Text   |    1      |     13    |      0   |    13        |     0      |
-| **Total**    | **36**    | **2103**  | **1714** | **152**      | **237**    |
+| **Total**    | **36**    | **2135**  | **1719** | **170**      | **246**    |
