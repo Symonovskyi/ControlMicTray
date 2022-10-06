@@ -32,6 +32,16 @@ class DatabaseController:
 
                 db.commit()
             db.close()
+        elif path.exists(self.__db_name):
+            with connect(self.__db_name) as db:
+                cursor = db.cursor()
+
+                about_data = open(loadFile("database/SQL/UPDATE_ABOUT_DATA.sql"))
+                cursor.executescript(about_data.read())
+                about_data.close()
+
+                db.commit()
+            db.close()
 
     # Getters.
 

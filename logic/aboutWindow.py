@@ -2,6 +2,7 @@
 from webbrowser import WindowsDefault
 from ui.ui.AboutWindowUI import Ui_AboutWindow as AboutUI
 from database.databaseController import DatabaseController
+from absolutePath import loadFile
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QWidget
@@ -34,7 +35,7 @@ class AboutWindow(QWidget):
         '''
         Sets icon and title of window. Also connects signals to slots.
         '''
-        self.setWindowIcon(QIcon('ui/resources/Microphone_dark.svg'))
+        self.setWindowIcon(QIcon(loadFile('ui/resources/Microphone_dark.svg')))
 
         self.about_UI.ProgramVersion.setText(self.db.program_version)
         self.about_UI.WebSite.clicked.connect(self.open_site)
@@ -45,6 +46,7 @@ class AboutWindow(QWidget):
         '''
         Opens releases on github in new tab using default system browser.
         '''
+        print(self.db.web_site)
         WindowsDefault().open_new_tab(self.db.web_site)
 
     def open_email(self):
