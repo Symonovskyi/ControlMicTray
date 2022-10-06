@@ -4,7 +4,7 @@
 
 Додаток *для Windows*, який дозволяє моніторити та керувати Вашим мікрофоном без зайвих рухів: іконка в системному треї покаже його поточний стан, а персональна настроювана гаряча клавіша дозволить швидко керувати ним.
 
----
+#
 
 >## Встановлення:
 >
@@ -12,9 +12,9 @@
 >2. 📂Відкрити завантажений файл;
 >3. 🏆Профіт!
 
----
 
 # *TODO*: Реалізовано станом на 06.10.2022:
+
 - [x] Вимкнення та увімкнення мікрофона за допомогою настроюваної гарячої клавіші;
 - [x] Вимкнення та увімкнення мікрофона в меню додатку;
 - [x] Вимкнення мікрофона при запуску додатку;
@@ -29,12 +29,11 @@
 
 # EN
 
-
 ## Control your microphone comfortably with ControlMicTray🎙️
 
 An application *for Windows* that allows you to monitor and control your microphone without unnecessary movements: an icon in the system tray will show its current status, and a personal customizable hotkey will allow you to quickly control it.
 
----
+#
 
 >## Installing:
 >
@@ -42,9 +41,8 @@ An application *for Windows* that allows you to monitor and control your microph
 >2. 📂Open the downloaded file;
 >3. 🏆Profit!
 
----
-
 # *TODO*: Realized stuff as of 06.10.2022:
+
 - [x] Turn the microphone off and on with a customizable hotkey;
 - [x] Disable and enable the microphone in the application menu;
 - [x] Turn off the microphone when starting the application;
