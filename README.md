@@ -1,8 +1,8 @@
 # ![Presentation ControlMicTray](https://controlmictray.pp.ua/src/img/logo/Microphone.svg) ControlMicTray
 
-[![Release (latest by date)](https://img.shields.io/github/v/release/Sif-on/ControlMicTray?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray/releases) ![Release Date](https://img.shields.io/github/release-date/Sif-on/ControlMicTray?style=for-the-badge) [![All releases](https://img.shields.io/github/downloads/Sif-on/ControlMicTray/total?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray/releases) [![License](https://img.shields.io/github/license/Sif-on/ControlMicTray?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray)  
-![Commits since latest release](https://img.shields.io/github/commits-since/Sif-on/ControlMicTray/latest?style=for-the-badge) ![Code size in bytes](https://img.shields.io/github/languages/code-size/Sif-on/ControlMicTray?style=for-the-badge) ![Lines of code](https://aschey.tech/tokei/github/Sif-on/ControlMicTray?style=for-the-badge)  
-![Locked Python version](https://img.shields.io/github/pipenv/locked/python-version/Sif-on/ControlMicTray?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Sif-on/ControlMicTray/pyqt6?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Sif-on/ControlMicTray/keyboard?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Sif-on/ControlMicTray/pycaw?style=for-the-badge)
+[![Release (latest by date)](https://img.shields.io/github/v/release/Symonovskyi/ControlMicTray?style=for-the-badge)](https://github.com/Symonovskyi/ControlMicTray/releases) ![Release Date](https://img.shields.io/github/release-date/Symonovskyi/ControlMicTray?style=for-the-badge) [![All releases](https://img.shields.io/github/downloads/Symonovskyi/ControlMicTray/total?style=for-the-badge)](https://github.com/Symonovskyi/ControlMicTray/releases) [![License](https://img.shields.io/github/license/Symonovskyi/ControlMicTray?style=for-the-badge)](https://github.com/Symonovskyi/ControlMicTray/blob/main/LICENSE)  
+![Commits since latest release](https://img.shields.io/github/commits-since/Symonovskyi/ControlMicTray/latest?style=for-the-badge) ![Code size in bytes](https://img.shields.io/github/languages/code-size/Symonovskyi/ControlMicTray?style=for-the-badge) ![Lines of code](https://aschey.tech/tokei/github/Symonovskyi/ControlMicTray?style=for-the-badge)  
+![Locked Python version](https://img.shields.io/github/pipenv/locked/python-version/Symonovskyi/ControlMicTray?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Symonovskyi/ControlMicTray/pyqt6?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Symonovskyi/ControlMicTray/keyboard?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Symonovskyi/ControlMicTray/pycaw?style=for-the-badge)
 
 ## Language
 
@@ -22,7 +22,7 @@ An application **for Windows** that allows you to monitor and control your micro
 
 ### Installing
 
-1. 👩🏻‍💻Download the latest version of the application from [releases page](https://github.com/Sif-on/ControlMicTray/releases);
+1. 👩🏻‍💻Download the latest version of the application from [releases page](https://github.com/Symonovskyi/ControlMicTray/releases);
 2. 📂Open the downloaded file;
 3. 🏆Profit!
 
@@ -50,7 +50,7 @@ An application **for Windows** that allows you to monitor and control your micro
 
 #### Встановлення
 
-1. 👩🏻‍💻Завантажити останню версію додатку з [сторінки релізів](https://github.com/Sif-on/ControlMicTray/releases);
+1. 👩🏻‍💻Завантажити останню версію додатку з [сторінки релізів](https://github.com/Symonovskyi/ControlMicTray/releases);
 2. 📂Відкрити завантажений файл;
 3. 🏆Профіт!
 
