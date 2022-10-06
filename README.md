@@ -1,7 +1,7 @@
 # ![Presentation ControlMicTray](https://controlmictray.pp.ua/src/img/logo/Microphone.svg) ControlMicTray
 
-[![Belease (latest by date)](https://img.shields.io/github/v/release/Sif-on/ControlMicTray?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray/releases) ![Release Date](https://img.shields.io/github/release-date/Sif-on/ControlMicTray?style=for-the-badge) [![All releases](https://img.shields.io/github/downloads/Sif-on/ControlMicTray/total?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray/releases) [![License](https://img.shields.io/github/license/Sif-on/ControlMicTray?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray)
-![Commits since latest release](https://img.shields.io/github/commits-since/Sif-on/ControlMicTray/latest?style=for-the-badge) ![Code size in bytes](https://img.shields.io/github/languages/code-size/Sif-on/ControlMicTray?style=for-the-badge) ![Lines of code](https://aschey.tech/tokei/github/Sif-on/ControlMicTray?style=for-the-badge)
+[![Release (latest by date)](https://img.shields.io/github/v/release/Sif-on/ControlMicTray?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray/releases) ![Release Date](https://img.shields.io/github/release-date/Sif-on/ControlMicTray?style=for-the-badge) [![All releases](https://img.shields.io/github/downloads/Sif-on/ControlMicTray/total?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray/releases) [![License](https://img.shields.io/github/license/Sif-on/ControlMicTray?style=for-the-badge)](https://github.com/Sif-on/ControlMicTray)  
+![Commits since latest release](https://img.shields.io/github/commits-since/Sif-on/ControlMicTray/latest?style=for-the-badge) ![Code size in bytes](https://img.shields.io/github/languages/code-size/Sif-on/ControlMicTray?style=for-the-badge) ![Lines of code](https://aschey.tech/tokei/github/Sif-on/ControlMicTray?style=for-the-badge)  
 ![Locked Python version](https://img.shields.io/github/pipenv/locked/python-version/Sif-on/ControlMicTray?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Sif-on/ControlMicTray/pyqt6?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Sif-on/ControlMicTray/keyboard?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Sif-on/ControlMicTray/pycaw?style=for-the-badge)
 
 ## Language
@@ -74,8 +74,8 @@ An application **for Windows** that allows you to monitor and control your micro
 | :----------- | :-------: | :-------: | :------: | :----------: | :--------: |
 | Markdown     |    1      |     81    |      0   |    57        |    24      |
 | PowerShell   |    1      |      1    |      1   |     0        |     0      |
-| Python       |   15      |   1869    |   1550   |    97        |   222      |
-| SQL          |    4      |     63    |     60   |     3        |     0      |
+| Python       |   15      |   1881    |   1560   |    97        |   224      |
+| SQL          |    4      |     62    |     59   |     3        |     0      |
 | SVG          |   14      |    108    |    108   |     0        |     0      |
 | Plain Text   |    1      |     13    |      0   |    13        |     0      |
-| **Total**    | **36**    | **2135**  | **1719** | **170**      | **246**    |
+| **Total**    | **36**    | **2146**  | **1728** | **170**      | **248**    |
