@@ -2,6 +2,7 @@
 from ctypes import POINTER, cast
 
 # "pip install" modules.
+from keyboard import is_pressed
 from comtypes import CLSCTX_ALL, COMObject
 from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
     IAudioEndpointVolumeCallback)
@@ -67,8 +68,13 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
     def OnNotify(self, pNotify):
         '''
         Implements a callback itself.
+        Instantly mutes mic if not pressing unmuting button, and app is in
+        walkie-talkie mode.
         Calls change_icons_according_to_mic_status() from main TrayIcon class
         to change menu elements switchers and tray icon color when microphone
         state changes from "muted" to "unmuted" and conversely otherwise.
         '''
+        if self.inst.db.walkie_status and not is_pressed(self.inst.db.hotkey_walkie):
+            self.inst.mic.mute_mic()
+
         self.inst.change_icons_according_to_mic_status()

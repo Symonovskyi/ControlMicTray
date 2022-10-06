@@ -2,7 +2,7 @@
 from sqlite3 import connect
 from os import path
 from getpass import getuser
-from logic.absolutePath import loadFile
+from absolutePath import loadFile
 
 
 class DatabaseController:
@@ -10,7 +10,7 @@ class DatabaseController:
     This class operates with database, which contains user settings.
     """
     def __init__(self):
-        self.__db_name = "database\\ControlMicTray.db"
+        self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
         self.__checkDatabaseForExistence()
 
@@ -19,14 +19,14 @@ class DatabaseController:
             with connect(self.__db_name) as db:
                 cursor = db.cursor()
 
-                sql_create = open(loadFile("database\\SQL\\CREATE_TABLES.sql"))
+                sql_create = open(loadFile("database/SQL/CREATE_TABLES.sql"))
                 cursor.executescript(sql_create.read())
                 sql_create.close()
 
                 cursor.execute(
                     f"INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}')")
 
-                sql_data = open(loadFile("database\\SQL\\CREATE_DATA.sql"))
+                sql_data = open(loadFile("database/SQL/CREATE_DATA.sql"))
                 cursor.executescript(sql_data.read())
                 sql_data.close()
 
