@@ -10,7 +10,7 @@ class DatabaseController:
     This class operates with database, which contains user settings.
     """
     def __init__(self):
-        self.__db_name = "database\\ControlMicTray.db"
+        self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
         self.__checkDatabaseForExistence()
 
