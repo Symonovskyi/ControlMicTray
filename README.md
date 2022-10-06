@@ -1,32 +1,56 @@
-# ControlMicTray
+# UA
 
-### Video Demo: [Video at Loom](https://www.loom.com/share/e9984bf32efb461ebff44223645f18ac)
-### Developed with :yellow_heart: :blue_heart:, Python and PyQt6!
+## Пануйте над своїм мікрофоном з комфортом, використовуючи ControlMicTray🎙️
 
->## *This project are made by two **Ukrainian** developers*:
->- [timo364](https://github.com/timo364) (Me, as coder);
->- [Sif-on](https://github.com/Sif-on) (My mate, as Project Manager and Designer).
+Додаток *для Windows*, який дозволяє моніторити та керувати Вашим мікрофоном без зайвих рухів: іконка в системному треї покаже його поточний стан, а персональна настроювана гаряча клавіша дозволить швидко керувати ним.
 
-## This app uses external library: [Python Core Audio Windows Library](https://github.com/AndreMiras/pycaw)
+---
+
+>## Встановлення:
+>
+>1. 👩🏻‍💻Завантажити останню версію додатку з [сторінки релізів](https://github.com/Sif-on/ControlMicTray/releases);
+>2. 📂Відкрити завантажений файл;
+>3. 🏆Профіт!
+
+---
+
+# *TODO*: Реалізовано станом на 06.10.2022:
+- [x] Вимкнення та увімкнення мікрофона за допомогою настроюваної гарячої клавіші;
+- [x] Вимкнення та увімкнення мікрофона в меню додатку;
+- [x] Вимкнення мікрофона при запуску додатку;
+- [x] Темна тема;
+- [x] Режим "Рації";
+- [ ] Локалізація: підтримка різних мов;
+- [x] Автоматичний запуск додатку при старті системи;
+- [ ] Сповіщення від додатку;
+- [ ] Підтримка автоматичних оновлень.
 
 
-# The project aim
-This app will allow you to _control_ your microphone mute state, using two methods:
-- By simple left mouse clicking on tray icon;
-- By tray menu entries;
-- By keyboard hotkeys, that can set by yourself.
 
-# TODO: Realized stuff as of 09.08.2022:
-- [x] Muting and unmuting microphone by hotkey, manually set in the setiings of app;
-- [x] Muting and unmuting microphone in the tray menu;
-- [x] A bit buggy dark and light themes;
-- [x] Turning off mic at the app startup;
-- [x] Free to use "Walkie-Talkie" mode;
-- [ ] Multi-language support;
-- [ ] Auto app startup (chekbox in settings);
+# EN
+
+
+## Control your microphone comfortably with ControlMicTray🎙️
+
+An application *for Windows* that allows you to monitor and control your microphone without unnecessary movements: an icon in the system tray will show its current status, and a personal customizable hotkey will allow you to quickly control it.
+
+---
+
+>## Installing:
+>
+>1. 👩🏻‍💻Download the latest version of the application from [releases page](https://github.com/Sif-on/ControlMicTray/releases);
+>2. 📂Open the downloaded file;
+>3. 🏆Profit!
+
+---
+
+# *TODO*: Realized stuff as of 06.10.2022:
+- [x] Turn the microphone off and on with a customizable hotkey;
+- [x] Disable and enable the microphone in the application menu;
+- [x] Turn off the microphone when starting the application;
+- [x] Dark theme;
+- [x] Walkie-talkie mode;
+- [ ] Localization: support for different languages;
+- [x] Automatic app launch at system startup;
 - [ ] App notifications;
-- [ ] Auto updates support.
-
-> "EXE" folder contains zip file with compiled .exe file and .db for saving all app data. ***This is what you want!***
-
-## For updates and contributors, see: [ControlMicTray GitHub](https://github.com/Sif-on/ControlMicTray)
+- [ ] Support for automatic updates.
