@@ -5,12 +5,12 @@ from absolutePath import loadFile, realWorkingDirectory, loadRealFile
 from ui.ui.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
 from database.databaseController import DatabaseController
-from winshell import shortcut, startup
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QWidget, QKeySequenceEdit
 from PyQt6.QtGui import QIcon, QKeySequence
 from PyQt6.QtCore import QRect
+from winshell import shortcut, startup
 
 
 class HotkeyMicKeySequenceEdit(QKeySequenceEdit):
