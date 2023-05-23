@@ -1,5 +1,5 @@
 comtypes==1.1.14
-future==0.18.2
+future==0.18.3
 keyboard==0.11.0
 Nuitka==1.1.1
 ordered-set==4.1.0
