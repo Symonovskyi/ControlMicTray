@@ -7,6 +7,7 @@ from logic.hotkeysController import HotkeysManager
 from absolutePath import loadFile
 from logic.microphoneController import (MicrophoneController,
     CustomMicrophoneEndpointVolumeCallback)
+from ui.resources.icons import Icons
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
@@ -114,20 +115,20 @@ class TrayIcon(QSystemTrayIcon):
 
         # Initializing 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
-        settings_action.setIcon(QIcon(loadFile('ui/resources/Settings.svg')))
+        settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme='Dark')))
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'About program' menu element.
         about_action = self.menu.addAction('О программе...')
-        about_action.setIcon(QIcon(loadFile('ui/resources/About.svg')))
+        about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme='Dark')))
         about_action.triggered.connect(self.about_win.show)
 
         self.menu.addSeparator()
 
         # Initializing and configuring 'Exit' menu element.
         exit_action = self.menu.addAction('Выход')
-        exit_action.setIcon(QIcon(loadFile('ui/resources/Exit.svg')))
+        exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme='Dark')))
         exit_action.triggered.connect(exit)
 
         # Declaring Settings Window instance here for proerly
@@ -167,17 +168,17 @@ class TrayIcon(QSystemTrayIcon):
         '''Changes icons according to mic status and app mode.'''
 
         if self.db.walkie_status:
-            self.turn_micro.setIcon(QIcon(loadFile('ui/resources/Off.svg')))
-            self.push_to_talk.setIcon(QIcon(loadFile('ui/resources/On.svg')))
+            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=False)))
+            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=True)))
         else:
-            self.push_to_talk.setIcon(QIcon(loadFile('ui/resources/Off.svg')))
+            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=False)))
 
         if self.mic.get_mic_status:
-            self.setIcon(QIcon(loadFile('ui/resources/Microphone_dark_OFF.svg')))
-            self.turn_micro.setIcon(QIcon(loadFile('ui/resources/Off.svg')))
+            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark', state=False)))
+            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=False)))
         else:
-            self.setIcon(QIcon(loadFile('ui/resources/Microphone_dark_ON.svg')))
-            self.turn_micro.setIcon(QIcon(loadFile('ui/resources/On.svg')))
+            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark', state=True)))
+            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=True)))
 
     def init_mode_switcher(self):
         '''

@@ -3,6 +3,7 @@ from webbrowser import WindowsDefault
 from ui.ui.AboutWindowUI import Ui_AboutWindow as AboutUI
 from database.databaseController import DatabaseController
 from absolutePath import loadFile
+from ui.resources.icons import Icons
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QWidget
@@ -35,7 +36,7 @@ class AboutWindow(QWidget):
         '''
         Sets icon and title of window. Also connects signals to slots.
         '''
-        self.setWindowIcon(QIcon(loadFile('ui/resources/Microphone_dark.svg')))
+        self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark')))
 
         self.about_UI.ProgramVersion.setText(self.db.program_version)
         self.about_UI.WebSite.clicked.connect(self.open_site)

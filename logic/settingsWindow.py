@@ -5,6 +5,7 @@ from absolutePath import loadFile, realWorkingDirectory, loadRealFile
 from ui.ui.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
 from database.databaseController import DatabaseController
+from ui.resources.icons import Icons
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QWidget, QKeySequenceEdit
@@ -151,7 +152,7 @@ class SettingsWindow(QWidget):
         connects various signals to their appropriate slots.
         '''
         self.settings_UI.setupUi(self)
-        self.setWindowIcon(QIcon(loadFile('ui/resources/Microphone_dark.svg')))
+        self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark')))
 
         # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
@@ -220,13 +221,13 @@ class SettingsWindow(QWidget):
         Chages theme value in db and applies appropriate theme dynamically.
         '''
         if self.settings_UI.NightTheme.isChecked():
-            self.tray_styles.dark_theme()
-            self.settings_styles.dark_theme()
-            self.about_styles.dark_theme()
+            self.tray_styles.set_styles('Dark')
+            self.settings_styles.set_styles('Dark')
+            self.about_styles.set_styles('Dark')
         else:
-            self.tray_styles.white_theme()
-            self.settings_styles.white_theme()
-            self.about_styles.white_theme()
+            self.tray_styles.set_styles('Light')
+            self.settings_styles.set_styles('Light')
+            self.about_styles.set_styles('Light')
 
         self.db.night_theme = int(self.settings_UI.NightTheme.isChecked())
 
