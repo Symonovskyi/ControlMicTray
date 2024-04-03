@@ -11,20 +11,30 @@ class DatabaseController:
         self.__user_name = getuser()
         self.initialize_database()
 
-    def execute_sql(self, sql_commands):
+    def execute_sql(self, sql_commands, is_select=False):
         with connect(self.__db_name) as conn:
             cursor = conn.cursor()
-            cursor.executescript(sql_commands)
-            conn.commit()
+            if is_select:
+                cursor.execute(sql_commands)
+                result = cursor.fetchone()
+                return result[0] if result else None
+            else:
+                cursor.executescript(sql_commands)
+                conn.commit()
 
     def initialize_database(self):
         if not path.exists(self.__db_name):
             self.create_tables()
             self.insert_initial_data()
-            self.insert_user()
+            if not self.user_exists():
+                self.insert_user()
         else:
             self.update_about_data()
-    
+
+    def user_exists(self):
+        sql_command = f"SELECT 1 FROM 'User' WHERE UserName = '{self.__user_name}';"
+        return self.execute_sql(sql_command, is_select=True) is not None
+
     def create_tables(self):
         sql_commands = f"""
         CREATE TABLE IF NOT EXISTS "User" (
@@ -110,444 +120,148 @@ class DatabaseController:
         """
         self.execute_sql(sql_commands)
 
-    # Getters.
+    def get_property(self, table_name, column_name):
+        sql = f"""
+               SELECT "{column_name}" FROM "{table_name}"
+               WHERE "ID" = (
+                   SELECT "ID" FROM "User" WHERE "UserName" = '{self.__user_name}'
+               )
+              """
+        return self.execute_sql(sql, is_select=True)
 
     @property
     def user_id(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "ID"
-                           FROM "User"
-                           WHERE "UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("User", "ID")
 
     @property
     def user_name(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "UserName"
-                           FROM "User"
-                           WHERE "UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.__user_name
 
     @property
     def hotkey_mic(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Hotkey"."HotkeyMic"
-                           FROM "Hotkey", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Hotkey", "HotkeyMic")
 
     @property
     def hotkey_walkie(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Hotkey"."HotkeyWalkie"
-                           FROM "Hotkey", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Hotkey", "HotkeyWalkie")
 
     @property
     def alerts_type(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Alerts"."AlertsType"
-                           FROM "Alerts", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Alerts", "AlertsType")
 
     @property
     def standard_sound(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Alerts"."StandardSound"
-                           FROM "Alerts", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Alerts", "StandardSound")
 
     @property
     def own_sound(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Alerts"."OwnSound"
-                           FROM "Alerts", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Alerts", "OwnSound")
 
     @property
     def enable_program(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Autorun"."EnableProgram"
-                           FROM "Autorun", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Autorun", "EnableProgram")
 
     @property
     def enable_mic(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Autorun"."EnableMic"
-                           FROM "Autorun", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Autorun", "EnableMic")
 
     @property
     def mic_status(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Autorun"."MicStatus"
-                           FROM "Autorun", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Autorun", "MicStatus")
 
     @property
     def walkie_status(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Autorun"."WalkieStatus"
-                           FROM "Autorun", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Autorun", "WalkieStatus")
 
     @property
     def language_code(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Settings"."LanguageCode"
-                           FROM "Settings", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Settings", "LanguageCode")
 
     @property
     def night_theme(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Settings"."NightTheme"
-                           FROM "Settings", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Settings", "NightTheme")
 
     @property
     def privacy_status(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "Settings"."PrivacyStatus"
-                           FROM "Settings", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("Settings", "PrivacyStatus")
 
     @property
     def program_version(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "About"."ProgramVersion"
-                           FROM "About", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("About", "ProgramVersion")
 
     @property
     def web_site(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "About"."WebSite"
-                           FROM "About", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("About", "WebSite")
 
     @property
     def email(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "About"."Email"
-                           FROM "About", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("About", "Email")
 
     @property
     def copyright(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "About"."Copyright"
-                           FROM "About", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("About", "Copyright")
 
     @property
     def url_privacy_policy(self):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           SELECT "About"."UrlPrivacyPolicy"
-                           FROM "About", "User"
-                           WHERE "User"."UserName" = \'{self.__user_name}\'
-                           """)
-            value = cursor.fetchone()
-        db.close()
-        return value[0]
+        return self.get_property("About", "UrlPrivacyPolicy")
 
-    # Setters.
+    def set_property(self, table_name, column_name, value):
+        sql = f"""
+               UPDATE "{table_name}"
+               SET "{column_name}" = ?
+               WHERE "ID" = (
+                   SELECT "ID" FROM "User" WHERE "UserName" = '{self.__user_name}'
+               )
+              """
+        with connect(self.__db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, (value,))
+            conn.commit()
+
     @hotkey_mic.setter
-    def hotkey_mic(self, value=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Hotkey"
-                           SET "HotkeyMic" = \'{value}\'
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def hotkey_mic(self, value):
+        self.set_property("Hotkey", "HotkeyMic", value)
 
     @hotkey_walkie.setter
-    def hotkey_walkie(self, value=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Hotkey"
-                           SET "HotkeyWalkie" = \'{value}\'
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def hotkey_walkie(self, value):
+        self.set_property("Hotkey", "HotkeyWalkie", value)
 
     @alerts_type.setter
-    def alerts_type(self, value=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Alerts"
-                           SET "AlertsType" = \'{value}\'
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def alerts_type(self, value):
+        self.set_property("Alerts", "AlertsType", value)
 
     @standard_sound.setter
-    def standard_sound(self, value=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Alerts"
-                           SET "StandardSound" = \'{value}\'
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def standard_sound(self, value):
+        self.set_property("Alerts", "StandardSound", value)
 
     @own_sound.setter
-    def own_sound(self, value=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Alerts"
-                           SET "OwnSound" = \'{value}\'
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def own_sound(self, value):
+        self.set_property("Alerts", "OwnSound", value)
 
     @enable_program.setter
-    def enable_program(self, value=int):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Autorun"
-                           SET "EnableProgram" = {value}
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def enable_program(self, value):
+        self.set_property("Autorun", "EnableProgram", value)
 
     @enable_mic.setter
-    def enable_mic(self, value=int):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Autorun"
-                           SET "EnableMic" = {value}
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def enable_mic(self, value):
+        self.set_property("Autorun", "EnableMic", value)
 
     @mic_status.setter
-    def mic_status(self, value=int):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Autorun"
-                           SET "MicStatus" = {value}
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def mic_status(self, value):
+        self.set_property("Autorun", "MicStatus", value)
 
     @walkie_status.setter
-    def walkie_status(self, value=int):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Autorun"
-                           SET "WalkieStatus" = {value}
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def walkie_status(self, value):
+        self.set_property("Autorun", "WalkieStatus", value)
 
     @language_code.setter
-    def language_code(self, value=str):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Settings"
-                           SET "LanguageCode" = \'{value}\'
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def language_code(self, value):
+        self.set_property("Settings", "LanguageCode", value)
 
     @night_theme.setter
-    def night_theme(self, value=int):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Settings"
-                           SET "NightTheme" = {value}
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def night_theme(self, value):
+        self.set_property("Settings", "NightTheme", value)
 
     @privacy_status.setter
-    def privacy_status(self, value=int):
-        with connect(self.__db_name) as db:
-            cursor = db.cursor()
-            cursor.execute(f"""
-                           UPDATE "Settings"
-                           SET "PrivacyStatus" = {value}
-                           WHERE ID = (
-                                       SELECT "ID"
-                                       FROM "User"
-                                       WHERE "UserName" = \'{self.__user_name}\'
-                                      )
-                           """)
-            db.commit()
-        db.close()
+    def privacy_status(self, value):
+        self.set_property("Settings", "PrivacyStatus", value)
