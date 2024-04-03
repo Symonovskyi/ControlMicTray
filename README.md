@@ -37,7 +37,7 @@ An application **for Windows** that allows you to monitor and control your micro
 * [ ] Automatic updates support
 * [ ] Notifications from the application
 * [ ] Select which microphone to use
-* [ ] Fully functional portable version
+* [x] Fully functional portable version
 
 ---
 
@@ -67,4 +67,4 @@ An application **for Windows** that allows you to monitor and control your micro
 * [ ] Підтримка автоматичних оновлень;
 * [ ] Сповіщення від додатку.
 * [ ] Вибір, з яким мікрофоном працювати.
-* [ ] Повноцінна портативна версія.
+* [x] Повноцінна портативна версія.

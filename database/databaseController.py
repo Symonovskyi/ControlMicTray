@@ -1,9 +1,6 @@
-# Built-in modules and own classes.
 from sqlite3 import connect
 from os import path
 from getpass import getuser
-from absolutePath import loadFile
-
 
 class DatabaseController:
     """
@@ -12,36 +9,106 @@ class DatabaseController:
     def __init__(self):
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
-        self.__checkDatabaseForExistence()
+        self.initialize_database()
 
-    def __checkDatabaseForExistence(self):
+    def execute_sql(self, sql_commands):
+        with connect(self.__db_name) as conn:
+            cursor = conn.cursor()
+            cursor.executescript(sql_commands)
+            conn.commit()
+
+    def initialize_database(self):
         if not path.exists(self.__db_name):
-            with connect(self.__db_name) as db:
-                cursor = db.cursor()
+            self.create_tables()
+            self.insert_initial_data()
+            self.insert_user()
+        else:
+            self.update_about_data()
+    
+    def create_tables(self):
+        sql_commands = f"""
+        CREATE TABLE IF NOT EXISTS "User" (
+            "ID"                INTEGER NOT NULL UNIQUE,
+            "UserName"          VARCHAR(254) NOT NULL,
+            PRIMARY KEY("ID" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "Alerts" (
+            "ID"                INTEGER NOT NULL UNIQUE,
+            "AlertsType"        VARCHAR(254) NOT NULL,
+            "StandardSound"     VARCHAR(254) NOT NULL,
+            "OwnSound"          VARCHAR(254),
+            FOREIGN KEY("ID")   REFERENCES "User"("ID"),
+            PRIMARY KEY("ID" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "Autorun" (
+            "ID"                INTEGER NOT NULL UNIQUE,
+            "EnableProgram"     INTEGER NOT NULL,
+            "EnableMic"         INTEGER NOT NULL,
+            "MicStatus"         INTEGER NOT NULL,
+            "WalkieStatus"      INTEGER NOT NULL,
+            FOREIGN KEY("ID")   REFERENCES "User"("ID"),
+            PRIMARY KEY("ID" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "Hotkey" (
+            "ID"                INTEGER NOT NULL UNIQUE,
+            "HotkeyMic"         VARCHAR(32),
+            "HotkeyWalkie"      VARCHAR(32),
+            FOREIGN KEY("ID")   REFERENCES "User"("ID"),
+            PRIMARY KEY("ID" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "Settings" (
+            "ID"                INTEGER NOT NULL UNIQUE,
+            "LanguageCode"      VARCHAR(4) NOT NULL,
+            "NightTheme"        INTEGER NOT NULL,
+            "PrivacyStatus"     INTEGER NOT NULL,
+            FOREIGN KEY("ID")   REFERENCES "User"("ID"),
+            PRIMARY KEY("ID" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "About" (
+            "ID"                INTEGER NOT NULL UNIQUE,
+            "ProgramVersion"    VARCHAR(32) NOT NULL,
+            "WebSite"           VARCHAR(32) NOT NULL,
+            "Email"             VARCHAR(32) NOT NULL,
+            "Copyright"         VARCHAR(64) NOT NULL,
+            "UrlPrivacyPolicy"  VARCHAR(64) NOT NULL,
+            PRIMARY KEY("ID" AUTOINCREMENT)
+        );
+        """
+        self.execute_sql(sql_commands)
 
-                sql_create = open(loadFile("database/SQL/CREATE_TABLES.sql"))
-                cursor.executescript(sql_create.read())
-                sql_create.close()
+    def insert_user(self):
+        sql_command = f"INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}');"
+        self.execute_sql(sql_command)
 
-                cursor.execute(
-                    f"INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}')")
 
-                sql_data = open(loadFile("database/SQL/CREATE_DATA.sql"))
-                cursor.executescript(sql_data.read())
-                sql_data.close()
+    def insert_initial_data(self):
+        sql_commands = f"""
+        INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}');
+        INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\Sound\StandardSound.mp3', NULL);
+        INSERT INTO "Autorun" (EnableProgram, EnableMic, MicStatus, WalkieStatus) VALUES (1, 0, 1, 0);
+        INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll_lock', 'Pause');
+        INSERT INTO "Settings" (LanguageCode, NightTheme, PrivacyStatus) VALUES ('ru', 1, 0);
+        INSERT INTO "About" (ProgramVersion, WebSite, Email, Copyright, UrlPrivacyPolicy) VALUES ('v.2024.04.04', 'https://controlmictray.pp.ua', 'i@controlmictray.pp.ua', 'Copyright © 2024\nSymonovskyi & Lastivka\nAll rights reserved', 'https://controlmictray.pp.ua/PrivacyPolicy.html');
+        """
+        self.execute_sql(sql_commands)
 
-                db.commit()
-            db.close()
-        elif path.exists(self.__db_name):
-            with connect(self.__db_name) as db:
-                cursor = db.cursor()
+    def drop_tables(self):
+        sql_commands = f"""
+        DROP TABLE IF EXISTS "About";
+        DROP TABLE IF EXISTS "Settings";
+        DROP TABLE IF EXISTS "Hotkey";
+        DROP TABLE IF EXISTS "Autorun";
+        DROP TABLE IF EXISTS "Alerts";
+        DROP TABLE IF EXISTS "User";
+        """
+        self.execute_sql(sql_commands)
 
-                about_data = open(loadFile("database/SQL/UPDATE_ABOUT_DATA.sql"))
-                cursor.executescript(about_data.read())
-                about_data.close()
-
-                db.commit()
-            db.close()
+    def update_about_data(self):
+        sql_commands = f"""
+        UPDATE "About"
+        SET ProgramVersion = 'v.2024.04.04', WebSite = 'https://controlmictray.pp.ua', Email = 'i@controlmictray.pp.ua', Copyright = 'Copyright © 2024\nSymonovskyi & Lastivka\nAll rights reserved', UrlPrivacyPolicy = 'https://controlmictray.pp.ua/PrivacyPolicy.html';
+        """
+        self.execute_sql(sql_commands)
 
     # Getters.
 
