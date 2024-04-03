@@ -1,60 +1,74 @@
 class BaseStyle:
-    font_family = "Roboto, Arial, sans-serif"
-    font_size_regular = "14px"
-    font_size_small = "10px"
-    text_align_left = "left"
-    border = "1px solid"
-    border_none = "0"
-    border_radius_small = "3px"
-    border_radius_none = "0"
-    border_radius_medium = "5px"
-    transparent_background = "rgba(0, 0, 0, 0)"
+    font_family =           "Roboto, Arial, sans-serif"
+    font_size_regular =     "14px"
+    font_size_small =       "10px"
+    text_align_left =       "left"
+    border =                "1px solid"
+    border_none =           "0"
+    border_radius_small =   "3px"
+    border_radius_none =    "0"
+    border_radius_medium =  "5px"
+    transparent =           "rgba(0, 0, 0, 0)"
 
 class DarkTheme(BaseStyle):
-    color_primary = "#7D8A90"
-    background_color_menu = "#1F2A30"
-    border_color = "#444F55"
-    background_color_general = "#273238"
-    text_color = "#BECBD1"
-    hover_text_color = "#04BED5"
-    active_button_text = "#CEDCDF"
-    link_text = "#127D91"
+    primary_color =         "#F3F3F3"
+    secondary_color =       "#7D8A90"
+    accent_color =          "#127D91"
+    accent_hover_color =    "#04BED5"
+    background_color =      "#273238"
+    text_color =            "#BECBD1"
+    button_color =          "#7D8A90"
+    button_hover_color =    "#BECBD1"
+    border_color =          "#1F2A30"
+    neutral_color =         "#7D8A90"
+    underline_color =       "#444F55"
+    highlighted_color =     "#1F2A30"
+    on_color =              "#22C245"
+    off_color =             "#C22C22"
 
 class LightTheme(BaseStyle):
-    color_primary = "#7D8A90"
-    background_color_dropdown_menu = "#FFFFFF"
-    underline_border_color = "#444F55"
-    background_color_general = "#FFFFFF"
-    text_color = "#1F2A30"
-    hover_text_color = "#04BED5"
-    active_button_text = "#1F2A30"
-    link_text = "#127D91"
+    primary_color =         "#1B1B1B"
+    secondary_color =       "#7D8A90"
+    accent_color =          "#127D91"
+    accent_hover_color =    "#04BED5"
+    background_color =      "#F3F3F3"
+    text_color =            "#404040"
+    button_color =          "#BECBD1"
+    button_hover_color =    "#7D8A90"
+    border_color =          "#1F2A30"
+    neutral_color =         "#7D8A90"
+    underline_color =       "#444F55"
+    highlighted_color =     "#1F2A30"
+    on_color =              "#22C245"
+    off_color =             "#C22C22"
 
 class TrayIconStyles:
     def __init__(self, qinstance):
         self.tray = qinstance
 
-    def dark_theme(self):
-        self.tray.menu.setStyleSheet(f"""
-            QMenu {{
-                color: {DarkTheme.color_primary};
-                background-color: {DarkTheme.background_color_menu};
-                border: {BaseStyle.border} {DarkTheme.border_color};
-                border-radius: {BaseStyle.border_radius_small};
-                selection-background-color: {DarkTheme.background_color_general};
-                selection-color: {DarkTheme.text_color};
-            }}
-        """)
+    def set_styles(self, theme):
+        if theme == 'Light':
+            primary_color = LightTheme.primary_color
+            background_color = LightTheme.background_color
+            border_color = LightTheme.border_color
+            text_color = LightTheme.text_color
+        else:
+            primary_color = DarkTheme.primary_color
+            background_color = DarkTheme.background_color
+            border_color = DarkTheme.border_color
+            text_color = DarkTheme.text_color
 
-    def white_theme(self):
+        border =                    BaseStyle.border
+        border_radius_small =       BaseStyle.border_radius_small
+
         self.tray.menu.setStyleSheet(f"""
             QMenu {{
-                color: {LightTheme.color_primary};
-                background-color: {LightTheme.background_color_dropdown_menu};
-                border: {BaseStyle.border} {LightTheme.underline_border_color};
-                border-radius: {BaseStyle.border_radius_small};
-                selection-background-color: {LightTheme.background_color_general};
-                selection-color: {LightTheme.text_color};
+                color: {primary_color};
+                background-color: {background_color};
+                border: {border} {border_color};
+                border-radius: {border_radius_small};
+                selection-background-color: {background_color};
+                selection-color: {text_color};
             }}
         """)
 
@@ -63,297 +77,203 @@ class SettingsWindowStyles:
         self.settings_win_qwidget = qinstance
         self.settings_win = self.settings_win_qwidget.settings_UI
 
-    def dark_theme(self):
+    def set_styles(self, theme):
+        if theme == 'Light':
+            text_color =            LightTheme.text_color
+            background_color =      LightTheme.background_color
+            underline_color =       LightTheme.underline_color
+            accent_hover_color =    LightTheme.accent_hover_color
+            button_color =          LightTheme.button_color
+            button_hover_color =    LightTheme.button_hover_color
+            highlighted_color =     LightTheme.highlighted_color
+        else:
+            text_color =            DarkTheme.text_color
+            background_color =      DarkTheme.background_color
+            underline_color =       DarkTheme.underline_color
+            accent_hover_color =    DarkTheme.accent_hover_color
+            button_color =          DarkTheme.button_color
+            button_hover_color =    DarkTheme.button_hover_color
+            highlighted_color =     DarkTheme.highlighted_color
+
+        font_family =               BaseStyle.font_family
+        font_size_regular =         BaseStyle.font_size_regular
+        border =                    BaseStyle.border
+        border_none =               BaseStyle.border_none
+        border_radius_none =        BaseStyle.border_radius_none
+        border_radius_medium =      BaseStyle.border_radius_medium
+
         self.settings_win_qwidget.setStyleSheet(f"""
             QWidget {{
-                color: {DarkTheme.text_color};
-                background-color: {DarkTheme.background_color_general};
-                border: {BaseStyle.border_none};
-                font-size: {BaseStyle.font_size_regular};
-                font-family: {BaseStyle.font_family};
+                color: {text_color};
+                background-color: {background_color};
+                border: {border_none};
+                font-size: {font_size_regular};
+                font-family: {font_family};
             }}
         """)
 
         self.settings_win.AlertsType.setStyleSheet(f"""
             QComboBox {{
-                border-bottom: {BaseStyle.border} {DarkTheme.border_color};
+                border-bottom: {border} {underline_color};
             }}
 
-            QComboBox::hover{{
-                border-bottom: {BaseStyle.border} {DarkTheme.hover_text_color};
+            QComboBox::hover {{
+                border-bottom: {border} {accent_hover_color};
             }}
-            
+
             QComboBox QAbstractItemView {{
-                background-color: {DarkTheme.background_color_menu};
-                border: {BaseStyle.border} {DarkTheme.hover_text_color};
-                color: {DarkTheme.color_primary};
-                selection-background-color: {DarkTheme.background_color_general};
-                selection-color: {DarkTheme.text_color};
-                border-top-left-radius: {BaseStyle.border_radius_none};
-                border-top-right-radius: {BaseStyle.border_radius_none};
-                border-bottom-right-radius: {BaseStyle.border_radius_medium};
-                border-bottom-left-radius: {BaseStyle.border_radius_medium};
+                background-color: {background_color};
+                border: {border} {accent_hover_color};
+                color: {text_color};
+                selection-background-color: {background_color};
+                selection-color: {text_color};
+                border-top-left-radius: {border_radius_none};
+                border-top-right-radius: {border_radius_none};
+                border-bottom-right-radius: {border_radius_medium};
+                border-bottom-left-radius: {border_radius_medium};
             }}
         """)
 
         self.settings_win_qwidget.hotkey_mic.setStyleSheet(f"""
             QLineEdit {{
-                border-bottom: {BaseStyle.border} {DarkTheme.border_color};
+                border-bottom: {border} {underline_color};
             }}
 
             QLineEdit::hover {{
-                border-bottom: {BaseStyle.border} {DarkTheme.hover_text_color};
+                border-bottom: {border} {accent_hover_color};
             }}
         """)
 
         self.settings_win_qwidget.hotkey_walkie.setStyleSheet(f"""
             QLineEdit {{
-                border-bottom: {BaseStyle.border} {DarkTheme.border_color};
+                border-bottom: {border} {underline_color};
             }}
 
             QLineEdit::hover {{
-                border-bottom: {BaseStyle.border} {DarkTheme.hover_text_color};
+                border-bottom: {border} {accent_hover_color};
             }}
         """)
 
         self.settings_win.LanguageCode.setStyleSheet(f"""
             QComboBox {{
-                border-bottom: {BaseStyle.border} {DarkTheme.border_color};
+                border-bottom: {border} {underline_color};
             }}
 
             QComboBox::hover {{
-                border-bottom: {BaseStyle.border} {DarkTheme.hover_text_color};
+                border-bottom: {border} {accent_hover_color};
             }}
 
             QComboBox QAbstractItemView {{
-                background-color: {DarkTheme.background_color_menu};
-                border: {BaseStyle.border} {DarkTheme.hover_text_color};
-                color: {DarkTheme.color_primary};
-                selection-background-color: {DarkTheme.background_color_general};
-                selection-color: {DarkTheme.text_color};
-                border-top-left-radius: {BaseStyle.border_radius_none};
-                border-top-right-radius: {BaseStyle.border_radius_none};
-                border-bottom-right-radius: {BaseStyle.border_radius_medium};
-                border-bottom-left-radius: {BaseStyle.border_radius_medium};
+                background-color: {background_color};
+                border: {border} {accent_hover_color};
+                color: {text_color};
+                selection-background-color: {background_color};
+                selection-color: {text_color};
+                border-top-left-radius: {border_radius_none};
+                border-top-right-radius: {border_radius_none};
+                border-bottom-right-radius: {border_radius_medium};
+                border-bottom-left-radius: {border_radius_medium};
             }}
         """)
 
         self.settings_win.UrlUpdates.setStyleSheet(f"""
             QPushButton {{
-                color: {DarkTheme.color_primary};
-                border-bottom: {BaseStyle.border} {DarkTheme.background_color_menu};
-            }}
-            
-            QPushButton::hover {{
-                color: {DarkTheme.active_button_text};
-                border-bottom: {BaseStyle.border} {DarkTheme.hover_text_color};
-            }}
-        """)
-
-    def white_theme(self):
-        self.settings_win_qwidget.setStyleSheet(f"""
-            QWidget {{
-                color: {LightTheme.text_color};
-                background-color: {LightTheme.background_color_general};
-                border: {BaseStyle.border_none};
-                font-size: {BaseStyle.font_size_regular};
-                font-family: {BaseStyle.font_family}
-            }}
-        """)
-
-        self.settings_win.AlertsType.setStyleSheet(f"""
-            QComboBox {{
-                border-bottom: {BaseStyle.border} {LightTheme.underline_border_color};
-            }}
-
-            QComboBox::hover {{
-                border-bottom: {BaseStyle.border} {LightTheme.hover_text_color};
-            }}
-
-            QComboBox QAbstractItemView {{
-                background-color: {LightTheme.background_color_dropdown_menu};
-                border: {BaseStyle.border} {LightTheme.hover_text_color};
-                color: {LightTheme.color_primary};
-                selection-background-color: {LightTheme.background_color_general};
-                selection-color: {LightTheme.text_color};
-                border-top-left-radius: {BaseStyle.border_radius_none};
-                border-top-right-radius: {BaseStyle.border_radius_none};
-                border-bottom-right-radius: {BaseStyle.border_radius_medium};
-                border-bottom-left-radius: {BaseStyle.border_radius_medium};
-            }}
-        """)
-
-        self.settings_win_qwidget.hotkey_mic.setStyleSheet(f"""
-            QLineEdit {{
-                border-bottom: {BaseStyle.border} {LightTheme.underline_border_color};
-            }}
-
-            QLineEdit::hover {{
-                border-bottom: {BaseStyle.border} {LightTheme.hover_text_color};
-            }}
-        """)
-
-        self.settings_win_qwidget.hotkey_walkie.setStyleSheet(f"""
-            QLineEdit {{
-                border-bottom: {BaseStyle.border} {LightTheme.underline_border_color};
-            }}
-
-            QLineEdit::hover {{
-                border-bottom: {BaseStyle.border} {LightTheme.hover_text_color};
-            }}
-        """)
-
-        self.settings_win.LanguageCode.setStyleSheet(f"""
-            QComboBox {{
-                border-bottom: {BaseStyle.border} {LightTheme.underline_border_color};
-            }}
-
-            QComboBox::hover {{
-                border-bottom: {BaseStyle.border} {LightTheme.hover_text_color};
-            }}
-
-            QComboBox QAbstractItemView {{
-                background-color: {LightTheme.background_color_dropdown_menu};
-                border: {BaseStyle.border} {LightTheme.hover_text_color};
-                color: {LightTheme.color_primary};
-                selection-background-color: {LightTheme.background_color_general};
-                selection-color: {LightTheme.text_color};
-                border-top-left-radius: {BaseStyle.border_radius_none};
-                border-top-right-radius: {BaseStyle.border_radius_none};
-                border-bottom-right-radius: {BaseStyle.border_radius_medium};
-                border-bottom-left-radius: {BaseStyle.border_radius_medium};
-            }}
-        """)
-
-        self.settings_win.UrlUpdates.setStyleSheet(f"""
-            QPushButton {{
-                color: {LightTheme.color_primary};
-                border-bottom: {BaseStyle.border} {LightTheme.background_color_dropdown_menu};
+                color: {button_color};
+                border-bottom: {border} {highlighted_color};
             }}
 
             QPushButton::hover {{
-                color: {LightTheme.active_button_text};
-                border-bottom: {BaseStyle.border} {LightTheme.hover_text_color};
+                color: {button_hover_color};
+                border-bottom: {border} {accent_hover_color};
             }}
         """)
 
-class AboutWindowStyles():
+
+class AboutWindowStyles:
     def __init__(self, qinstance):
         self.about_win_qwidget = qinstance
         self.about_win = self.about_win_qwidget.about_UI
 
-    def dark_theme(self):
+    def set_styles(self, theme):
+        if theme == 'Light':
+            text_color =            LightTheme.text_color
+            background_color =      LightTheme.background_color
+            button_color =          LightTheme.button_color
+            button_hover_color =    LightTheme.button_hover_color
+            accent_color =          LightTheme.accent_color
+            accent_hover_color =    LightTheme.accent_hover_color
+            highlighted_color =     LightTheme.highlighted_color
+        else:
+            text_color =            DarkTheme.text_color
+            background_color =      DarkTheme.background_color
+            button_color =          DarkTheme.button_color
+            button_hover_color =    DarkTheme.button_hover_color
+            accent_color =          DarkTheme.accent_color
+            accent_hover_color =    DarkTheme.accent_hover_color
+            highlighted_color =     DarkTheme.highlighted_color
+
+        font_family =               BaseStyle.font_family
+        font_size_regular =         BaseStyle.font_size_regular
+        font_size_small =           BaseStyle.font_size_small
+        text_align_left =           BaseStyle.text_align_left
+        border =                    BaseStyle.border
+        border_none =               BaseStyle.border_none
+        transparent =               BaseStyle.transparent
+
         self.about_win_qwidget.setStyleSheet(f"""
             QWidget {{
-                color: {DarkTheme.text_color};
-                background-color: {DarkTheme.background_color_general};
-                border: {BaseStyle.border_none};
-                font-size: {BaseStyle.font_size_regular};
-                font-family: {BaseStyle.font_family}
+                color: {text_color};
+                background-color: {background_color};
+                border: {border_none};
+                font-size: {font_size_regular};
+                font-family: {font_family}
             }}
         """)
 
-        self.about_win.Copyright.setStyleSheet(f"""
+        self.about_win.LogoFrame.setStyleSheet(f"""
             QLabel {{
-                color: {DarkTheme.color_primary};
-                font-size: {BaseStyle.font_size_small};
+                background-color: {transparent};
             }}
         """)
+
+        self.about_win.WebSite.setStyleSheet(f"""
+            QPushButton {{
+                color: {accent_color};
+                text-align: {text_align_left};
+            }}
+
+            QPushButton::hover {{
+                color: {accent_hover_color};
+            }}
+        """)
+
 
         self.about_win.Email.setStyleSheet(f"""
             QPushButton {{
-                color: {DarkTheme.link_text};
-                text-align: {BaseStyle.text_align_left};
+                color: {accent_color};
+                text-align: {text_align_left};
             }}
             
             QPushButton::hover {{
-                color: {DarkTheme.hover_text_color};
-            }}
-        """)
-
-        self.about_win.LogoFrame.setStyleSheet(f"""
-            QLabel {{
-                background-color: {BaseStyle.transparent_background};
+                color: {accent_hover_color};
             }}
         """)
 
         self.about_win.UrlPrivacyPolicy.setStyleSheet(f"""
             QPushButton {{
-                color: {DarkTheme.color_primary};
-                border-bottom: {BaseStyle.border} {DarkTheme.background_color_menu};
+                color: {button_color};
+                border-bottom: {border} {highlighted_color};
             }}
 
             QPushButton::hover {{
-                color: {DarkTheme.active_button_text};
-                border-bottom: {BaseStyle.border} {DarkTheme.hover_text_color};
-            }}
-        """)
-
-        self.about_win.WebSite.setStyleSheet(f"""
-            QPushButton {{
-                color: {DarkTheme.link_text};
-                text-align: {BaseStyle.text_align_left};
-            }}
-
-            QPushButton::hover {{
-                color: {DarkTheme.hover_text_color};
-            }}
-        """)
-
-    def white_theme(self):
-        self.about_win_qwidget.setStyleSheet(f"""
-            QWidget {{
-                color: {LightTheme.text_color};
-                background-color: {LightTheme.background_color_general};
-                border: {BaseStyle.border_none};
-                font-size: {BaseStyle.font_size_regular};
-                font-family: {BaseStyle.font_family}
+                color: {button_hover_color};
+                border-bottom: {border} {accent_hover_color};
             }}
         """)
 
         self.about_win.Copyright.setStyleSheet(f"""
             QLabel {{
-                color: {LightTheme.color_primary};
-                font-size: {BaseStyle.font_size_small};
-            }}
-        """)
-
-        self.about_win.Email.setStyleSheet(f"""
-            QPushButton {{
-                color: {LightTheme.link_text};
-                text-align: {BaseStyle.text_align_left};
-            }}
-
-            QPushButton::hover {{
-                color: {LightTheme.hover_text_color};
-            }}
-        """)
-
-        self.about_win.LogoFrame.setStyleSheet(f"""
-            QLabel {{
-                background-color: {BaseStyle.transparent_background};
-            }}
-        """)
-
-        self.about_win.UrlPrivacyPolicy.setStyleSheet(f"""
-            QPushButton {{
-                color: {LightTheme.color_primary};
-                border-bottom: {BaseStyle.border} {LightTheme.background_color_dropdown_menu};
-            }}
-
-            QPushButton::hover {{
-                color: {LightTheme.active_button_text};
-                border-bottom: {BaseStyle.border} {LightTheme.hover_text_color};
-            }}
-        """)
-
-        self.about_win.WebSite.setStyleSheet(f"""
-            QPushButton {{
-                color: {LightTheme.link_text};
-                text-align: {BaseStyle.text_align_left};
-            }}
-
-            QPushButton::hover {{
-                color: {LightTheme.hover_text_color};
+                color: {text_color};
+                font-size: {font_size_small};
             }}
         """)
