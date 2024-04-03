@@ -47,19 +47,15 @@ class TrayIconStyles:
         self.tray = qinstance
 
     def set_styles(self, theme):
-        if theme == 'Light':
-            primary_color = LightTheme.primary_color
-            background_color = LightTheme.background_color
-            border_color = LightTheme.border_color
-            text_color = LightTheme.text_color
-        else:
-            primary_color = DarkTheme.primary_color
-            background_color = DarkTheme.background_color
-            border_color = DarkTheme.border_color
-            text_color = DarkTheme.text_color
+        theme_colors = LightTheme if theme == 'Light' else DarkTheme
 
-        border =                    BaseStyle.border
-        border_radius_small =       BaseStyle.border_radius_small
+        primary_color =         theme_colors.primary_color
+        background_color =      theme_colors.background_color
+        border_color =          theme_colors.border_color
+        text_color =            theme_colors.text_color
+
+        border =                BaseStyle.border
+        border_radius_small =   BaseStyle.border_radius_small
 
         self.tray.menu.setStyleSheet(f"""
             QMenu {{
@@ -78,29 +74,22 @@ class SettingsWindowStyles:
         self.settings_win = self.settings_win_qwidget.settings_UI
 
     def set_styles(self, theme):
-        if theme == 'Light':
-            text_color =            LightTheme.text_color
-            background_color =      LightTheme.background_color
-            underline_color =       LightTheme.underline_color
-            accent_hover_color =    LightTheme.accent_hover_color
-            button_color =          LightTheme.button_color
-            button_hover_color =    LightTheme.button_hover_color
-            highlighted_color =     LightTheme.highlighted_color
-        else:
-            text_color =            DarkTheme.text_color
-            background_color =      DarkTheme.background_color
-            underline_color =       DarkTheme.underline_color
-            accent_hover_color =    DarkTheme.accent_hover_color
-            button_color =          DarkTheme.button_color
-            button_hover_color =    DarkTheme.button_hover_color
-            highlighted_color =     DarkTheme.highlighted_color
+        theme_colors = LightTheme if theme == 'Light' else DarkTheme
 
-        font_family =               BaseStyle.font_family
-        font_size_regular =         BaseStyle.font_size_regular
-        border =                    BaseStyle.border
-        border_none =               BaseStyle.border_none
-        border_radius_none =        BaseStyle.border_radius_none
-        border_radius_medium =      BaseStyle.border_radius_medium
+        text_color =            theme_colors.text_color
+        background_color =      theme_colors.background_color
+        underline_color =       theme_colors.underline_color
+        accent_hover_color =    theme_colors.accent_hover_color
+        button_color =          theme_colors.button_color
+        button_hover_color =    theme_colors.button_hover_color
+        highlighted_color =     theme_colors.highlighted_color
+
+        font_family =           BaseStyle.font_family
+        font_size_regular =     BaseStyle.font_size_regular
+        border =                BaseStyle.border
+        border_none =           BaseStyle.border_none
+        border_radius_none =    BaseStyle.border_radius_none
+        border_radius_medium =  BaseStyle.border_radius_medium
 
         self.settings_win_qwidget.setStyleSheet(f"""
             QWidget {{
@@ -188,37 +177,29 @@ class SettingsWindowStyles:
             }}
         """)
 
-
 class AboutWindowStyles:
     def __init__(self, qinstance):
         self.about_win_qwidget = qinstance
         self.about_win = self.about_win_qwidget.about_UI
 
     def set_styles(self, theme):
-        if theme == 'Light':
-            text_color =            LightTheme.text_color
-            background_color =      LightTheme.background_color
-            button_color =          LightTheme.button_color
-            button_hover_color =    LightTheme.button_hover_color
-            accent_color =          LightTheme.accent_color
-            accent_hover_color =    LightTheme.accent_hover_color
-            highlighted_color =     LightTheme.highlighted_color
-        else:
-            text_color =            DarkTheme.text_color
-            background_color =      DarkTheme.background_color
-            button_color =          DarkTheme.button_color
-            button_hover_color =    DarkTheme.button_hover_color
-            accent_color =          DarkTheme.accent_color
-            accent_hover_color =    DarkTheme.accent_hover_color
-            highlighted_color =     DarkTheme.highlighted_color
+        theme_colors = LightTheme if theme == 'Light' else DarkTheme
 
-        font_family =               BaseStyle.font_family
-        font_size_regular =         BaseStyle.font_size_regular
-        font_size_small =           BaseStyle.font_size_small
-        text_align_left =           BaseStyle.text_align_left
-        border =                    BaseStyle.border
-        border_none =               BaseStyle.border_none
-        transparent =               BaseStyle.transparent
+        text_color =            theme_colors.text_color
+        background_color =      theme_colors.background_color
+        button_color =          theme_colors.button_color
+        button_hover_color =    theme_colors.button_hover_color
+        accent_color =          theme_colors.accent_color
+        accent_hover_color =    theme_colors.accent_hover_color
+        highlighted_color =     theme_colors.highlighted_color
+
+        font_family =           BaseStyle.font_family
+        font_size_regular =     BaseStyle.font_size_regular
+        font_size_small =       BaseStyle.font_size_small
+        text_align_left =       BaseStyle.text_align_left
+        border =                BaseStyle.border
+        border_none =           BaseStyle.border_none
+        transparent =           BaseStyle.transparent
 
         self.about_win_qwidget.setStyleSheet(f"""
             QWidget {{
