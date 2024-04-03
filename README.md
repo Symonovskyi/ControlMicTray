@@ -8,7 +8,6 @@
 
 * [Go to English](#en)
 * [Go to Ukrainian​ ​​💙💛​](#uk)
-* [Go to Statistics](#statistics)
 
 ---
 
@@ -26,17 +25,19 @@ An application **for Windows** that allows you to monitor and control your micro
 2. 📂Open the downloaded file;
 3. 🏆Profit!
 
-#### *TODO*: Realized stuff as of 06.10.2022
+#### *TODO*: Realized stuff as of 04.04.2024
 
-* [X] Dark theme;
-* [X] Walkie-talkie mode;
-* [X] Turn the microphone off and on with a customizable hotkey;
-* [X] Disable and enable the microphone in the application menu;
-* [X] Turn off the microphone when starting the application;
-* [ ] Localization: support for different languages;
-* [X] Automatic app launch at system startup;
-* [ ] Support for automatic updates;
-* [ ] App notifications.
+* [x] Dark theme
+* [x] Walkie-talkie mode
+* [x] Microphone mute/unmute with a customizable shortcut key
+* [x] Microphone mute/unmute in the application's menu
+* [x] Automatic application startup at system boot
+* [x] Microphone mute on application startup
+* [ ] Support for multiple languages
+* [ ] Automatic updates support
+* [ ] Notifications from the application
+* [ ] Select which microphone to use
+* [ ] Fully functional portable version
 
 ---
 
@@ -54,7 +55,7 @@ An application **for Windows** that allows you to monitor and control your micro
 2. 📂Відкрити завантажений файл;
 3. 🏆Профіт!
 
-#### *TODO*: Реалізовано станом на 06.10.2022
+#### *TODO*: Реалізовано станом на 04.04.2024
 
 * [x] Темна тема;
 * [x] Режим "Рації";
@@ -65,17 +66,5 @@ An application **for Windows** that allows you to monitor and control your micro
 * [ ] Локалізація: підтримка різних мов;
 * [ ] Підтримка автоматичних оновлень;
 * [ ] Сповіщення від додатку.
-
----
-
-### Statistics
-
-| **Language** | **Files** | **Lines** | **Code** | **Comments** | **Blanks** |
-| :----------- | :-------: | :-------: | :------: | :----------: | :--------: |
-| Markdown     |    1      |     81    |      0   |    57        |    24      |
-| PowerShell   |    1      |      1    |      1   |     0        |     0      |
-| Python       |   15      |   1881    |   1560   |    97        |   224      |
-| SQL          |    4      |     62    |     59   |     3        |     0      |
-| SVG          |   14      |    108    |    108   |     0        |     0      |
-| Plain Text   |    1      |     13    |      0   |    13        |     0      |
-| **Total**    | **36**    | **2146**  | **1728** | **170**      | **248**    |
+* [ ] Вибір, з яким мікрофоном працювати.
+* [ ] Повноцінна портативна версія.

@@ -63,9 +63,9 @@ class Ui_AboutWindow(object):
         self.WebSiteLabel.setText(_translate("AboutWindow", "Веб-сайт"))
         self.ProgramVersionLabel.setText(_translate("AboutWindow", "Версия"))
         self.EmailLabel.setText(_translate("AboutWindow", "Поддержка"))
-        self.ProgramVersion.setText(_translate("AboutWindow", "2022.02.12"))
+        self.ProgramVersion.setText(_translate("AboutWindow", "2024.04.14"))
         self.UrlPrivacyPolicy.setText(_translate("AboutWindow", "Политика конфиденциальности"))
-        self.Copyright.setText(_translate("AboutWindow", "Copyright © 2022\n"
+        self.Copyright.setText(_translate("AboutWindow", "Copyright © 2024\n"
 "Simonovskiy & Lastivka\n"
 "All rights reserved"))
         self.WebSite.setText(_translate("AboutWindow", "controlmictray.pp.ua"))

@@ -77,7 +77,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>2022.02.12</string>
+    <string>2024.04.04</string>
    </property>
   </widget>
   <widget class="QLabel" name="Logo">
@@ -122,7 +122,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Copyright © 2022
+    <string>Copyright © 2024
 Simonovskiy &amp; Lastivka
 All rights reserved</string>
    </property>
