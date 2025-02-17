@@ -1,0 +1,38 @@
+[project]
+name = "controlmictray"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "lastochka364", email = "70896036+lastochka364@users.noreply.github.com" }
+]
+dependencies = [
+    "Nuitka==1.1.1",
+    "PyQt6==6.3.1",
+    "PyQt6-Qt6==6.3.2",
+    "PyQt6-sip==13.9.1",
+    "comtypes==1.1.14",
+    "future==0.18.3",
+    "keyboard==0.11.0",
+    "ordered-set==4.1.0",
+    "psutil==6.1.1",
+    "pycaw==20220416",
+    "winshell==0.6",
+    "zstandard==0.23.0",
+    "pywin32>=308",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/controlmictray"]
