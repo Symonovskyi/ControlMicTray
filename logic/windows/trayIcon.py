@@ -1,18 +1,17 @@
 # Built-in modules and own classes.
 from sys import exit
-from database.databaseController import DatabaseController
-from logic.aboutWindow import AboutWindow
-from logic.settingsWindow import SettingsWindow
-from logic.hotkeysController import HotkeysManager
-from absolutePath import loadFile
-from logic.microphoneController import (MicrophoneController,
+from logic.controllers.databaseController import DatabaseController
+from logic.windows.aboutWindow import AboutWindow
+from logic.windows.settingsWindow import SettingsWindow
+from logic.controllers.hotkeysController import HotkeysManager
+from logic.controllers.microphoneController import (MicrophoneController,
     CustomMicrophoneEndpointVolumeCallback)
 from ui.resources.icons import Icons
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSlot
 
 
 class CustomQMenu(QMenu):
@@ -52,12 +51,59 @@ class CustomQMenu(QMenu):
             super().mouseReleaseEvent(e)
 
 
+class MicrophonesMenu(CustomQMenu):
+    '''
+    '''
+
+    def __init__(self, mic_controller_inst: MicrophoneController):
+        super().__init__()
+        self.menu = self
+        self.mic_controller = mic_controller_inst
+        self.all_mics = self.mic_controller.get_all_sys_microphones()
+
+        self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark')))
+        self.setTitle('Микрофоны')
+
+        self.init_mics_menu()
+
+    def init_mics_menu(self):
+        for mic_name, mic_dev in self.all_mics.items():
+            self.addSeparator()
+            mic_action = self.addAction(mic_name)
+            mic_action.triggered.connect(self.change_default_mic)
+            mic_action.setCheckable(True)
+            mic_action.setChecked(self.mic_controller.is_mic_active(mic_dev._dev))
+
+    def update_mics_menu(self):
+        '''
+        '''
+        actions = self.actions()
+
+        for k in self.all_mics.keys():
+            if k not in [action.text() for action in actions]:
+                self.init_mics_menu()
+
+        for action in actions:
+            if action.text() != '':
+                mic_name = action.text()
+                action.setChecked(self.mic_controller.is_mic_active(self.all_mics[mic_name]._dev))
+
+
+    @pyqtSlot()
+    def change_default_mic(self):
+        '''
+        '''
+        mic_name = self.sender().text()
+        self.mic_controller.set_microphone_by_default(mic_name)
+        self.update_mics_menu()
+
+
 class TrayIcon(QSystemTrayIcon):
     '''
     Implements main Qt System Tray Icon functionality.
 
     What happens at init stage (app startup):
-        - If this is first app startup ever, creating database and tables
+        - If this is first app startup ever, creating database and tables,
         filling them with different default app data;
         - Generating Qt Menu custom elements;
         - Connecting menu elements signals to their appropriate slots;
@@ -84,12 +130,14 @@ class TrayIcon(QSystemTrayIcon):
         # Database Controller instance;
         # Callback instance for changing icons status on mic change status;
         # "About" Window instance;
-        # Hotkeys Manager instance.
+        # Hotkeys Manager instance;
+        # Microphones Menu instance.
         self.mic = MicrophoneController()
         self.db = DatabaseController()
         self.callback = CustomMicrophoneEndpointVolumeCallback(self)
         self.about_win = AboutWindow()
         self.hotkeys = HotkeysManager()
+        self.mics_menu = MicrophonesMenu(self.mic)
 
         # Calling the initialization ui method.
         self.__setup_ui()
@@ -113,6 +161,11 @@ class TrayIcon(QSystemTrayIcon):
 
         self.menu.addSeparator()
 
+        # Initializing 'Microphones' menu element.
+        self.menu.addMenu(self.mics_menu)
+
+        self.menu.addSeparator()
+
         # Initializing 'Settings' menu element.
         settings_action = self.menu.addAction('Настройки')
         settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme='Dark')))
@@ -133,7 +186,7 @@ class TrayIcon(QSystemTrayIcon):
 
         # Declaring Settings Window instance here for proerly
         # theme initializing. Also configuring 'Settings' menu element.
-        self.settings_win = SettingsWindow(self, self.about_win, self.hotkeys)
+        self.settings_win = SettingsWindow(self, self.about_win, self.hotkeys, self.mics_menu)
         settings_action.triggered.connect(self.settings_win.show)
 
         # Connecting menu with tray and setting tooltip for tray icon.

@@ -1,10 +1,10 @@
 # Built-in modules and own classes.
 from os import remove
 from webbrowser import WindowsDefault
-from absolutePath import loadFile, realWorkingDirectory, loadRealFile
+from absolutePath import realWorkingDirectory, loadRealFile
 from ui.ui.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
-from database.databaseController import DatabaseController
+from logic.controllers.databaseController import DatabaseController
 from ui.resources.icons import Icons
 
 # 'pip install' modules.
@@ -118,7 +118,7 @@ class SettingsWindow(QWidget):
         instance.
 
     '''
-    def __init__(self, tray_instance, about_instance, hotkeys_manager):
+    def __init__(self, tray_instance, about_instance, hotkeys_manager, mics_menu):
         # For initializing Qt functionality.
         super().__init__()
 
@@ -126,6 +126,7 @@ class SettingsWindow(QWidget):
         self.tray = tray_instance
         self.about = about_instance
         self.hotkeys = hotkeys_manager
+        self.mics_menu = mics_menu
 
         # UI.
         self.settings_UI = SettingsUI()
@@ -142,6 +143,7 @@ class SettingsWindow(QWidget):
         self.tray_styles = TrayIconStyles(self.tray)
         self.settings_styles = SettingsWindowStyles(self)
         self.about_styles = AboutWindowStyles(self.about)
+        self.mics_menu_styles = TrayIconStyles(self.mics_menu)
 
         # Calling the initialization ui func.
         self.setup_ui()
@@ -224,10 +226,12 @@ class SettingsWindow(QWidget):
             self.tray_styles.set_styles('Dark')
             self.settings_styles.set_styles('Dark')
             self.about_styles.set_styles('Dark')
+            self.mics_menu_styles.set_styles('Dark')
         else:
             self.tray_styles.set_styles('Light')
             self.settings_styles.set_styles('Light')
             self.about_styles.set_styles('Light')
+            self.mics_menu_styles.set_styles('Light')
 
         self.db.night_theme = int(self.settings_UI.NightTheme.isChecked())
 

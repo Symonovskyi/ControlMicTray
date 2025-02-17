@@ -1,5 +1,5 @@
 # Built-in modules and own classes.
-from database.databaseController import DatabaseController
+from logic.controllers.databaseController import DatabaseController
 
 # 'pip install' modules.
 from PyQt6.QtCore import QObject, pyqtSignal

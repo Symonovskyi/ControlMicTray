@@ -1,8 +1,7 @@
 # Built-in modules and own classes.
 from webbrowser import WindowsDefault
 from ui.ui.AboutWindowUI import Ui_AboutWindow as AboutUI
-from database.databaseController import DatabaseController
-from absolutePath import loadFile
+from logic.controllers.databaseController import DatabaseController
 from ui.resources.icons import Icons
 
 # 'pip install' modules.
