@@ -2,7 +2,6 @@
 
 [![Release (latest by date)](https://img.shields.io/github/v/release/Symonovskyi/ControlMicTray?style=for-the-badge)](https://github.com/Symonovskyi/ControlMicTray/releases) ![Release Date](https://img.shields.io/github/release-date/Symonovskyi/ControlMicTray?style=for-the-badge) [![All releases](https://img.shields.io/github/downloads/Symonovskyi/ControlMicTray/total?style=for-the-badge)](https://github.com/Symonovskyi/ControlMicTray/releases) [![License](https://img.shields.io/github/license/Symonovskyi/ControlMicTray?style=for-the-badge)](https://github.com/Symonovskyi/ControlMicTray/blob/main/LICENSE)  
 ![Commits since latest release](https://img.shields.io/github/commits-since/Symonovskyi/ControlMicTray/latest?style=for-the-badge) ![Code size in bytes](https://img.shields.io/github/languages/code-size/Symonovskyi/ControlMicTray?style=for-the-badge) ![Lines of code](https://aschey.tech/tokei/github/Symonovskyi/ControlMicTray?style=for-the-badge)  
-![Locked Python version](https://img.shields.io/github/pipenv/locked/python-version/Symonovskyi/ControlMicTray?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Symonovskyi/ControlMicTray/pyqt6?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Symonovskyi/ControlMicTray/keyboard?style=for-the-badge) ![Locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/Symonovskyi/ControlMicTray/pycaw?style=for-the-badge)
 
 ## Language
 
