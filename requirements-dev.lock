@@ -24,7 +24,7 @@ ordered-set==4.1.0
 psutil==6.1.1
     # via controlmictray
     # via pycaw
-pycaw==20220416
+pycaw==20240210
     # via controlmictray
 pyqt6==6.3.1
     # via controlmictray

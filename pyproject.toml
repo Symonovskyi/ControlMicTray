@@ -15,7 +15,7 @@ dependencies = [
     "keyboard==0.11.0",
     "ordered-set==4.1.0",
     "psutil==6.1.1",
-    "pycaw==20220416",
+    "pycaw==20240210",
     "winshell==0.6",
     "zstandard==0.23.0",
     "pywin32>=308",

@@ -4,6 +4,7 @@ from PyQt6.QtGui import QPixmap, QIcon, QPainter
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtCore import QByteArray, Qt
 
+
 class Icons:
     _icon_cache = {}
 
@@ -13,7 +14,7 @@ class Icons:
 
     @staticmethod
     def _render_svg(svg_data):
-        svg_bytes = QByteArray(svg_data.encode('utf-8'))
+        svg_bytes = QByteArray(svg_data.encode("utf-8"))
         renderer = QSvgRenderer(svg_bytes)
 
         pixmap = QPixmap(renderer.defaultSize())
@@ -41,16 +42,18 @@ class Icons:
         return icon
 
     @staticmethod
-    def microphone_icon(theme='Dark', state=None):
+    def microphone_icon(theme="Dark", state=None):
         # If the theme is 'Light', choose the appropriate colors from LightTheme, otherwise from DarkTheme
-        theme_colors = LightTheme if theme == 'Light' else DarkTheme
+        theme_colors = LightTheme if theme == "Light" else DarkTheme
         # Determine stem color based on theme
         stem_color = theme_colors.primary_color
         # Determine head color based on theme and state
         head_color = (
-            theme_colors.primary_color if state is None else
-            theme_colors.on_color if state else
-            theme_colors.off_color
+            theme_colors.primary_color
+            if state is None
+            else theme_colors.on_color
+            if state
+            else theme_colors.off_color
         )
 
         # Generate SVG code using the determined colors
@@ -70,19 +73,17 @@ class Icons:
         """
 
     @staticmethod
-    def switch_icon(theme='Dark', state=False):
-        switch_position = '217.5' if state else '72.5'
+    def switch_icon(theme="Dark", state=False):
+        switch_position = "217.5" if state else "72.5"
         # If the theme is 'Light', choose the appropriate colors from LightTheme, otherwise from DarkTheme
-        theme_colors = LightTheme if theme == 'Light' else DarkTheme
+        theme_colors = LightTheme if theme == "Light" else DarkTheme
         # Determine switch color based on theme and state
         track_color = (
-            theme_colors.secondary_color if state else
-            theme_colors.secondary_color
+            theme_colors.secondary_color if state else theme_colors.secondary_color
         )
         # Determine switch color based on theme and state
         switch_color = (
-            theme_colors.accent_color if state else
-            theme_colors.primary_color
+            theme_colors.accent_color if state else theme_colors.primary_color
         )
 
         # Generate SVG code using the determined colors
@@ -93,11 +94,14 @@ class Icons:
         </svg>
         """
 
-
     @staticmethod
-    def frame_icon(theme='Dark'):
+    def frame_icon(theme="Dark"):
         # Determine frame color based on theme
-        color = LightTheme.underline_color if theme == 'Light' else DarkTheme.underline_color
+        color = (
+            LightTheme.underline_color
+            if theme == "Light"
+            else DarkTheme.underline_color
+        )
 
         # Generate SVG code using the determined colors
         return f"""
@@ -107,9 +111,9 @@ class Icons:
         """
 
     @staticmethod
-    def frameError_icon(theme='Dark'):
+    def frameError_icon(theme="Dark"):
         # Determine the color based on the specified theme
-        color = LightTheme.off_color if theme == 'Light' else DarkTheme.off_color
+        color = LightTheme.off_color if theme == "Light" else DarkTheme.off_color
 
         # Generate SVG code using the determined color
         return f"""
@@ -120,9 +124,11 @@ class Icons:
         """
 
     @staticmethod
-    def about_icon(theme='Dark'):
+    def about_icon(theme="Dark"):
         # Determine the color based on the specified theme
-        color = LightTheme.primary_color if theme == 'Light' else DarkTheme.primary_color
+        color = (
+            LightTheme.primary_color if theme == "Light" else DarkTheme.primary_color
+        )
 
         # Generate SVG code using the determined color
         return f"""
@@ -135,9 +141,11 @@ class Icons:
         """
 
     @staticmethod
-    def exit_icon(theme='Dark'):
+    def exit_icon(theme="Dark"):
         # Determine the color based on the specified theme
-        color = LightTheme.primary_color if theme == 'Light' else DarkTheme.primary_color
+        color = (
+            LightTheme.primary_color if theme == "Light" else DarkTheme.primary_color
+        )
 
         # Generate SVG code using the determined color
         return f"""
@@ -150,9 +158,11 @@ class Icons:
         """
 
     @staticmethod
-    def settings_icon(theme='Dark'):
+    def settings_icon(theme="Dark"):
         # Determine the color based on the specified theme
-        color = LightTheme.primary_color if theme == 'Light' else DarkTheme.primary_color
+        color = (
+            LightTheme.primary_color if theme == "Light" else DarkTheme.primary_color
+        )
 
         # Generate SVG code using the determined color
         return f"""

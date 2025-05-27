@@ -11,11 +11,13 @@ from PyQt6.QtGui import QIcon
 
 def error_diag(app: QApplication, exc: str):
     error_diag = QMessageBox()
-    error_diag.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark')))
-    error_diag.setWindowTitle('ContolMicTray: Error!')
-    error_diag.setText(f'Произошла ошибка при запуске приложения.\n'\
-        'Проверьте подключённые микрофоны в Вашей системе и перезапустите приложение.\n\n'\
-            f'Сообщение об ошибке:\n {exc}')
+    error_diag.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme="Dark")))
+    error_diag.setWindowTitle("ContolMicTray: Error!")
+    error_diag.setText(
+        f"Произошла ошибка при запуске приложения.\n"
+        "Проверьте подключённые микрофоны в Вашей системе и перезапустите приложение.\n\n"
+        f"Сообщение об ошибке:\n {exc}"
+    )
     error_diag.show()
 
     if error_diag.finished:
@@ -23,7 +25,7 @@ def error_diag(app: QApplication, exc: str):
         exit(app.exec())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # If any error will be occured, program will show dialog with error info and exit.
     try:
         # Creating Qt application instance.

@@ -81,23 +81,59 @@ class Ui_SettingsWindow(object):
         SettingsWindow.setWindowTitle(_translate("SettingsWindow", "Настройки"))
         self.UrlUpdates.setText(_translate("SettingsWindow", "Проверить обновления"))
         self.NightThemeLabel.setText(_translate("SettingsWindow", "Тёмная тема"))
-        self.EnableMicLabel.setToolTip(_translate("SettingsWindow", "<html><head/><body><p>Выключать ли микрофон при запуске программы</p></body></html>"))
-        self.EnableMicLabel.setText(_translate("SettingsWindow", "Выкл. микрофон при запуске"))
-        self.EnableProgramLabel.setToolTip(_translate("SettingsWindow", "<html><head/><body><p>Добавляет ярлык программы в папку системы &quot;Автозагрузка&quot;</p></body></html>"))
+        self.EnableMicLabel.setToolTip(
+            _translate(
+                "SettingsWindow",
+                "<html><head/><body><p>Выключать ли микрофон при запуске программы</p></body></html>",
+            )
+        )
+        self.EnableMicLabel.setText(
+            _translate("SettingsWindow", "Выкл. микрофон при запуске")
+        )
+        self.EnableProgramLabel.setToolTip(
+            _translate(
+                "SettingsWindow",
+                "<html><head/><body><p>Добавляет ярлык программы в папку системы &quot;Автозагрузка&quot;</p></body></html>",
+            )
+        )
         self.EnableProgramLabel.setText(_translate("SettingsWindow", "Автозапуск с ОС"))
-        self.PrivacyStatusLabel.setText(_translate("SettingsWindow", "Конфиденциальность"))
-        self.LanguageCodeLabel.setToolTip(_translate("SettingsWindow", "<html><head/><body><p>Language</p></body></html>"))
+        self.PrivacyStatusLabel.setText(
+            _translate("SettingsWindow", "Конфиденциальность")
+        )
+        self.LanguageCodeLabel.setToolTip(
+            _translate(
+                "SettingsWindow", "<html><head/><body><p>Language</p></body></html>"
+            )
+        )
         self.LanguageCodeLabel.setText(_translate("SettingsWindow", "Язык"))
         self.AlertsTypeLabel.setText(_translate("SettingsWindow", "Оповещения"))
-        self.HotkeyWalkieLabel.setToolTip(_translate("SettingsWindow", "<html><head/><body><p>Настройка горячей клавиши для включения\\выключения микрофона в режиме рации</p></body></html>"))
+        self.HotkeyWalkieLabel.setToolTip(
+            _translate(
+                "SettingsWindow",
+                "<html><head/><body><p>Настройка горячей клавиши для включения\\выключения микрофона в режиме рации</p></body></html>",
+            )
+        )
         self.HotkeyWalkieLabel.setText(_translate("SettingsWindow", "Рация Вкл./Выкл"))
-        self.HotkeyMicLabel.setToolTip(_translate("SettingsWindow", "<html><head/><body><p>Настройка горячей клавиши для включения\\выключения микрофона в обычном режмие</p></body></html>"))
-        self.HotkeyMicLabel.setText(_translate("SettingsWindow", "Микрофон Вкл./Выкл", "drytgerb er t"))
-        self.LanguageCode.setToolTip(_translate("SettingsWindow", "<html><head/><body><p>Language</p></body></html>"))
+        self.HotkeyMicLabel.setToolTip(
+            _translate(
+                "SettingsWindow",
+                "<html><head/><body><p>Настройка горячей клавиши для включения\\выключения микрофона в обычном режмие</p></body></html>",
+            )
+        )
+        self.HotkeyMicLabel.setText(
+            _translate("SettingsWindow", "Микрофон Вкл./Выкл", "drytgerb er t")
+        )
+        self.LanguageCode.setToolTip(
+            _translate(
+                "SettingsWindow", "<html><head/><body><p>Language</p></body></html>"
+            )
+        )
         self.LanguageCode.setItemText(0, _translate("SettingsWindow", "Русский"))
         self.LanguageCode.setItemText(1, _translate("SettingsWindow", "Українська"))
         self.LanguageCode.setItemText(2, _translate("SettingsWindow", "English"))
         self.AlertsType.setItemText(0, _translate("SettingsWindow", "Без оповещений"))
-        self.AlertsType.setItemText(1, _translate("SettingsWindow", "Уведомления в трее"))
+        self.AlertsType.setItemText(
+            1, _translate("SettingsWindow", "Уведомления в трее")
+        )
         self.AlertsType.setItemText(2, _translate("SettingsWindow", "Звук"))
         self.AlertsType.setItemText(3, _translate("SettingsWindow", "Свой звук"))

@@ -32,7 +32,11 @@ class Ui_AboutWindow(object):
         self.Logo = QtWidgets.QLabel(AboutWindow)
         self.Logo.setGeometry(QtCore.QRect(271, 20, 64, 64))
         self.Logo.setText("")
-        self.Logo.setPixmap(Icons.get_icon(Icons.frame_icon, theme='Dark').pixmap(self.Logo.width(), self.Logo.height()))
+        self.Logo.setPixmap(
+            Icons.get_icon(Icons.frame_icon, theme="Dark").pixmap(
+                self.Logo.width(), self.Logo.height()
+            )
+        )
         self.Logo.setScaledContents(True)
         self.Logo.setObjectName("Logo")
         self.UrlPrivacyPolicy = QtWidgets.QPushButton(AboutWindow)
@@ -51,7 +55,11 @@ class Ui_AboutWindow(object):
         self.LogoFrame = QtWidgets.QLabel(AboutWindow)
         self.LogoFrame.setGeometry(QtCore.QRect(277, 26, 52, 52))
         self.LogoFrame.setText("")
-        self.LogoFrame.setPixmap(Icons.get_icon(Icons.microphone_icon, theme='Dark').pixmap(self.LogoFrame.width(), self.LogoFrame.height()))
+        self.LogoFrame.setPixmap(
+            Icons.get_icon(Icons.microphone_icon, theme="Dark").pixmap(
+                self.LogoFrame.width(), self.LogoFrame.height()
+            )
+        )
 
         self.LogoFrame.setScaledContents(True)
         self.LogoFrame.setObjectName("LogoFrame")
@@ -66,9 +74,14 @@ class Ui_AboutWindow(object):
         self.ProgramVersionLabel.setText(_translate("AboutWindow", "Версия"))
         self.EmailLabel.setText(_translate("AboutWindow", "Поддержка"))
         self.ProgramVersion.setText(_translate("AboutWindow", "2024.04.14"))
-        self.UrlPrivacyPolicy.setText(_translate("AboutWindow", "Политика конфиденциальности"))
-        self.Copyright.setText(_translate("AboutWindow", "Copyright © 2024\n"
-"Simonovskiy & Lastivka\n"
-"All rights reserved"))
+        self.UrlPrivacyPolicy.setText(
+            _translate("AboutWindow", "Политика конфиденциальности")
+        )
+        self.Copyright.setText(
+            _translate(
+                "AboutWindow",
+                "Copyright © 2024\n" "Simonovskiy & Lastivka\n" "All rights reserved",
+            )
+        )
         self.WebSite.setText(_translate("AboutWindow", "controlmictray.pp.ua"))
         self.Email.setText(_translate("AboutWindow", "info@controlmictray.pp.ua "))

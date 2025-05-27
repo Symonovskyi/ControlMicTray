@@ -2,10 +2,12 @@ from sqlite3 import connect
 from os import path
 from getpass import getuser
 
+
 class DatabaseController:
     """
     This class operates with database, which contains user settings.
     """
+
     def __init__(self):
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
@@ -89,7 +91,6 @@ class DatabaseController:
     def insert_user(self):
         sql_command = f"INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}');"
         self.execute_sql(sql_command)
-
 
     def insert_initial_data(self):
         sql_commands = f"""
