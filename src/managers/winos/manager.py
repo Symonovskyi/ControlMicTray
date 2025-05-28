@@ -1,13 +1,79 @@
-from comtypes import CLSCTX_ALL, COMObject, POINTER
-from comtypes.client import CreateObject
+from comtypes import CLSCTX_ALL, COMObject, POINTER, CoCreateInstance, CoInitialize
 from ctypes import cast
 from comtypes import COMError
+from traceback import print_exc
 
 from src.managers.winos.api.interfaces import (
-    IAudioEndpointVolume, IMMDeviceEnumerator, IPolicyConfig, IMMNotificationClient, GUID
+    IAudioEndpointVolume, IMMDeviceEnumerator, IPolicyConfig,
+    IMMNotificationClient
 )
-from src.managers.winos.api.constants import EDataFlow, DEVICE_STATE, ERole, STGM
-from src.managers.winos.api.structures import PROPERTYKEY
+from src.managers.winos.api.constants import (
+    EDataFlow, AudioDeviceState, ERole, STGM, DEVPKEY_Device_FriendlyName
+)
+
+class MyNotificationClient(COMObject):
+    _com_interfaces_ = (IMMNotificationClient,)
+
+    def OnDefaultDeviceChanged(self, flow_id, role_id, default_device_id):
+        flow = [flow.name for flow in EDataFlow if flow.value == flow_id][0]
+        role = [role.name for role in ERole if role.value == role_id][0]
+        self.on_default_device_changed(flow, flow_id, role, role_id, default_device_id)
+
+    def OnDeviceAdded(self, added_device_id):
+        self.on_device_added(added_device_id)
+
+    def OnDeviceRemoved(self, removed_device_id):
+        self.on_device_removed(removed_device_id)
+
+    def OnDeviceStateChanged(self, device_id, new_state_id):
+        new_state = [new_state.name for new_state in AudioDeviceState if new_state.value.real == new_state_id][0]
+        self.on_device_state_changed(device_id, new_state, new_state_id)
+
+    def OnPropertyValueChanged(self, device_id, property_struct):
+        fmtid = property_struct.fmtid
+        pid = property_struct.pid
+        self.on_property_value_changed(device_id, property_struct, fmtid, pid)
+
+
+
+    def on_default_device_changed(
+        self, flow, flow_id, role, role_id, default_device_id
+    ):
+        try:
+            enumerator = MicrophonesController.enumerator()
+            device_ptr = enumerator.GetDevice(default_device_id)
+            device = Microphone(device_ptr)
+            print(f"Default device changed: {device.friendly_name} - {device.state_str} - {role} - {flow}")
+            return 0
+        except Exception:
+            print_exc()
+
+    def on_device_added(self, added_device_id):
+        enumerator = MicrophonesController.enumerator()
+        device_ptr = enumerator.GetDevice(added_device_id)
+        device = Microphone(device_ptr)
+        print(f"Default device added: {device.friendly_name} - {device.state_str}")
+        return 0
+
+    def on_device_removed(self, removed_device_id):
+        enumerator = MicrophonesController.enumerator()
+        device_ptr = enumerator.GetDevice(removed_device_id)
+        device = Microphone(device_ptr)
+        print(f"Device removed: {device.friendly_name} - {device.state_str}")
+        return 0
+
+    def on_device_state_changed(self, device_id, new_state, new_state_id):
+        enumerator = MicrophonesController.enumerator()
+        device_ptr = enumerator.GetDevice(device_id)
+        device = Microphone(device_ptr)
+        print(f"Device {device.friendly_name} state changed to {new_state}")
+        return 0
+
+    def on_property_value_changed(self, device_id, property_struct, fmtid, pid):
+        print(f"Property value changed for device {device_id}: fmtid={fmtid}, pid={pid}, value={property_struct}")
+        return 0
+
+
 
 
 class Microphone:
@@ -26,7 +92,7 @@ class Microphone:
         return state_ptr
 
     def _activate_audio_endpoint_volume(self):
-        if self._get_state() == 1:
+        if self._get_state() == AudioDeviceState.Active.value.real:
             iid = IAudioEndpointVolume._iid_
             endpoint_volume_ptr = self._imm_device.Activate(iid, CLSCTX_ALL, None)
             endpoint_volume = cast(endpoint_volume_ptr, POINTER(IAudioEndpointVolume))
@@ -34,13 +100,23 @@ class Microphone:
         else:
             return None
 
-    def get_id(self):
+    @property
+    def id(self):
         return self._id
 
-    def get_state(self):
+    @property
+    def state_int(self) -> int:
         return self._state
     
-    def get_mic_name(self):
+    @property
+    def state_str(self) -> str:
+        """
+        Returns the state of the microphone as an AudioDeviceState enum.
+        """
+        return AudioDeviceState(self._state).name
+    
+    @property
+    def friendly_name(self):
         """
         Retrieves the friendly name of the microphone device.
 
@@ -49,31 +125,21 @@ class Microphone:
         """
         # Open the property store in read mode (STGM_READ = 0)
         store = self._imm_device.OpenPropertyStore(STGM.STGM_READ.value.real)
-        properties = {}
 
         if store is not None:
             propCount = store.GetCount()
-            for j in range(propCount):
+            for prop in range(propCount):
                 try:
-                    pk = store.GetAt(j)
+                    pk = store.GetAt(prop)
                     value = store.GetValue(pk)
                     v = value.GetValue()
+                    if str(pk) == DEVPKEY_Device_FriendlyName:
+                        device_name = v
                 except COMError:
                     continue
                 value.clear()
-                name = str(pk)
-                properties[name] = v
 
-        DEVPKEY_Device_FriendlyName = (
-            "{a45c254e-df1c-4efd-8020-67d146a850e0} 14".upper()
-        )
-        value = properties.get(DEVPKEY_Device_FriendlyName)
-        # Change all this logic using "if value is devpkey, then write it to the variable value"
-        print('\n')
-        print(f"Properties: {properties}")
-        print('\n')
-        return value
-
+        return device_name
 
     def set_master_volume_level(self, level, event_context=None):
         if self._dev_endpoint_volume is not None:
@@ -94,127 +160,108 @@ class Microphone:
 
 
 class MicrophonesController:
-    def __init__(self):
-        self._device_enumerator = CreateObject(IMMDeviceEnumerator.clsid, interface=IMMDeviceEnumerator, clsctx=CLSCTX_ALL) # ?Convert to context manager with Releasing!
-        self._microphones = self._get_microphones()
-        self._callbacks = []
 
-    def _get_microphones(self):
-        # Enumerate capture (microphone) devices
-        all_devices_collection = self._device_enumerator.EnumAudioEndpoints(
+    @classmethod
+    def enumerator(cls) -> IMMDeviceEnumerator:
+        try:
+            device_enumerator: IMMDeviceEnumerator = CoCreateInstance(
+                IMMDeviceEnumerator.clsid, interface=IMMDeviceEnumerator, clsctx=CLSCTX_ALL
+            )
+        except OSError:
+            CoInitialize()
+            device_enumerator: IMMDeviceEnumerator = CoCreateInstance(
+                IMMDeviceEnumerator.clsid, interface=IMMDeviceEnumerator, clsctx=CLSCTX_ALL
+            )
+        finally:
+            return device_enumerator
+
+    @classmethod
+    def get_all_microphones(cls) -> tuple[Microphone]:
+        microphones = ()
+
+        all_devices_collection = cls.enumerator().EnumAudioEndpoints(
             EDataFlow.eCapture.value,
-            DEVICE_STATE.ACTIVE.value | DEVICE_STATE.DISABLED.value
+            AudioDeviceState.Active.value | AudioDeviceState.Disabled.value | AudioDeviceState.Unplugged.value
         )
         count = all_devices_collection.GetCount()
-        microphones = []
         for i in range(count):
             device = all_devices_collection.Item(i)
-            microphones.append(Microphone(device))
+            microphones += (Microphone(device),)
 
         return microphones
 
-    def get_all_microphones(self):
-        return self._microphones
-
-    def get_default_microphone(self):
-        device_ptr = self._device_enumerator.GetDefaultAudioEndpoint(
+    @classmethod
+    def get_default_microphone(cls) -> Microphone:
+        device_ptr = cls.enumerator().GetDefaultAudioEndpoint(
             EDataFlow.eCapture.value,
             ERole.eMultimedia.value
         )
-        device = device_ptr
-        return Microphone(device)
+        return Microphone(device_ptr)
 
-    # ?Move to the actual microphone object!
-    def set_default_microphone(self, microphone):
-        policy_config = CreateObject(IPolicyConfig.clsid, interface=IPolicyConfig, clsctx=CLSCTX_ALL)
-        policy_config.SetDefaultEndpoint(microphone.get_id(), 1)  # eMultimedia
-        policy_config.Release()
+    @classmethod
+    def is_mic_default(cls, mic: Microphone) -> tuple[bool, bool]:
+        mul_device_ptr = cls.enumerator().GetDefaultAudioEndpoint(
+            EDataFlow.eCapture.value,
+            ERole.eMultimedia.value
+        )
 
-    def register_callback(self, callback):
-        self._device_enumerator.RegisterEndpointNotificationCallback(callback)
-        self._callbacks.append(callback)
+        com_device_ptr = cls.enumerator().GetDefaultAudioEndpoint(
+            EDataFlow.eCapture.value,
+            ERole.eCommunications.value
+        )
+        if mic.state_int != AudioDeviceState.Active.value.real:
+            return False, False
+        if mic.id == mul_device_ptr.GetId():
+            return True, False
+        if mic.id == com_device_ptr.GetId():
+            return False, True
 
-    def unregister_callback(self, callback):
-        self._device_enumerator.UnregisterEndpointNotificationCallback(callback)
-        self._callbacks.remove(callback)
+    @classmethod
+    def set_by_default(cls, mic: Microphone):
+        if mic.state_int == AudioDeviceState.Active.value.real:
+            policy_config = CoCreateInstance(IPolicyConfig.clsid, interface=IPolicyConfig, clsctx=CLSCTX_ALL)
+            policy_config.SetDefaultEndpoint(mic.id, ERole.eCommunications.value)
+            policy_config.SetDefaultEndpoint(mic.id, ERole.eMultimedia.value)
+            policy_config.Release()
+
+    @classmethod
+    def register_callback(cls):
+        cls.callback = MyNotificationClient()
+        cls.enumerator().RegisterEndpointNotificationCallback(cls.callback)
+
+    @classmethod
+    def unregister_callback(cls):
+        if cls.callback is not None:
+            cls.enumerator().UnregisterEndpointNotificationCallback(cls.callback)
+
+
 
 # Example usage
 if __name__ == "__main__":
-    controller = MicrophonesController()
+    controller = MicrophonesController
     
     # Get all microphones
-    microphones: list[Microphone] = controller.get_all_microphones()
+    microphones = controller.get_all_microphones()
     for mic in microphones:
-        print(f"Microphone ID: {mic.get_id()}, State: {mic.get_state()}, Name: {mic.get_mic_name()}")
+        print(f"Microphone Name: {mic.friendly_name}. State: {mic.state_str}. Is Default: {controller.is_mic_default(mic)}")
 
-    # Get default microphone
-    default_mic = controller.get_default_microphone()
-    print(f"Default Microphone ID: {default_mic.get_id()}, State: {default_mic.get_state()}, Name: {default_mic.get_mic_name()}")
-    
-    # # Set a microphone as default
-    # if len(microphones) > 1:
-    #     controller.set_default_microphone(microphones[0])
+    # Set a microphone as default
+    if len(microphones) > 1:
+        controller.set_by_default(microphones[1])
+        print(controller.is_mic_default(microphones[0]))
 
+    controller.register_callback()
 
-
-    # # Register a callback
-    # class MyNotificationClient(COMObject):
-    #     _com_interfaces_ = (IMMNotificationClient,)
-
-    #     DeviceStates = {1: "Active", 2: "Disabled", 4: "NotPresent", 8: "Unplugged"}
-    #     Roles = ["eConsole", "eMultimedia", "eCommunications", "ERole_enum_count"]
-    #     DataFlow = ["eRender", "eCapture", "eAll", "EDataFlow_enum_count"]
-
-    #     def OnDefaultDeviceChanged(self, flow_id, role_id, default_device_id):
-    #         flow = self.DataFlow[flow_id]
-    #         role = self.Roles[role_id]
-    #         self.on_default_device_changed(flow, flow_id, role, role_id, default_device_id)
-
-    #     def OnDeviceAdded(self, added_device_id):
-    #         self.on_device_added(added_device_id)
-
-    #     def OnDeviceRemoved(self, removed_device_id):
-    #         self.on_device_removed(removed_device_id)
-
-    #     def OnDeviceStateChanged(self, device_id, new_state_id):
-    #         new_state = self.DeviceStates[new_state_id]
-    #         self.on_device_state_changed(device_id, new_state, new_state_id)
-
-    #     def OnPropertyValueChanged(self, device_id, property_struct):
-    #         fmtid = property_struct.fmtid
-    #         pid = property_struct.pid
-    #         self.on_property_value_changed(device_id, property_struct, fmtid, pid)
-
-    #     def on_default_device_changed(
-    #         self, flow, flow_id, role, role_id, default_device_id
-    #     ):
-    #         print(f"Default device changed to {default_device_id} for flow {flow} and role {role}")
-    #         return 0
-
-    #     def on_device_added(self, added_device_id):
-    #         print(f"Device {added_device_id} added")
-    #         return 0
-
-    #     def on_device_removed(self, removed_device_id):
-    #         print(f"Device {removed_device_id} removed")
-    #         return 0
-
-    #     def on_device_state_changed(self, device_id, new_state, new_state_id):
-    #         print(f"Device {device_id} state changed to {new_state}")
-    #         return 0
-
-    #     def on_property_value_changed(self, device_id, property_struct, fmtid, pid):
-    #         print(f"Property value changed for device {device_id}: fmtid={fmtid}, pid={pid}, value={property_struct.union}")
-    #         return 0
-
-
-    # callback = MyNotificationClient()
-    # controller.register_callback(callback)
-
-    # while True:
-    #     if input("Press 'q' to quit: ") == "q":
-    #         # Unregister the callback
-    #         controller.unregister_callback(callback)
-    #         break
-    #     else:
-    #         continue
+    while True:
+        try:
+            if input("Press 'q' to quit: ") == "q":
+                # Unregister the callback
+                controller.unregister_callback()
+                break
+            else:
+                continue
+        except OSError as e:
+            print(f"Error: {e}")
+            controller.enumerator().Release()
+            controller.unregister_callback()
+            break
