@@ -1,27 +1,26 @@
 [project]
 name = "controlmictray"
-version = "0.1.0"
+version = "3.13.2"
 description = "Add your description here"
 authors = [
     { name = "lastochka364", email = "70896036+lastochka364@users.noreply.github.com" }
 ]
 dependencies = [
-    "Nuitka==1.1.1",
-    "PyQt6==6.3.1",
-    "PyQt6-Qt6==6.3.2",
-    "PyQt6-sip==13.9.1",
-    "comtypes==1.1.14",
-    "future==0.18.3",
+    "Nuitka==2.7.7",
+    "PyQt6==6.9.1",
+    "PyQt6-Qt6==6.9.1",
+    "PyQt6-sip==13.10.2",
+    "comtypes==1.4.11",
+    "future==1.0.0",
     "keyboard==0.11.0",
     "ordered-set==4.1.0",
-    "psutil==6.1.1",
-    "pycaw==20240210",
+    "psutil==7.0.0",
     "winshell==0.6",
     "zstandard==0.23.0",
-    "pywin32>=308",
+    "pywin32>=310",
 ]
 readme = "README.md"
-requires-python = ">= 3.12"
+requires-python = ">= 3.13"
 
 [build-system]
 requires = ["hatchling"]
