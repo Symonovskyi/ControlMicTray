@@ -1,16 +1,23 @@
+# src/platform/winos/api/interfaces.py
+
 from ctypes import HRESULT, POINTER, c_float
 from ctypes.wintypes import BOOL, DWORD, LPCWSTR, LPWSTR, UINT
 from comtypes import COMMETHOD, GUID, IUnknown
 
-from src.managers.winos.api.structures import (
-    PROPERTYKEY, PROPVARIANT, AUDIO_VOLUME_NOTIFICATION_DATA, WAVEFORMATEX,
-    DEVICE_SHARED_MODE, IPolicyPropertyKey, IPolicyPropVariant
+from src.adapters.audio.windows.api.structures import (
+    PROPERTYKEY,
+    PROPVARIANT,
+    AUDIO_VOLUME_NOTIFICATION_DATA,
+    WAVEFORMATEX,
+    DEVICE_SHARED_MODE,
+    IPolicyPropertyKey,
+    IPolicyPropVariant,
 )
-from src.managers.winos.api.constants import REFERENCE_TIME
+from src.adapters.audio.windows.api.constants import REFERENCE_TIME
 
 
 class IAudioEndpointVolumeCallback(IUnknown):
-    '''
+    """
     IAudioEndpointVolumeCallback interface provides notifications of changes
     in the volume level and muting state of an audio endpoint device.
 
@@ -38,19 +45,21 @@ class IAudioEndpointVolumeCallback(IUnknown):
 
     Docs:
     https://learn.microsoft.com/en-gb/windows/win32/api/endpointvolume/nn-endpointvolume-iaudioendpointvolumecallback
-    '''
+    """
 
-    _iid_ = GUID('{b1136c83-b6b5-4add-98a5-a2df8eedf6fa}')
+    _iid_ = GUID("{b1136c83-b6b5-4add-98a5-a2df8eedf6fa}")
     _methods_ = (
-        COMMETHOD([], HRESULT, 'OnNotify',
-                  (['in'],
-                  POINTER(AUDIO_VOLUME_NOTIFICATION_DATA),
-                  'pNotify')),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "OnNotify",
+            (["in"], POINTER(AUDIO_VOLUME_NOTIFICATION_DATA), "pNotify"),
+        ),
     )
 
 
 class IAudioEndpointVolume(IUnknown):
-    '''
+    """
     The IAudioEndpointVolume interface represents the volume controls on the
     audio stream to or from an audio endpoint device.
     A client obtains a reference to the IAudioEndpointVolume
@@ -263,65 +272,121 @@ class IAudioEndpointVolume(IUnknown):
 
 
     Docs: https://learn.microsoft.com/en-gb/windows/win32/api/endpointvolume/nn-endpointvolume-iaudioendpointvolume
-    '''
+    """
 
-    _iid_ = GUID('{5CDF2C82-841E-4546-9722-0CF74078229A}')
+    _iid_ = GUID("{5CDF2C82-841E-4546-9722-0CF74078229A}")
     _methods_ = (
-        COMMETHOD([], HRESULT, 'RegisterControlChangeNotify',
-                  (['in'],
-                  POINTER(IAudioEndpointVolumeCallback),
-                  'pNotify')),
-        COMMETHOD([], HRESULT, 'UnregisterControlChangeNotify',
-                  (['in'],
-                  POINTER(IAudioEndpointVolumeCallback),
-                  'pNotify')),
-        COMMETHOD([], HRESULT, 'GetChannelCount',
-                  (['out'], POINTER(UINT), 'pnChannelCount')),
-        COMMETHOD([], HRESULT, 'SetMasterVolumeLevel',
-                  (['in'], c_float, 'fLevelDB'),
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'SetMasterVolumeLevelScalar',
-                  (['in'], c_float, 'fLevel'),
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'GetMasterVolumeLevel',
-                  (['out'], POINTER(c_float), 'pfLevelDB')),
-        COMMETHOD([], HRESULT, 'GetMasterVolumeLevelScalar',
-                  (['out'], POINTER(c_float), 'pfLevelDB')),
-        COMMETHOD([], HRESULT, 'SetChannelVolumeLevel',
-                  (['in'], UINT, 'nChannel'),
-                  (['in'], c_float, 'fLevelDB'),
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'SetChannelVolumeLevelScalar',
-                  (['in'], DWORD, 'nChannel'),
-                  (['in'], c_float, 'fLevelDB'),
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'GetChannelVolumeLevel',
-                  (['in'], UINT, 'nChannel'),
-                  (['out'], POINTER(c_float), 'pfLevelDB')),
-        COMMETHOD([], HRESULT, 'GetChannelVolumeLevelScalar',
-                  (['in'], DWORD, 'nChannel'),
-                  (['out'], POINTER(c_float), 'pfLevelDB')),
-        COMMETHOD([], HRESULT, 'SetMute',
-                  (['in'], BOOL, 'bMute'),
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'GetMute',
-                  (['out'], POINTER(BOOL), 'pbMute')),
-        COMMETHOD([], HRESULT, 'GetVolumeStepInfo',
-                  (['out'], POINTER(DWORD), 'pnStep'),
-                  (['out'], POINTER(DWORD), 'pnStepCount')),
-        COMMETHOD([], HRESULT, 'VolumeStepUp',
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'VolumeStepDown',
-                  (['in'], POINTER(GUID), 'pguidEventContext')),
-        COMMETHOD([], HRESULT, 'QueryHardwareSupport',
-                  (['out'], POINTER(DWORD), 'pdwHardwareSupportMask')),
-        COMMETHOD([], HRESULT, 'GetVolumeRange',
-                  (['out'], POINTER(c_float), 'pfMin'),
-                  (['out'], POINTER(c_float), 'pfMax'),
-                  (['out'], POINTER(c_float), 'pfIncr')))
+        COMMETHOD(
+            [],
+            HRESULT,
+            "RegisterControlChangeNotify",
+            (["in"], POINTER(IAudioEndpointVolumeCallback), "pNotify"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "UnregisterControlChangeNotify",
+            (["in"], POINTER(IAudioEndpointVolumeCallback), "pNotify"),
+        ),
+        COMMETHOD(
+            [], HRESULT, "GetChannelCount", (["out"], POINTER(UINT), "pnChannelCount")
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetMasterVolumeLevel",
+            (["in"], c_float, "fLevelDB"),
+            (["in"], POINTER(GUID), "pguidEventContext"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetMasterVolumeLevelScalar",
+            (["in"], c_float, "fLevel"),
+            (["in"], POINTER(GUID), "pguidEventContext"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetMasterVolumeLevel",
+            (["out"], POINTER(c_float), "pfLevelDB"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetMasterVolumeLevelScalar",
+            (["out"], POINTER(c_float), "pfLevelDB"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetChannelVolumeLevel",
+            (["in"], UINT, "nChannel"),
+            (["in"], c_float, "fLevelDB"),
+            (["in"], POINTER(GUID), "pguidEventContext"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetChannelVolumeLevelScalar",
+            (["in"], DWORD, "nChannel"),
+            (["in"], c_float, "fLevelDB"),
+            (["in"], POINTER(GUID), "pguidEventContext"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetChannelVolumeLevel",
+            (["in"], UINT, "nChannel"),
+            (["out"], POINTER(c_float), "pfLevelDB"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetChannelVolumeLevelScalar",
+            (["in"], DWORD, "nChannel"),
+            (["out"], POINTER(c_float), "pfLevelDB"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetMute",
+            (["in"], BOOL, "bMute"),
+            (["in"], POINTER(GUID), "pguidEventContext"),
+        ),
+        COMMETHOD([], HRESULT, "GetMute", (["out"], POINTER(BOOL), "pbMute")),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetVolumeStepInfo",
+            (["out"], POINTER(DWORD), "pnStep"),
+            (["out"], POINTER(DWORD), "pnStepCount"),
+        ),
+        COMMETHOD(
+            [], HRESULT, "VolumeStepUp", (["in"], POINTER(GUID), "pguidEventContext")
+        ),
+        COMMETHOD(
+            [], HRESULT, "VolumeStepDown", (["in"], POINTER(GUID), "pguidEventContext")
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "QueryHardwareSupport",
+            (["out"], POINTER(DWORD), "pdwHardwareSupportMask"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetVolumeRange",
+            (["out"], POINTER(c_float), "pfMin"),
+            (["out"], POINTER(c_float), "pfMax"),
+            (["out"], POINTER(c_float), "pfIncr"),
+        ),
+    )
+
 
 class IPropertyStore(IUnknown):
-    '''
+    """
     The IPropertyStore interface provides methods for accessing and
     manipulating properties.
     A client obtains a reference to the IPropertyStore interface of a property
@@ -347,7 +412,7 @@ class IPropertyStore(IUnknown):
     print(count)
     ```
     Where `count` is the number of properties in the property store.
-    
+
 
     - GetAt: The GetAt method retrieves a property key from the property store
     at the specified index.
@@ -392,190 +457,234 @@ class IPropertyStore(IUnknown):
 
 
     Docs: https://learn.microsoft.com/en-gb/windows/win32/api/propsys/nn-propsys-ipropertystore
-    '''
+    """
 
-    _iid_ = GUID('{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}')
+    _iid_ = GUID("{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}")
     _methods_ = (
-        COMMETHOD([], HRESULT, 'GetCount',
-                  (['out'], POINTER(DWORD), 'cProps')),
-        COMMETHOD([], HRESULT, 'GetAt',
-                  (['in'], DWORD, 'iProp'),
-                  (['out'], POINTER(PROPERTYKEY), 'pkey')),
-        COMMETHOD([], HRESULT, 'GetValue',
-                  (['in'], POINTER(PROPERTYKEY), 'key'),
-                  (['out'], POINTER(PROPVARIANT), 'pv')),
+        COMMETHOD([], HRESULT, "GetCount", (["out"], POINTER(DWORD), "cProps")),
         COMMETHOD(
             [],
             HRESULT,
-            'SetValue',
-            (['in'], POINTER(PROPERTYKEY), 'key'),
-            (['in'], POINTER(PROPVARIANT), 'propvar')  # Corrected parameters
+            "GetAt",
+            (["in"], DWORD, "iProp"),
+            (["out"], POINTER(PROPERTYKEY), "pkey"),
         ),
-        COMMETHOD([], HRESULT, 'Commit'))
-
-class IMMDevice(IUnknown):
-    _iid_ = GUID('{D666063F-1587-4E43-81F1-B948E807363F}')
-    _methods_ = (
-        COMMETHOD([], HRESULT, 'Activate',
-                  (['in'], POINTER(GUID), 'iid'),
-                  (['in'], DWORD, 'dwClsCtx'),
-                  (['in'], POINTER(DWORD), 'pActivationParams'),
-                  (['out'], POINTER(POINTER(IUnknown)), 'ppInterface')),
-        COMMETHOD([], HRESULT, 'OpenPropertyStore',
-                  (['in'], DWORD, 'stgmAccess'),
-                  (['out'], POINTER(POINTER(IPropertyStore)), 'ppProperties')),
-        COMMETHOD([], HRESULT, 'GetId',
-                  (['out'], POINTER(LPWSTR), 'ppstrId')),
-        COMMETHOD([], HRESULT, 'GetState',
-                  (['out'], POINTER(DWORD), 'pdwState'))
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetValue",
+            (["in"], POINTER(PROPERTYKEY), "key"),
+            (["out"], POINTER(PROPVARIANT), "pv"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetValue",
+            (["in"], POINTER(PROPERTYKEY), "key"),
+            (["in"], POINTER(PROPVARIANT), "propvar"),  # Corrected parameters
+        ),
+        COMMETHOD([], HRESULT, "Commit"),
     )
 
-class IMMDeviceCollection(IUnknown):
-    _iid_ = GUID('{0BD7A1BE-7A1A-44DB-8397-CC5392387B5E}')
+
+class IMMDevice(IUnknown):
+    _iid_ = GUID("{D666063F-1587-4E43-81F1-B948E807363F}")
     _methods_ = (
-        COMMETHOD([], HRESULT, 'GetCount',
-                  (['out'], POINTER(UINT), 'pcDevices')),
-        COMMETHOD([], HRESULT, 'Item',
-                  (['in'], UINT, 'nDevice'),
-                  (['out'], POINTER(POINTER(IMMDevice)), 'ppDevice'))
+        COMMETHOD(
+            [],
+            HRESULT,
+            "Activate",
+            (["in"], POINTER(GUID), "iid"),
+            (["in"], DWORD, "dwClsCtx"),
+            (["in"], POINTER(DWORD), "pActivationParams"),
+            (["out"], POINTER(POINTER(IUnknown)), "ppInterface"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "OpenPropertyStore",
+            (["in"], DWORD, "stgmAccess"),
+            (["out"], POINTER(POINTER(IPropertyStore)), "ppProperties"),
+        ),
+        COMMETHOD([], HRESULT, "GetId", (["out"], POINTER(LPWSTR), "ppstrId")),
+        COMMETHOD([], HRESULT, "GetState", (["out"], POINTER(DWORD), "pdwState")),
+    )
+
+
+class IMMDeviceCollection(IUnknown):
+    _iid_ = GUID("{0BD7A1BE-7A1A-44DB-8397-CC5392387B5E}")
+    _methods_ = (
+        COMMETHOD([], HRESULT, "GetCount", (["out"], POINTER(UINT), "pcDevices")),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "Item",
+            (["in"], UINT, "nDevice"),
+            (["out"], POINTER(POINTER(IMMDevice)), "ppDevice"),
+        ),
     )
 
 
 class IMMNotificationClient(IUnknown):
-    _iid_ = GUID('{7991EEC9-7E89-4D85-8390-6C703CEC60C0}')
+    _iid_ = GUID("{7991EEC9-7E89-4D85-8390-6C703CEC60C0}")
     _methods_ = (
-        COMMETHOD([], HRESULT, 'OnDeviceStateChanged',
-                  (['in'], LPCWSTR, 'pwstrDeviceId'),
-                  (['in'], DWORD, 'dwNewState')),
-        COMMETHOD([], HRESULT, 'OnDeviceAdded',
-                  (['in'], LPCWSTR, 'pwstrDeviceId')),
-        COMMETHOD([], HRESULT, 'OnDeviceRemoved',
-                  (['in'], LPCWSTR, 'pwstrDeviceId')),
-        COMMETHOD([], HRESULT, 'OnDefaultDeviceChanged',
-                  (['in'], DWORD, 'flow'),
-                  (['in'], DWORD, 'role'),
-                  (['in'], LPCWSTR, 'pwstrDefaultDeviceId')),
-        COMMETHOD([], HRESULT, 'OnPropertyValueChanged',
-                  (['in'], LPCWSTR, 'pwstrDeviceId'),
-                  (['in'], POINTER(GUID), 'key'))
+        COMMETHOD(
+            [],
+            HRESULT,
+            "OnDeviceStateChanged",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], DWORD, "dwNewState"),
+        ),
+        COMMETHOD([], HRESULT, "OnDeviceAdded", (["in"], LPCWSTR, "pwstrDeviceId")),
+        COMMETHOD([], HRESULT, "OnDeviceRemoved", (["in"], LPCWSTR, "pwstrDeviceId")),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "OnDefaultDeviceChanged",
+            (["in"], DWORD, "flow"),
+            (["in"], DWORD, "role"),
+            (["in"], LPCWSTR, "pwstrDefaultDeviceId"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "OnPropertyValueChanged",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            #   (['in'], POINTER(GUID), 'key'))
+            (["in"], POINTER(PROPERTYKEY), "key"),
+        ),
     )
 
 
 class IMMDeviceEnumerator(IUnknown):
-    clsid = GUID('{BCDE0395-E52F-467C-8E3D-C4579291692E}')
-    _iid_ = GUID('{A95664D2-9614-4F35-A746-DE8DB63617E6}')
+    clsid = GUID("{BCDE0395-E52F-467C-8E3D-C4579291692E}")
+    _iid_ = GUID("{A95664D2-9614-4F35-A746-DE8DB63617E6}")
     _methods_ = (
-        COMMETHOD([], HRESULT, 'EnumAudioEndpoints',
-                  (['in'], DWORD, 'dataFlow'),
-                  (['in'], DWORD, 'dwStateMask'),
-                  (['out'], POINTER(POINTER(IMMDeviceCollection)), 'ppDevices')),
-        COMMETHOD([], HRESULT, 'GetDefaultAudioEndpoint',
-                  (['in'], DWORD, 'dataFlow'),
-                  (['in'], DWORD, 'role'),
-                  (['out'], POINTER(POINTER(IMMDevice)), 'ppDevices')),
-        COMMETHOD([], HRESULT, 'GetDevice',
-                  (['in'], LPCWSTR, 'pwstrId'),
-                  (['out'], POINTER(POINTER(IMMDevice)), 'ppDevice')),
-        COMMETHOD([], HRESULT, 'RegisterEndpointNotificationCallback',
-                  (['in'], POINTER(IMMNotificationClient), 'pClient')),
-        COMMETHOD([], HRESULT, 'UnregisterEndpointNotificationCallback',
-                  (['in'], POINTER(IMMNotificationClient), 'pClient'))
+        COMMETHOD(
+            [],
+            HRESULT,
+            "EnumAudioEndpoints",
+            (["in"], DWORD, "dataFlow"),
+            (["in"], DWORD, "dwStateMask"),
+            (["out"], POINTER(POINTER(IMMDeviceCollection)), "ppDevices"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetDefaultAudioEndpoint",
+            (["in"], DWORD, "dataFlow"),
+            (["in"], DWORD, "role"),
+            (["out"], POINTER(POINTER(IMMDevice)), "ppDevices"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "GetDevice",
+            (["in"], LPCWSTR, "pwstrId"),
+            (["out"], POINTER(POINTER(IMMDevice)), "ppDevice"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "RegisterEndpointNotificationCallback",
+            (["in"], POINTER(IMMNotificationClient), "pClient"),
+        ),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "UnregisterEndpointNotificationCallback",
+            (["in"], POINTER(IMMNotificationClient), "pClient"),
+        ),
     )
 
 
 class IPolicyConfig(IUnknown):
-    clsid = GUID('{870af99c-171d-4f9e-af0d-e63df40c2bc9}')
+    clsid = GUID("{870af99c-171d-4f9e-af0d-e63df40c2bc9}")
     _case_insensitive_ = True
-    _iid_ = GUID('{f8679f50-850a-41cf-9c72-430f290290c8}')
+    _iid_ = GUID("{f8679f50-850a-41cf-9c72-430f290290c8}")
     _methods_ = (
         COMMETHOD(
             [],
             HRESULT,
-            'GetMixFormat',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['out'], POINTER(POINTER(WAVEFORMATEX)), 'pFormat')
+            "GetMixFormat",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["out"], POINTER(POINTER(WAVEFORMATEX)), "pFormat"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'GetDeviceFormat',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], BOOL, 'bDefault'),
-            (['out'], POINTER(POINTER(WAVEFORMATEX)), 'pFormat')
+            "GetDeviceFormat",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], BOOL, "bDefault"),
+            (["out"], POINTER(POINTER(WAVEFORMATEX)), "pFormat"),
+        ),
+        COMMETHOD([], HRESULT, "ResetDeviceFormat", (["in"], LPCWSTR, "pwstrDeviceId")),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "SetDeviceFormat",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], POINTER(WAVEFORMATEX), "pEndpointFormat"),
+            (["in"], POINTER(WAVEFORMATEX), "pMixFormat"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'ResetDeviceFormat',
-            (['in'], LPCWSTR, 'pwstrDeviceId')
+            "GetProcessingPeriod",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], BOOL, "bDefault"),
+            (["out"], POINTER(REFERENCE_TIME), "hnsDefaultDevicePeriod"),
+            (["out"], POINTER(REFERENCE_TIME), "hnsMinimumDevicePeriod"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'SetDeviceFormat',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], POINTER(WAVEFORMATEX), 'pEndpointFormat'),
-            (['in'], POINTER(WAVEFORMATEX), 'pMixFormat')
-        ),
-
-        COMMETHOD(
-            [],
-            HRESULT,
-            'GetProcessingPeriod',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], BOOL, 'bDefault'),
-            (['out'], POINTER(REFERENCE_TIME), 'hnsDefaultDevicePeriod'),
-            (['out'], POINTER(REFERENCE_TIME), 'hnsMinimumDevicePeriod')
+            "SetProcessingPeriod",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], POINTER(REFERENCE_TIME), "hnsDevicePeriod"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'SetProcessingPeriod',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], POINTER(REFERENCE_TIME), 'hnsDevicePeriod')
+            "GetShareMode",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["out"], POINTER(DEVICE_SHARED_MODE), "pMode"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'GetShareMode',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['out'], POINTER(DEVICE_SHARED_MODE), 'pMode')
+            "SetShareMode",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], POINTER(DEVICE_SHARED_MODE), "pMode"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'SetShareMode',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], POINTER(DEVICE_SHARED_MODE), 'pMode')
+            "GetPropertyValue",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], POINTER(IPolicyPropertyKey), "key"),
+            (["out"], POINTER(IPolicyPropVariant), "pValue"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'GetPropertyValue',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], POINTER(IPolicyPropertyKey), 'key'),
-            (['out'], POINTER(IPolicyPropVariant), 'pValue')
+            "SetPropertyValue",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], POINTER(IPolicyPropertyKey), "key"),
+            (["in"], POINTER(IPolicyPropVariant), "pValue"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'SetPropertyValue',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], POINTER(IPolicyPropertyKey), 'key'),
-            (['in'], POINTER(IPolicyPropVariant), 'pValue')
+            "SetDefaultEndpoint",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], DWORD, "eRole"),
         ),
         COMMETHOD(
             [],
             HRESULT,
-            'SetDefaultEndpoint',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], DWORD, 'eRole')
+            "SetEndpointVisibility",
+            (["in"], LPCWSTR, "pwstrDeviceId"),
+            (["in"], BOOL, "bVisible"),
         ),
-        COMMETHOD(
-            [],
-            HRESULT,
-            'SetEndpointVisibility',
-            (['in'], LPCWSTR, 'pwstrDeviceId'),
-            (['in'], BOOL, 'bVisible')
-        )
     )

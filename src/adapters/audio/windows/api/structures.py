@@ -1,3 +1,5 @@
+# src/platform/winos/api/structures.py
+
 from ctypes import Structure, Union, byref, windll, c_float
 from ctypes.wintypes import (
     DWORD,
@@ -78,7 +80,7 @@ class AUDIO_VOLUME_NOTIFICATION_DATA(Structure):
         ("bMuted", BOOL),
         ("fMasterVolume", c_float),
         ("nChannels", UINT),
-        ("afChannelVolumes", c_float * 8),
+        ("afChannelVolumes_0", c_float),  # Only for master volume
     ]
 
 
@@ -88,6 +90,7 @@ class DEVICE_SHARED_MODE(Structure):
 
 class IPolicyPropertyKey(Structure):
     pass
+
 
 class IPolicyPropVariant(Structure):
     pass
