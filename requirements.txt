@@ -1,9 +1,9 @@
-comtypes==1.4.7
+comtypes==1.4.15
 keyboard==0.13.5
-psutil==6.0.0
-pycaw==20240210
-PyQt6==6.7.1
-PyQt6-Qt6==6.7.3
-PyQt6_sip==13.8.0
-pywin32==306
+psutil==7.2.2
+pycaw==20251023
+PyQt6==6.10.2
+PyQt6-Qt6==6.10.2
+PyQt6_sip==13.11.0
+pywin32==311
 winshell==0.6

@@ -267,7 +267,7 @@ class SettingsWindow(QWidget):
         Opens new tab with program releases on github with default system browser.
         '''
         WindowsDefault().open_new_tab(
-            "https://github.com/Sif-on/ControlMicTray/releases")
+            "https://github.com/Symonovskyi/ControlMicTray/releases")
 
     def change_mic_hotkey(self):
         '''
