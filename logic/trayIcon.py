@@ -167,18 +167,20 @@ class TrayIcon(QSystemTrayIcon):
     def change_icons_according_to_mic_status(self):
         '''Changes icons according to mic status and app mode.'''
 
+        theme = 'Dark' if self.db.night_theme else 'Light'
+
         if self.db.walkie_status:
-            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=False)))
-            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=True)))
+            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
+            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
         else:
-            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=False)))
+            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
 
         if self.mic.get_mic_status:
-            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark', state=False)))
-            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=False)))
+            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=False)))
+            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
         else:
-            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark', state=True)))
-            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme='Dark', state=True)))
+            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=True)))
+            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
 
     def init_mode_switcher(self):
         '''

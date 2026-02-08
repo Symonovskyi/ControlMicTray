@@ -220,6 +220,8 @@ class SettingsWindow(QWidget):
         '''
         Chages theme value in db and applies appropriate theme dynamically.
         '''
+        self.db.night_theme = self.settings_UI.NightTheme.isChecked()
+
         if self.settings_UI.NightTheme.isChecked():
             self.tray_styles.set_styles('Dark')
             self.settings_styles.set_styles('Dark')
@@ -228,8 +230,6 @@ class SettingsWindow(QWidget):
             self.tray_styles.set_styles('Light')
             self.settings_styles.set_styles('Light')
             self.about_styles.set_styles('Light')
-
-        self.db.night_theme = int(self.settings_UI.NightTheme.isChecked())
 
     def change_autorun(self):
         '''
