@@ -4,7 +4,6 @@ from database.databaseController import DatabaseController
 from logic.aboutWindow import AboutWindow
 from logic.settingsWindow import SettingsWindow
 from logic.hotkeysController import HotkeysManager
-from absolutePath import loadFile
 from logic.microphoneController import (MicrophoneController,
     CustomMicrophoneEndpointVolumeCallback)
 from ui.resources.icons import Icons
@@ -22,8 +21,8 @@ class CustomQMenu(QMenu):
     Reimplements methods mousePressEvent() and mouseReleaseEvent(), disabling
     any mouse button pressing and releasing, except left mouse button.
     '''
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
     def mousePressEvent(self, e):
         '''
@@ -34,7 +33,7 @@ class CustomQMenu(QMenu):
             - e (PyQt6.QtGui.QMouseEvent): Qt mouse event.
         '''
         if e.button() != Qt.MouseButton.LeftButton:
-            e.ignore()
+            return
         else:
             super().mousePressEvent(e)
 
@@ -47,7 +46,7 @@ class CustomQMenu(QMenu):
             - e (PyQt6.QtGui.QMouseEvent): Qt mouse event.
         '''
         if e.button() != Qt.MouseButton.LeftButton:
-            e.ignore()
+            return
         else:
             super().mouseReleaseEvent(e)
 
@@ -85,9 +84,9 @@ class TrayIcon(QSystemTrayIcon):
         # Callback instance for changing icons status on mic change status;
         # "About" Window instance;
         # Hotkeys Manager instance.
-        self.mic = MicrophoneController()
         self.db = DatabaseController()
-        self.callback = CustomMicrophoneEndpointVolumeCallback(self)
+        self.mic = MicrophoneController()
+        self.callback = CustomMicrophoneEndpointVolumeCallback(self, self.db)
         self.about_win = AboutWindow()
         self.hotkeys = HotkeysManager()
 
@@ -114,27 +113,20 @@ class TrayIcon(QSystemTrayIcon):
         self.menu.addSeparator()
 
         # Initializing 'Settings' menu element.
-        settings_action = self.menu.addAction('Настройки')
-        settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme='Dark')))
-
-        self.menu.addSeparator()
+        self.settings_action = self.menu.addAction('Настройки')
 
         # Initializing and configuring 'About program' menu element.
-        about_action = self.menu.addAction('О программе...')
-        about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme='Dark')))
-        about_action.triggered.connect(self.about_win.show)
-
-        self.menu.addSeparator()
+        self.about_action = self.menu.addAction('О программе...')
+        self.about_action.triggered.connect(self.about_win.show)
 
         # Initializing and configuring 'Exit' menu element.
-        exit_action = self.menu.addAction('Выход')
-        exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme='Dark')))
-        exit_action.triggered.connect(exit)
+        self.exit_action = self.menu.addAction('Выход')
+        self.exit_action.triggered.connect(exit)
 
         # Declaring Settings Window instance here for proerly
         # theme initializing. Also configuring 'Settings' menu element.
         self.settings_win = SettingsWindow(self, self.about_win, self.hotkeys)
-        settings_action.triggered.connect(self.settings_win.show)
+        self.settings_action.triggered.connect(self.settings_win.show)
 
         # Connecting menu with tray and setting tooltip for tray icon.
         self.setContextMenu(self.menu)
@@ -168,6 +160,12 @@ class TrayIcon(QSystemTrayIcon):
         '''Changes icons according to mic status and app mode.'''
 
         theme = 'Dark' if self.db.night_theme else 'Light'
+
+        self.settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme=theme)))
+        self.about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme=theme)))
+        self.exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme=theme)))
+        LogoFrame = self.about_win.about_UI.LogoFrame
+        LogoFrame.setPixmap(Icons.get_icon(Icons.microphone_icon, theme=theme).pixmap(LogoFrame.width(), LogoFrame.height()))
 
         if self.db.walkie_status:
             self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))

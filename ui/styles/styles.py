@@ -31,10 +31,10 @@ class LightTheme(BaseStyle):
     secondary_color =       "#7D8A90"
     accent_color =          "#127D91"
     accent_hover_color =    "#04BED5"
-    background_color =      "#F3F3F3"
+    background_color =      "#F3F3E4"
     text_color =            "#404040"
-    button_color =          "#BECBD1"
-    button_hover_color =    "#7D8A90"
+    button_color =          "#404040"
+    button_hover_color =    "#1F2A30"
     border_color =          "#1F2A30"
     neutral_color =         "#7D8A90"
     underline_color =       "#444F55"
@@ -81,6 +81,7 @@ class SettingsWindowStyles:
         text_color =            theme_colors.text_color
         background_color =      theme_colors.background_color
         underline_color =       theme_colors.underline_color
+        neutral_color =         theme_colors.neutral_color
         accent_hover_color =    theme_colors.accent_hover_color
         button_color =          theme_colors.button_color
         button_hover_color =    theme_colors.button_hover_color
@@ -92,6 +93,26 @@ class SettingsWindowStyles:
         border_none =           BaseStyle.border_none
         border_radius_none =    BaseStyle.border_radius_none
         border_radius_medium =  BaseStyle.border_radius_medium
+        border_radius_small =   BaseStyle.border_radius_small
+
+        qcheckbox_styles = f"""
+            QCheckBox::indicator:unchecked {{
+                border: 1px solid {neutral_color};
+                border-top-left-radius: {border_radius_small};
+                border-top-right-radius: {border_radius_small};
+                border-bottom-right-radius: {border_radius_small};
+                border-bottom-left-radius: {border_radius_small};
+            }}
+
+            QCheckBox::indicator:checked {{
+                color: {neutral_color};
+            }}
+        """
+
+        self.settings_win.NightTheme.setStyleSheet(qcheckbox_styles)
+        self.settings_win.EnableProgram.setStyleSheet(qcheckbox_styles)
+        self.settings_win.PrivacyStatus.setStyleSheet(qcheckbox_styles)
+        self.settings_win.EnableMic.setStyleSheet(qcheckbox_styles)
 
         self.settings_win_qwidget.setStyleSheet(f"""
             QWidget {{

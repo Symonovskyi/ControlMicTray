@@ -1,1 +1,0 @@
-# TODO: implement theme and translate managers.

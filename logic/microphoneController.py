@@ -6,6 +6,7 @@ from keyboard import is_pressed
 from comtypes import CLSCTX_ALL, COMObject
 from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
     IAudioEndpointVolumeCallback)
+from PyQt6.QtCore import QObject, pyqtSignal
 
 
 class MicrophoneController(AudioUtilities):
@@ -48,6 +49,11 @@ class MicrophoneController(AudioUtilities):
         return bool(self.__mic.GetMute())
 
 
+class AudioSignals(QObject):
+    volume_changed = pyqtSignal()
+    mute_mic = pyqtSignal()
+
+
 class CustomMicrophoneEndpointVolumeCallback(COMObject):
     '''
     Implements custom callback for microphone state changes.
@@ -62,8 +68,11 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
     '''
     _com_interfaces_ = [IAudioEndpointVolumeCallback]
 
-    def __init__(self, tray_instance):
-        self.inst = tray_instance
+    def __init__(self, tray_instance, db_intance):
+        self.db = db_intance
+        self.signals = AudioSignals()
+        self.signals.volume_changed.connect(tray_instance.change_icons_according_to_mic_status)
+        self.signals.mute_mic.connect(tray_instance.mic.mute_mic)
 
     def OnNotify(self, pNotify):
         '''
@@ -74,7 +83,7 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
         to change menu elements switchers and tray icon color when microphone
         state changes from "muted" to "unmuted" and conversely otherwise.
         '''
-        if self.inst.db.walkie_status and not is_pressed(self.inst.db.hotkey_walkie):
-            self.inst.mic.mute_mic()
+        if self.db.walkie_status and not is_pressed(self.db.hotkey_walkie):
+            self.signals.mute_mic.emit()
 
-        self.inst.change_icons_according_to_mic_status()
+        self.signals.volume_changed.emit()

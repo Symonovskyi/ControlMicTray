@@ -1,7 +1,7 @@
 # Built-in modules and own classes.
 from os import remove
 from webbrowser import WindowsDefault
-from absolutePath import loadFile, realWorkingDirectory, loadRealFile
+from absolutePath import realWorkingDirectory, loadRealFile
 from ui.ui.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
 from database.databaseController import DatabaseController
@@ -118,9 +118,9 @@ class SettingsWindow(QWidget):
         instance.
 
     '''
-    def __init__(self, tray_instance, about_instance, hotkeys_manager):
+    def __init__(self, tray_instance, about_instance, hotkeys_manager, parent=None):
         # For initializing Qt functionality.
-        super().__init__()
+        super().__init__(parent)
 
         # A bunch of instances for properly themes working.
         self.tray = tray_instance
@@ -152,7 +152,7 @@ class SettingsWindow(QWidget):
         connects various signals to their appropriate slots.
         '''
         self.settings_UI.setupUi(self)
-        self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark')))
+        self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark' if self.db.night_theme else 'Light')))
 
         # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
@@ -277,9 +277,9 @@ class SettingsWindow(QWidget):
         If user changes hotkey to "Del", last deletes itself.
         '''
         changed_hotkey = self.hotkey_mic.keySequence().toString()
-        if changed_hotkey == 'Del' or changed_hotkey == 'Backspace':
-            self.hotkey_mic.clear()
+        if changed_hotkey in ('', 'Del', 'Backspace'):
             self.hotkeys.unregister_normal_mode_hotkey()
+            self.hotkey_mic.clear()
             return
         elif changed_hotkey == self.hotkey_walkie.keySequence().toString():
             self.hotkey_mic.setKeySequence(self.db.hotkey_mic)
@@ -299,9 +299,9 @@ class SettingsWindow(QWidget):
         If user changes hotkey to "Del", last deletes itself.
         '''
         changed_hotkey = self.hotkey_walkie.keySequence().toString()
-        if changed_hotkey == 'Del' or changed_hotkey == 'Backspace':
-            self.hotkey_walkie.clear()
+        if changed_hotkey in ('', 'Del', 'Backspace'):
             self.hotkeys.unregister_walkie_mode_hotkey()
+            self.hotkey_walkie.clear()
             return
         elif changed_hotkey == self.hotkey_mic.keySequence().toString():
             self.hotkey_walkie.setKeySequence(self.db.hotkey_walkie)

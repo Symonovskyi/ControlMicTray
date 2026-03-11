@@ -2,7 +2,6 @@
 from webbrowser import WindowsDefault
 from ui.ui.AboutWindowUI import Ui_AboutWindow as AboutUI
 from database.databaseController import DatabaseController
-from absolutePath import loadFile
 from ui.resources.icons import Icons
 
 # 'pip install' modules.
@@ -18,9 +17,9 @@ class AboutWindow(QWidget):
         - about_UI (AboutUI): "about" window styles class instance.
         - db (DatabaseController): database controller class instance.
     '''
-    def __init__(self):
+    def __init__(self, parent=None):
         # For initializing Qt things.
-        super().__init__()
+        super().__init__(parent)
 
         # UI.
         self.about_UI = AboutUI()
@@ -36,7 +35,7 @@ class AboutWindow(QWidget):
         '''
         Sets icon and title of window. Also connects signals to slots.
         '''
-        self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark')))
+        self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark' if self.db.night_theme else 'Light')))
 
         self.about_UI.ProgramVersion.setText(self.db.program_version)
         self.about_UI.WebSite.clicked.connect(self.open_site)
