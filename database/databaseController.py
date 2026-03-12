@@ -1,26 +1,31 @@
 from sqlite3 import connect
 from os import path
 from getpass import getuser
+from threading import RLock
 
 class DatabaseController:
     """
     This class operates with database, which contains user settings.
+    Thread-safe implementation using RLock for concurrent access protection.
     """
     def __init__(self):
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
+        # Блокировка для потокобезопасного доступа к БД
+        self._lock = RLock()
         self.initialize_database()
 
     def execute_sql(self, sql_commands, is_select=False):
-        with connect(self.__db_name) as conn:
-            cursor = conn.cursor()
-            if is_select:
-                cursor.execute(sql_commands)
-                result = cursor.fetchone()
-                return result[0] if result else None
-            else:
-                cursor.executescript(sql_commands)
-                conn.commit()
+        with self._lock:
+            with connect(self.__db_name) as conn:
+                cursor = conn.cursor()
+                if is_select:
+                    cursor.execute(sql_commands)
+                    result = cursor.fetchone()
+                    return result[0] if result else None
+                else:
+                    cursor.executescript(sql_commands)
+                    conn.commit()
 
     def initialize_database(self):
         if not path.exists(self.__db_name):
@@ -36,7 +41,7 @@ class DatabaseController:
         return self.execute_sql(sql_command, is_select=True) is not None
 
     def create_tables(self):
-        sql_commands = f"""
+        sql_commands = """
         CREATE TABLE IF NOT EXISTS "User" (
             "ID"                INTEGER NOT NULL UNIQUE,
             "UserName"          VARCHAR(254) NOT NULL,
@@ -103,7 +108,7 @@ class DatabaseController:
         self.execute_sql(sql_commands)
 
     def drop_tables(self):
-        sql_commands = f"""
+        sql_commands = """
         DROP TABLE IF EXISTS "About";
         DROP TABLE IF EXISTS "Settings";
         DROP TABLE IF EXISTS "Hotkey";
@@ -114,7 +119,7 @@ class DatabaseController:
         self.execute_sql(sql_commands)
 
     def update_about_data(self):
-        sql_commands = f"""
+        sql_commands = """
         UPDATE "About"
         SET ProgramVersion = 'v.2024.04.04', WebSite = 'https://controlmictray.pp.ua', Email = 'i@controlmictray.pp.ua', Copyright = 'Copyright © 2024\nSymonovskyi & Lastivka\nAll rights reserved', UrlPrivacyPolicy = 'https://controlmictray.pp.ua/PrivacyPolicy.html';
         """
@@ -206,17 +211,18 @@ class DatabaseController:
         return self.get_property("About", "UrlPrivacyPolicy")
 
     def set_property(self, table_name, column_name, value):
-        sql = f"""
-               UPDATE "{table_name}"
-               SET "{column_name}" = ?
-               WHERE "ID" = (
-                   SELECT "ID" FROM "User" WHERE "UserName" = '{self.__user_name}'
-               )
-              """
-        with connect(self.__db_name) as conn:
-            cursor = conn.cursor()
-            cursor.execute(sql, (value,))
-            conn.commit()
+        with self._lock:
+            sql = f"""
+                   UPDATE "{table_name}"
+                   SET "{column_name}" = ?
+                   WHERE "ID" = (
+                       SELECT "ID" FROM "User" WHERE "UserName" = '{self.__user_name}'
+                   )
+                  """
+            with connect(self.__db_name) as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql, (value,))
+                conn.commit()
 
     @hotkey_mic.setter
     def hotkey_mic(self, value):

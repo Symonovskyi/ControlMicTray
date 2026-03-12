@@ -1,12 +1,18 @@
 # Built-in modules and own classes.
 from ctypes import POINTER, cast
+import logging
 
 # "pip install" modules.
 from keyboard import is_pressed
 from comtypes import CLSCTX_ALL, COMObject
 from pycaw.pycaw import (AudioUtilities, IAudioEndpointVolume,
     IAudioEndpointVolumeCallback)
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, Qt
+
+
+# Настройка логирования для отладки
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 class MicrophoneController(AudioUtilities):
@@ -19,34 +25,51 @@ class MicrophoneController(AudioUtilities):
         system microphone instance.
     '''
     def __init__(self):
-        self.__mic = cast(self.GetMicrophone().Activate(\
-                IAudioEndpointVolume._iid_, CLSCTX_ALL, None),\
-                    POINTER(IAudioEndpointVolume))
+        try:
+            self.__mic = cast(self.GetMicrophone().Activate(\
+                    IAudioEndpointVolume._iid_, CLSCTX_ALL, None),\
+                        POINTER(IAudioEndpointVolume))
+        except Exception as e:
+            logger.error(f"Failed to initialize microphone: {e}")
+            raise
 
     def mute_mic(self):
         '''
         Mutes system microphone.
         '''
-        self.__mic.SetMute(True, None)
+        try:
+            self.__mic.SetMute(True, None)
+        except Exception as e:
+            logger.error(f"Failed to mute microphone: {e}")
 
     def unmute_mic(self):
         '''
         Unmutes system microphone.
         '''
-        self.__mic.SetMute(False, None)
+        try:
+            self.__mic.SetMute(False, None)
+        except Exception as e:
+            logger.error(f"Failed to unmute microphone: {e}")
 
     def register_control_change_notify(self, callback):
         '''
         Registers callback for changing icons status on mic change status.
         '''
-        self.__mic.RegisterControlChangeNotify(callback)
+        try:
+            self.__mic.RegisterControlChangeNotify(callback)
+        except Exception as e:
+            logger.error(f"Failed to register callback: {e}")
 
     @property
     def get_mic_status(self) -> bool:
         '''
         Returns True if mic is muted, False otherwise.
         '''
-        return bool(self.__mic.GetMute())
+        try:
+            return bool(self.__mic.GetMute())
+        except Exception as e:
+            logger.error(f"Failed to get mic status: {e}")
+            return True  # Безопасное значение по умолчанию (микрофон выключен)
 
 
 class AudioSignals(QObject):
@@ -69,10 +92,18 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
     _com_interfaces_ = [IAudioEndpointVolumeCallback]
 
     def __init__(self, tray_instance, db_intance):
+        super().__init__()
         self.db = db_intance
         self.signals = AudioSignals()
-        self.signals.volume_changed.connect(tray_instance.change_icons_according_to_mic_status)
-        self.signals.mute_mic.connect(tray_instance.mic.mute_mic)
+        # Используем QueuedConnection для безопасного вызова из другого потока
+        self.signals.volume_changed.connect(
+            tray_instance.change_icons_according_to_mic_status,
+            type=Qt.ConnectionType.QueuedConnection
+        )
+        self.signals.mute_mic.connect(
+            tray_instance.mic.mute_mic,
+            type=Qt.ConnectionType.QueuedConnection
+        )
 
     def OnNotify(self, pNotify):
         '''
@@ -83,7 +114,23 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
         to change menu elements switchers and tray icon color when microphone
         state changes from "muted" to "unmuted" and conversely otherwise.
         '''
-        if self.db.walkie_status and not is_pressed(self.db.hotkey_walkie):
-            self.signals.mute_mic.emit()
+        try:
+            # Получаем значения из БД безопасно (теперь потокобезопасно)
+            walkie_status = self.db.walkie_status
+            hotkey_walkie = self.db.hotkey_walkie
 
-        self.signals.volume_changed.emit()
+            # Проверяем режим рации и горячую клавишу
+            if walkie_status and hotkey_walkie:
+                try:
+                    if not is_pressed(hotkey_walkie):
+                        self.signals.mute_mic.emit()
+                except Exception as e:
+                    logger.error(f"Failed to check hotkey state: {e}")
+
+            # Уведомляем об изменении громкости
+            self.signals.volume_changed.emit()
+
+        except Exception as e:
+            logger.error(f"Critical error in OnNotify callback: {e}")
+
+        return 0  # S_OK - важно вернуть код успеха

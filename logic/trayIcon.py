@@ -1,4 +1,5 @@
 # Built-in modules and own classes.
+import logging
 from sys import exit
 from database.databaseController import DatabaseController
 from logic.aboutWindow import AboutWindow
@@ -12,6 +13,8 @@ from ui.resources.icons import Icons
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
+
+logger = logging.getLogger(__name__)
 
 
 class CustomQMenu(QMenu):
@@ -158,53 +161,65 @@ class TrayIcon(QSystemTrayIcon):
 
     def change_icons_according_to_mic_status(self):
         '''Changes icons according to mic status and app mode.'''
+        try:
+            theme = 'Dark' if self.db.night_theme else 'Light'
 
-        theme = 'Dark' if self.db.night_theme else 'Light'
+            self.settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme=theme)))
+            self.about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme=theme)))
+            self.exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme=theme)))
+            
+            # Безопасное обновление логотипа в окне About
+            try:
+                if hasattr(self.about_win, 'about_UI') and self.about_win.about_UI.LogoFrame:
+                    LogoFrame = self.about_win.about_UI.LogoFrame
+                    LogoFrame.setPixmap(Icons.get_icon(Icons.microphone_icon, theme=theme).pixmap(LogoFrame.width(), LogoFrame.height()))
+            except Exception as e:
+                logger.debug(f"Could not update About window logo: {e}")
 
-        self.settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme=theme)))
-        self.about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme=theme)))
-        self.exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme=theme)))
-        LogoFrame = self.about_win.about_UI.LogoFrame
-        LogoFrame.setPixmap(Icons.get_icon(Icons.microphone_icon, theme=theme).pixmap(LogoFrame.width(), LogoFrame.height()))
+            if self.db.walkie_status:
+                self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
+                self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
+            else:
+                self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
 
-        if self.db.walkie_status:
-            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
-            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
-        else:
-            self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
-
-        if self.mic.get_mic_status:
-            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=False)))
-            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
-        else:
-            self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=True)))
-            self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
+            if self.mic.get_mic_status:
+                self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=False)))
+                self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
+            else:
+                self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=True)))
+                self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
+                
+        except Exception as e:
+            logger.error(f"Error in change_icons_according_to_mic_status: {e}")
 
     def init_mode_switcher(self):
         '''
         According to ControlMicTray mode, configures menu entries and
         registering appropriate hotkey(s).
         '''
-        if self.db.walkie_status:
-            # Disabling menu entry "Turn Mic On\Off" and input field for hotkey
-            # of normal mode.
-            self.turn_micro.setEnabled(False)
-            self.settings_win.hotkey_mic.setEnabled(False)
-            # Enabling input field for hotkey of walkie-talkie mode.
-            self.settings_win.hotkey_walkie.setEnabled(True)
+        try:
+            if self.db.walkie_status:
+                # Disabling menu entry "Turn Mic On\Off" and input field for hotkey
+                # of normal mode.
+                self.turn_micro.setEnabled(False)
+                self.settings_win.hotkey_mic.setEnabled(False)
+                # Enabling input field for hotkey of walkie-talkie mode.
+                self.settings_win.hotkey_walkie.setEnabled(True)
 
-            # Registering hotkeys for walkie-talkie app mode.
-            self.hotkeys.register_walkie_mode_hotkey()
-        else:
-            # Enabling menu entry "Turn Mic On\Off" and input field for hotkey
-            # of normal mode.
-            self.turn_micro.setEnabled(True)
-            self.settings_win.hotkey_mic.setEnabled(True)
-            # Disabling input field for hotkey of walkie-talkie mode.
-            self.settings_win.hotkey_walkie.setEnabled(False)
+                # Registering hotkeys for walkie-talkie app mode.
+                self.hotkeys.register_walkie_mode_hotkey()
+            else:
+                # Enabling menu entry "Turn Mic On\Off" and input field for hotkey
+                # of normal mode.
+                self.turn_micro.setEnabled(True)
+                self.settings_win.hotkey_mic.setEnabled(True)
+                # Disabling input field for hotkey of walkie-talkie mode.
+                self.settings_win.hotkey_walkie.setEnabled(False)
 
-            # Registering hotkey for normal app mode.
-            self.hotkeys.register_normal_mode_hotkey()
+                # Registering hotkey for normal app mode.
+                self.hotkeys.register_normal_mode_hotkey()
+        except Exception as e:
+            logger.error(f"Error in init_mode_switcher: {e}")
 
     def change_mic_status(self):
         '''
@@ -219,36 +234,39 @@ class TrayIcon(QSystemTrayIcon):
         '''
         Switches ControlMicTray mode according to walkie-talkie menu enrty status.
         '''
-        # Normal mode enabling.
-        if self.db.walkie_status:
-            # Setting walkie-talkie status turned off in db. Also cheking for
-            # appropriate changing icons in menu.
-            self.db.walkie_status = 0
-            self.change_icons_according_to_mic_status()
+        try:
+            # Normal mode enabling.
+            if self.db.walkie_status:
+                # Setting walkie-talkie status turned off in db. Also cheking for
+                # appropriate changing icons in menu.
+                self.db.walkie_status = 0
+                self.change_icons_according_to_mic_status()
 
-            # Enabling menu entry "Turn Mic On\Off" and input field for hotkey
-            # of normal mode.
-            self.turn_micro.setEnabled(True)
-            self.settings_win.hotkey_mic.setEnabled(True)
-            # Disabling input field for hotkey of walkie-talkie mode.
-            self.settings_win.hotkey_walkie.setEnabled(False)
+                # Enabling menu entry "Turn Mic On\Off" and input field for hotkey
+                # of normal mode.
+                self.turn_micro.setEnabled(True)
+                self.settings_win.hotkey_mic.setEnabled(True)
+                # Disabling input field for hotkey of walkie-talkie mode.
+                self.settings_win.hotkey_walkie.setEnabled(False)
 
-        # Talkie-Walkie Mode enabling.
-        else:
-            # First of all, forced muting mic in this mode.
-            self.mic.mute_mic()
+            # Talkie-Walkie Mode enabling.
+            else:
+                # First of all, forced muting mic in this mode.
+                self.mic.mute_mic()
 
-            # Setting walkie-talkie status turned on in db. Also cheking for
-            # appropriate changing icons in menu.
-            self.db.walkie_status = 1
-            self.change_icons_according_to_mic_status()
+                # Setting walkie-talkie status turned on in db. Also cheking for
+                # appropriate changing icons in menu.
+                self.db.walkie_status = 1
+                self.change_icons_according_to_mic_status()
 
-            # Disabling menu entry "Turn Mic On\Off" and input field for hotkey
-            # of normal mode.
-            self.turn_micro.setEnabled(False)
-            self.settings_win.hotkey_mic.setEnabled(False)
-            # Enabling input field for hotkey of walkie-talkie mode.
-            self.settings_win.hotkey_walkie.setEnabled(True)
+                # Disabling menu entry "Turn Mic On\Off" and input field for hotkey
+                # of normal mode.
+                self.turn_micro.setEnabled(False)
+                self.settings_win.hotkey_mic.setEnabled(False)
+                # Enabling input field for hotkey of walkie-talkie mode.
+                self.settings_win.hotkey_walkie.setEnabled(True)
 
-        # Registeting hotkey(s) accordingly to ControlMicTray mode.
-        self.hotkeys.switch_hotkey_mode()
+            # Registeting hotkey(s) accordingly to ControlMicTray mode.
+            self.hotkeys.switch_hotkey_mode()
+        except Exception as e:
+            logger.error(f"Error in mode_switcher: {e}")

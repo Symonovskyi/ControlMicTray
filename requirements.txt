@@ -5,5 +5,3 @@ pycaw==20251023
 PyQt6==6.10.2
 PyQt6-Qt6==6.10.2
 PyQt6_sip==13.11.0
-pywin32==311
-winshell==0.6

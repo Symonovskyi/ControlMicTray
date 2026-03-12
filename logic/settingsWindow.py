@@ -1,17 +1,15 @@
 # Built-in modules and own classes.
-from os import remove
 from webbrowser import WindowsDefault
-from absolutePath import realWorkingDirectory, loadRealFile
 from ui.ui.SettingsWindowUI import Ui_SettingsWindow as SettingsUI
 from ui.styles.styles import TrayIconStyles, SettingsWindowStyles, AboutWindowStyles
-from database.databaseController import DatabaseController
 from ui.resources.icons import Icons
+from database.databaseController import DatabaseController
+from logic.autorunManager import AutorunManager
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QWidget, QKeySequenceEdit
 from PyQt6.QtGui import QIcon, QKeySequence
 from PyQt6.QtCore import QRect
-from winshell import shortcut, startup
 
 
 class HotkeyMicKeySequenceEdit(QKeySequenceEdit):
@@ -143,6 +141,9 @@ class SettingsWindow(QWidget):
         self.settings_styles = SettingsWindowStyles(self)
         self.about_styles = AboutWindowStyles(self.about)
 
+        # Shorcuts & Autorun Manager
+        self.autorun = AutorunManager()
+
         # Calling the initialization ui func.
         self.setup_ui()
 
@@ -237,14 +238,9 @@ class SettingsWindow(QWidget):
         'Autorun Program' checkbox status.
         '''
         if self.settings_UI.EnableProgram.isChecked():
-            with shortcut(str(f'{startup()}/ControlMicTray.lnk')) as link:
-                link.path = loadRealFile('ControlMicTray.exe')
-                link.description = 'ControlMicTray'
-                link.working_directory = realWorkingDirectory()
+            self.autorun.create_autorun_shortcut()
         else:
-            try:
-                remove(str(f'{startup()}/ControlMicTray.lnk'))
-            except: pass
+            self.autorun.remove_autorun_shortcut()
 
         self.db.enable_program = int(self.settings_UI.EnableProgram.isChecked())
 
