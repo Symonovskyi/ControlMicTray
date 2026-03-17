@@ -120,14 +120,13 @@ class SettingsWindow(QWidget):
         # For initializing Qt functionality.
         super().__init__(parent)
 
+        # UI.
+        self.settings_UI = SettingsUI()
+
         # A bunch of instances for properly themes working.
         self.tray = tray_instance
         self.about = about_instance
         self.hotkeys = hotkeys_manager
-
-        # UI.
-        self.settings_UI = SettingsUI()
-        self.settings_UI.setupUi(self)
 
         # Database Controller class instance.
         self.db = DatabaseController()
@@ -178,7 +177,7 @@ class SettingsWindow(QWidget):
 
         # Theme setting.
         self.settings_UI.NightTheme.setChecked(bool(self.db.night_theme))
-        self.change_theme()
+        self.settings_UI.NightTheme.clicked.connect(self.change_theme)
 
         # Setting autorun checkbox.
         self.settings_UI.EnableProgram.setChecked(bool(self.db.enable_program))
@@ -222,15 +221,35 @@ class SettingsWindow(QWidget):
         Chages theme value in db and applies appropriate theme dynamically.
         '''
         self.db.night_theme = self.settings_UI.NightTheme.isChecked()
+        theme = 'Dark' if self.db.night_theme else 'Light'
 
-        if self.settings_UI.NightTheme.isChecked():
-            self.tray_styles.set_styles('Dark')
-            self.settings_styles.set_styles('Dark')
-            self.about_styles.set_styles('Dark')
+        self.tray_styles.set_styles(theme)
+        self.settings_styles.set_styles(theme)
+        self.about_styles.set_styles(theme)
+
+        self.tray.settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme=theme)))
+        self.tray.about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme=theme)))
+        self.tray.exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme=theme)))
+
+        self.tray.about_win.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme)))
+        self.tray.settings_win.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme)))
+
+        LogoFrame = self.about.about_UI.LogoFrame
+        LogoFrame.setPixmap(Icons.get_icon(Icons.microphone_icon, theme=theme).pixmap(LogoFrame.width(), LogoFrame.height()))
+
+        if self.db.walkie_status:
+            self.tray.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
+            self.tray.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
         else:
-            self.tray_styles.set_styles('Light')
-            self.settings_styles.set_styles('Light')
-            self.about_styles.set_styles('Light')
+            self.tray.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
+
+        if self.tray.mic.get_mic_status:
+            self.tray.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=False)))
+            self.tray.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
+        else:
+            self.tray.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=True)))
+            self.tray.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
+
 
     def change_autorun(self):
         '''

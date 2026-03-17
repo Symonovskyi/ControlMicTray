@@ -7,11 +7,9 @@ from logic.settingsWindow import SettingsWindow
 from logic.hotkeysController import HotkeysManager
 from logic.microphoneController import (MicrophoneController,
     CustomMicrophoneEndpointVolumeCallback)
-from ui.resources.icons import Icons
 
 # 'pip install' modules.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
 logger = logging.getLogger(__name__)
@@ -36,9 +34,9 @@ class CustomQMenu(QMenu):
             - e (PyQt6.QtGui.QMouseEvent): Qt mouse event.
         '''
         if e.button() != Qt.MouseButton.LeftButton:
-            return
-        else:
-            super().mousePressEvent(e)
+            e.ignore()
+
+        super().mousePressEvent(e)
 
     def mouseReleaseEvent(self, e):
         '''
@@ -49,9 +47,9 @@ class CustomQMenu(QMenu):
             - e (PyQt6.QtGui.QMouseEvent): Qt mouse event.
         '''
         if e.button() != Qt.MouseButton.LeftButton:
-            return
-        else:
-            super().mouseReleaseEvent(e)
+            e.ignore()
+
+        super().mouseReleaseEvent(e)
 
 
 class TrayIcon(QSystemTrayIcon):
@@ -81,20 +79,30 @@ class TrayIcon(QSystemTrayIcon):
         # Initializing main Qt functionality of Qt System Tray Icon.
         super().__init__()
 
+        # See docstings of this class to find out why using custom Qt Menu.
+        self.menu = CustomQMenu()
+
         # Declaring a bunch of instaces:
         # Microphone instance;
         # Database Controller instance;
-        # Callback instance for changing icons status on mic change status;
         # "About" Window instance;
-        # Hotkeys Manager instance.
+        # Hotkeys Manager instance;
+        # Settings Window instance (должен быть создан до callback);
+        # Callback instance for changing icons status on mic change status.
         self.db = DatabaseController()
         self.mic = MicrophoneController()
-        self.callback = CustomMicrophoneEndpointVolumeCallback(self, self.db)
         self.about_win = AboutWindow()
         self.hotkeys = HotkeysManager()
+        self.settings_win = SettingsWindow(self, self.about_win, self.hotkeys)
+        self.callback = CustomMicrophoneEndpointVolumeCallback(self, self.db)
 
         # Calling the initialization ui method.
         self.__setup_ui()
+
+        # Registering hotkeys and configuring menu entries accordingly to ControlMicTray mode.
+        self.init_mode_switcher()
+
+        self.settings_win.change_theme()
 
     def __setup_ui(self):
         '''
@@ -102,9 +110,6 @@ class TrayIcon(QSystemTrayIcon):
         For more details, see docstring to this class in
         "What happens at init stage" section.
         '''
-        # See docstings of this class to find out why using custom Qt Menu.
-        self.menu = CustomQMenu()
-
         # Initializing and configuring 'On\Off Microphone' menu element.
         self.turn_micro = self.menu.addAction('Вкл.\Выкл. микрофон')
         self.turn_micro.triggered.connect(self.change_mic_status)
@@ -115,9 +120,6 @@ class TrayIcon(QSystemTrayIcon):
 
         self.menu.addSeparator()
 
-        # Initializing 'Settings' menu element.
-        self.settings_action = self.menu.addAction('Настройки')
-
         # Initializing and configuring 'About program' menu element.
         self.about_action = self.menu.addAction('О программе...')
         self.about_action.triggered.connect(self.about_win.show)
@@ -126,17 +128,15 @@ class TrayIcon(QSystemTrayIcon):
         self.exit_action = self.menu.addAction('Выход')
         self.exit_action.triggered.connect(exit)
 
-        # Declaring Settings Window instance here for proerly
-        # theme initializing. Also configuring 'Settings' menu element.
-        self.settings_win = SettingsWindow(self, self.about_win, self.hotkeys)
+        # Also configuring 'Settings' menu element.
+        # Initializing 'Settings' menu element instance here for proerly
+        # theme initializing. 
+        self.settings_action = self.menu.addAction('Настройки')
         self.settings_action.triggered.connect(self.settings_win.show)
 
         # Connecting menu with tray and setting tooltip for tray icon.
         self.setContextMenu(self.menu)
         self.setToolTip('ControlMicTray')
-
-        # Setting icons to menu items accordingly to ControlMicTray mode.
-        self.change_icons_according_to_mic_status()
 
         # Connect hotkey signals to appropriate actions (slots).
         self.hotkeys.normal_mode_hotkey_signal.connect(self.change_mic_status)
@@ -145,9 +145,6 @@ class TrayIcon(QSystemTrayIcon):
 
         # Connect single mouse click on tray icon to changing mic status.
         self.activated.connect(self.change_mic_status_on_mouse_click)
-
-        # Registering hotkeys and configuring menu entries accordingly to ControlMicTray mode.
-        self.init_mode_switcher()
 
         # Register callback controlling when mic changes it's state.
         self.mic.register_control_change_notify(self.callback)
@@ -158,39 +155,6 @@ class TrayIcon(QSystemTrayIcon):
         '''
         if reason == self.ActivationReason.Trigger and not self.db.walkie_status:
             self.change_mic_status()
-
-    def change_icons_according_to_mic_status(self):
-        '''Changes icons according to mic status and app mode.'''
-        try:
-            theme = 'Dark' if self.db.night_theme else 'Light'
-
-            self.settings_action.setIcon(QIcon(Icons.get_icon(Icons.settings_icon, theme=theme)))
-            self.about_action.setIcon(QIcon(Icons.get_icon(Icons.about_icon, theme=theme)))
-            self.exit_action.setIcon(QIcon(Icons.get_icon(Icons.exit_icon, theme=theme)))
-            
-            # Безопасное обновление логотипа в окне About
-            try:
-                if hasattr(self.about_win, 'about_UI') and self.about_win.about_UI.LogoFrame:
-                    LogoFrame = self.about_win.about_UI.LogoFrame
-                    LogoFrame.setPixmap(Icons.get_icon(Icons.microphone_icon, theme=theme).pixmap(LogoFrame.width(), LogoFrame.height()))
-            except Exception as e:
-                logger.debug(f"Could not update About window logo: {e}")
-
-            if self.db.walkie_status:
-                self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
-                self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
-            else:
-                self.push_to_talk.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
-
-            if self.mic.get_mic_status:
-                self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=False)))
-                self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=False)))
-            else:
-                self.setIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme=theme, state=True)))
-                self.turn_micro.setIcon(QIcon(Icons.get_icon(Icons.switch_icon, theme=theme, state=True)))
-                
-        except Exception as e:
-            logger.error(f"Error in change_icons_according_to_mic_status: {e}")
 
     def init_mode_switcher(self):
         '''
@@ -240,7 +204,7 @@ class TrayIcon(QSystemTrayIcon):
                 # Setting walkie-talkie status turned off in db. Also cheking for
                 # appropriate changing icons in menu.
                 self.db.walkie_status = 0
-                self.change_icons_according_to_mic_status()
+                self.settings_win.settings_UI.NightTheme.clicked.emit()
 
                 # Enabling menu entry "Turn Mic On\Off" and input field for hotkey
                 # of normal mode.
@@ -257,7 +221,7 @@ class TrayIcon(QSystemTrayIcon):
                 # Setting walkie-talkie status turned on in db. Also cheking for
                 # appropriate changing icons in menu.
                 self.db.walkie_status = 1
-                self.change_icons_according_to_mic_status()
+                self.settings_win.settings_UI.NightTheme.clicked.emit()
 
                 # Disabling menu entry "Turn Mic On\Off" and input field for hotkey
                 # of normal mode.

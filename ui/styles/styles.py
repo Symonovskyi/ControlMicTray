@@ -68,8 +68,6 @@ class TrayIconStyles:
             }}
         """)
 
-        self.tray.change_icons_according_to_mic_status()
-
 class SettingsWindowStyles:
     def __init__(self, qinstance, settings_instance=None):
         self.settings_win_qwidget = qinstance

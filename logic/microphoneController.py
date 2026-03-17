@@ -97,7 +97,7 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
         self.signals = AudioSignals()
         # Используем QueuedConnection для безопасного вызова из другого потока
         self.signals.volume_changed.connect(
-            tray_instance.change_icons_according_to_mic_status,
+            tray_instance.settings_win.settings_UI.NightTheme.clicked.emit,
             type=Qt.ConnectionType.QueuedConnection
         )
         self.signals.mute_mic.connect(
