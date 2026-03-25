@@ -5,10 +5,22 @@ from threading import RLock
 
 class DatabaseController:
     """
-    This class operates with database, which contains user settings.
+    This singleton class operates with database, which contains user settings.
     Thread-safe implementation using RLock for concurrent access protection.
     """
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self):
+        if self._initialized:
+            return
+
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
         self._lock = RLock()
@@ -34,6 +46,8 @@ class DatabaseController:
                 self.insert_user()
         else:
             self.update_about_data()
+
+        self._initialized = True
 
     def user_exists(self):
         sql_command = f"SELECT 1 FROM 'User' WHERE UserName = '{self.__user_name}';"
