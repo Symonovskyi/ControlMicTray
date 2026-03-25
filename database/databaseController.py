@@ -1,4 +1,4 @@
-from sqlite3 import connect
+from sqlite3 import Connection, connect as sql_conn
 from os import path
 from getpass import getuser
 from threading import RLock
@@ -9,11 +9,15 @@ class DatabaseController:
     Thread-safe implementation using RLock for concurrent access protection.
     """
 
-    _instance = None
+    _instance: "DatabaseController" = None
+    _db_name: str = "ControlMicTray.db"
+    _user_name: str = getuser()
+    _connection: Connection = None
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._connection = sql_conn(cls._db_name, check_same_thread=False)
             cls._instance._initialized = False
         return cls._instance
 
@@ -21,14 +25,12 @@ class DatabaseController:
         if self._initialized:
             return
 
-        self.__db_name = "ControlMicTray.db"
-        self.__user_name = getuser()
         self._lock = RLock()
         self.initialize_database()
 
     def execute_sql(self, sql_commands, is_select=False):
         with self._lock:
-            with connect(self.__db_name) as conn:
+            with self._connection as conn:
                 cursor = conn.cursor()
                 if is_select:
                     cursor.execute(sql_commands)
@@ -39,7 +41,7 @@ class DatabaseController:
                     conn.commit()
 
     def initialize_database(self):
-        if not path.exists(self.__db_name):
+        if not path.exists(self._db_name):
             self.create_tables()
             self.insert_initial_data()
             if not self.user_exists():
@@ -50,7 +52,7 @@ class DatabaseController:
         self._initialized = True
 
     def user_exists(self):
-        sql_command = f"SELECT 1 FROM 'User' WHERE UserName = '{self.__user_name}';"
+        sql_command = f"SELECT 1 FROM 'User' WHERE UserName = '{self._user_name}';"
         return self.execute_sql(sql_command, is_select=True) is not None
 
     def create_tables(self):
@@ -105,13 +107,13 @@ class DatabaseController:
         self.execute_sql(sql_commands)
 
     def insert_user(self):
-        sql_command = f"INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}');"
+        sql_command = f"INSERT INTO 'User' (UserName) VALUES ('{self._user_name}');"
         self.execute_sql(sql_command)
 
 
     def insert_initial_data(self):
         sql_commands = f"""
-        INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}');
+        INSERT INTO 'User' (UserName) VALUES ('{self._user_name}');
         INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\\Sound\\StandardSound.mp3', NULL);
         INSERT INTO "Autorun" (EnableProgram, EnableMic, MicStatus, WalkieStatus) VALUES (1, 0, 1, 0);
         INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll_lock', 'Pause');
@@ -142,7 +144,7 @@ class DatabaseController:
         sql = f"""
                SELECT "{column_name}" FROM "{table_name}"
                WHERE "ID" = (
-                   SELECT "ID" FROM "User" WHERE "UserName" = '{self.__user_name}'
+                   SELECT "ID" FROM "User" WHERE "UserName" = '{self._user_name}'
                )
               """
         return self.execute_sql(sql, is_select=True)
@@ -153,7 +155,7 @@ class DatabaseController:
 
     @property
     def user_name(self):
-        return self.__user_name
+        return self._user_name
 
     @property
     def hotkey_mic(self):
@@ -229,10 +231,10 @@ class DatabaseController:
                    UPDATE "{table_name}"
                    SET "{column_name}" = ?
                    WHERE "ID" = (
-                       SELECT "ID" FROM "User" WHERE "UserName" = '{self.__user_name}'
+                       SELECT "ID" FROM "User" WHERE "UserName" = '{self._user_name}'
                    )
                   """
-            with connect(self.__db_name) as conn:
+            with self._connection as conn:
                 cursor = conn.cursor()
                 cursor.execute(sql, (value,))
                 conn.commit()
