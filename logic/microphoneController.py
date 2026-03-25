@@ -11,7 +11,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, Qt
 
 
 # Настройка логирования для отладки
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -97,7 +97,7 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
         self.signals = AudioSignals()
         # Используем QueuedConnection для безопасного вызова из другого потока
         self.signals.volume_changed.connect(
-            tray_instance.settings_win.settings_UI.NightTheme.clicked.emit,
+            tray_instance.settings_win.change_theme,
             type=Qt.ConnectionType.QueuedConnection
         )
         self.signals.mute_mic.connect(
@@ -108,28 +108,14 @@ class CustomMicrophoneEndpointVolumeCallback(COMObject):
     def OnNotify(self, pNotify):
         '''
         Implements a callback itself.
-        Instantly mutes mic if not pressing unmuting button, and app is in
-        walkie-talkie mode.
-        Calls change_icons_according_to_mic_status() from main TrayIcon class
-        to change menu elements switchers and tray icon color when microphone
+        Calls volume_changed signal to update UI when microphone
         state changes from "muted" to "unmuted" and conversely otherwise.
         '''
         try:
-            # Получаем значения из БД безопасно (теперь потокобезопасно)
-            walkie_status = self.db.walkie_status
-            hotkey_walkie = self.db.hotkey_walkie
+            if self.db.walkie_status and not is_pressed(self.db.hotkey_walkie):
+                self.signals.mute_mic.emit()
 
-            # Проверяем режим рации и горячую клавишу
-            if walkie_status and hotkey_walkie:
-                try:
-                    if not is_pressed(hotkey_walkie):
-                        self.signals.mute_mic.emit()
-                except Exception as e:
-                    logger.error(f"Failed to check hotkey state: {e}")
-
-            # Уведомляем об изменении громкости
             self.signals.volume_changed.emit()
-
         except Exception as e:
             logger.error(f"Critical error in OnNotify callback: {e}")
 

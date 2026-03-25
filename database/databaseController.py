@@ -11,7 +11,6 @@ class DatabaseController:
     def __init__(self):
         self.__db_name = "ControlMicTray.db"
         self.__user_name = getuser()
-        # Блокировка для потокобезопасного доступа к БД
         self._lock = RLock()
         self.initialize_database()
 
@@ -99,7 +98,7 @@ class DatabaseController:
     def insert_initial_data(self):
         sql_commands = f"""
         INSERT INTO 'User' (UserName) VALUES ('{self.__user_name}');
-        INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\Sound\StandardSound.mp3', NULL);
+        INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\\Sound\\StandardSound.mp3', NULL);
         INSERT INTO "Autorun" (EnableProgram, EnableMic, MicStatus, WalkieStatus) VALUES (1, 0, 1, 0);
         INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll_lock', 'Pause');
         INSERT INTO "Settings" (LanguageCode, NightTheme, PrivacyStatus) VALUES ('ru', 1, 0);

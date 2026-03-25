@@ -4,7 +4,10 @@ from database.databaseController import DatabaseController
 
 # 'pip install' modules.
 from PyQt6.QtCore import QObject, pyqtSignal
-from keyboard import add_hotkey as kb_add_hotkey, remove_hotkey as kb_remove_hotkey
+from keyboard import (
+    add_hotkey as kb_add_hotkey,
+    remove_hotkey as kb_remove_hotkey,
+    hook_key as kb_hook_key)
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +28,8 @@ class HotkeysManager(QObject):
         releases hotkey so mic gets muted.
         - normal_hotkey_attr (None | keyboard.KeyboardEvent): handles reference
         to normal hotkey keyboard event.
-        - walkie_hotkey_on_attr (None | keyboard.KeyboardEvent): handles
-        reference to "walkie hotkey on" keyboard event.
-        - walkie_hotkey_off_attr (None | keyboard.KeyboardEvent): handles
-        reference to "walkie hotkey off" keyboard event.
+        - walkie_hotkey_attr (None | keyboard.KeyboardEvent): handles
+        reference to "walkie hotkey mode" keyboard event.
     '''
 
     normal_mode_hotkey_signal = pyqtSignal()
@@ -41,8 +42,7 @@ class HotkeysManager(QObject):
         self.db = DatabaseController()
         
         self.normal_hotkey_attr = None
-        self.walkie_hotkey_on_attr = None
-        self.walkie_hotkey_off_attr = None
+        self.walkie_hotkey_attr = None
 
     def register_normal_mode_hotkey(self):
         '''
@@ -67,21 +67,15 @@ class HotkeysManager(QObject):
         try:
             hotkey = self.db.hotkey_walkie
             if hotkey and hotkey != 'unmapped':
-                self.walkie_hotkey_on_attr = kb_add_hotkey(
-                    hotkey.upper(),
-                    self.walkie_mode_on_hotkey_signal.emit,
-                    trigger_on_release=False
-                )
-                self.walkie_hotkey_off_attr = kb_add_hotkey(
-                    hotkey.lower(),
-                    self.walkie_mode_off_hotkey_signal.emit,
-                    trigger_on_release=True
+                self.walkie_hotkey_attr = kb_hook_key(
+                    key=hotkey.lower(),
+                    keydown_callback=self.walkie_mode_on_hotkey_signal.emit,
+                    keyup_callback=self.walkie_mode_off_hotkey_signal.emit,
                 )
                 logger.debug(f"Registered walkie mode hotkey: {hotkey}")
         except Exception as e:
             logger.error(f"Failed to register walkie mode hotkey: {e}")
-            self.walkie_hotkey_on_attr = None
-            self.walkie_hotkey_off_attr = None
+            self.walkie_hotkey_attr = None
 
     def _safe_remove_hotkey(self, hotkey_attr, hotkey_name=""):
         """Безопасное удаление горячей клавиши с логированием."""
@@ -89,19 +83,18 @@ class HotkeysManager(QObject):
             try:
                 kb_remove_hotkey(hotkey_attr)
                 logger.debug(f"Removed hotkey: {hotkey_name}")
-            except Exception as e:
-                logger.warning(f"Failed to remove hotkey {hotkey_name}: {e}")
             except OSError as e:
                 # Игнорируем ошибки, если горячая клавиша уже удалена
                 logger.debug(f"Hotkey {hotkey_name} was already removed or unavailable: {e}")
+            except Exception as e:
+                logger.warning(f"Failed to remove hotkey {hotkey_name}: {e}")
 
     def re_register_normal_mode_hotkey(self):
         '''
         Removes actual registered hotkey for nomral app mode and registers
         new hotkey, using shortcut from db.
         '''
-        self._safe_remove_hotkey(self.normal_hotkey_attr, "normal_mode")
-        self.normal_hotkey_attr = None
+        self.unregister_normal_mode_hotkey()
         self.register_normal_mode_hotkey()
 
     def re_register_walkie_mode_hotkey(self):
@@ -109,10 +102,7 @@ class HotkeysManager(QObject):
         Removes actual registered hotkeys for walkie-talkie app mode and
         registers new hotkeys, using shortcuts from db.
         '''
-        self._safe_remove_hotkey(self.walkie_hotkey_off_attr, "walkie_off")
-        self._safe_remove_hotkey(self.walkie_hotkey_on_attr, "walkie_on")
-        self.walkie_hotkey_on_attr = None
-        self.walkie_hotkey_off_attr = None
+        self.unregister_walkie_mode_hotkey()
         self.register_walkie_mode_hotkey()
 
     def switch_hotkey_mode(self):
@@ -123,15 +113,11 @@ class HotkeysManager(QObject):
         try:
             if self.db.walkie_status:
                 # Переключение в режим рации
-                self._safe_remove_hotkey(self.normal_hotkey_attr, "normal_mode")
-                self.normal_hotkey_attr = None
+                self.unregister_normal_mode_hotkey()
                 self.register_walkie_mode_hotkey()
             else:
                 # Переключение в обычный режим
-                self._safe_remove_hotkey(self.walkie_hotkey_off_attr, "walkie_off")
-                self._safe_remove_hotkey(self.walkie_hotkey_on_attr, "walkie_on")
-                self.walkie_hotkey_on_attr = None
-                self.walkie_hotkey_off_attr = None
+                self.unregister_walkie_mode_hotkey()
                 self.register_normal_mode_hotkey()
         except Exception as e:
             logger.error(f"Failed to switch hotkey mode: {e}")
@@ -139,19 +125,15 @@ class HotkeysManager(QObject):
     def unregister_normal_mode_hotkey(self):
         try:
             self._safe_remove_hotkey(self.normal_hotkey_attr, "normal_mode")
-            self.normal_hotkey_attr = None
         except Exception as e:
             logger.error(f"Failed to unregister normal mode hotkey: {e}")
         finally:
-            self.db.hotkey_mic = 'unmapped'
+            self.normal_hotkey_attr = None
 
     def unregister_walkie_mode_hotkey(self):
         try:
-            self._safe_remove_hotkey(self.walkie_hotkey_on_attr, "walkie_on")
-            self._safe_remove_hotkey(self.walkie_hotkey_off_attr, "walkie_off")
+            self._safe_remove_hotkey(self.walkie_hotkey_attr, "walkie_mode")
         except Exception as e:
             logger.error(f"Failed to unregister walkie mode hotkey: {e}")
         finally:
-            self.walkie_hotkey_on_attr = None
-            self.walkie_hotkey_off_attr = None
-            self.db.hotkey_walkie = 'unmapped'
+            self.walkie_hotkey_attr = None

@@ -154,6 +154,10 @@ class SettingsWindow(QWidget):
         self.settings_UI.setupUi(self)
         self.setWindowIcon(QIcon(Icons.get_icon(Icons.microphone_icon, theme='Dark' if self.db.night_theme else 'Light')))
 
+        # Temporary.
+        self.settings_UI.LanguageCode.setEnabled(False)
+        self.settings_UI.AlertsType.setEnabled(False)
+
         # Connecting slots to signals.
         self.settings_UI.NightTheme.clicked.connect(self.change_theme)
         self.settings_UI.EnableProgram.clicked.connect(self.change_autorun)
