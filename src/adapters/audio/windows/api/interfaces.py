@@ -1,8 +1,9 @@
-# src/platform/winos/api/interfaces.py
+# src/adapters/audio/windows/api/interfaces.py
 
 from ctypes import HRESULT, POINTER, c_float
 from ctypes.wintypes import BOOL, DWORD, LPCWSTR, LPWSTR, UINT
 from comtypes import COMMETHOD, GUID, IUnknown
+from typing import TYPE_CHECKING
 
 from src.adapters.audio.windows.api.structures import (
     PROPERTYKEY,
@@ -13,7 +14,13 @@ from src.adapters.audio.windows.api.structures import (
     IPolicyPropertyKey,
     IPolicyPropVariant,
 )
-from src.adapters.audio.windows.api.constants import REFERENCE_TIME
+from src.adapters.audio.windows.api.constants import (
+    EEndpointHardwareSupport,
+    EAudioDeviceState,
+    REFERENCE_TIME,
+    EDataFlow,
+    ERole
+)
 
 
 class IAudioEndpointVolumeCallback(IUnknown):
@@ -21,26 +28,34 @@ class IAudioEndpointVolumeCallback(IUnknown):
     IAudioEndpointVolumeCallback interface provides notifications of changes
     in the volume level and muting state of an audio endpoint device.
 
-
-    Methods:
-    - OnNotify: The OnNotify method notifies the client that the volume level
-    or muting state of the audio endpoint device has changed.
-
-
-    Argumnets:
-    - pNotify: Pointer to an AUDIO_VOLUME_NOTIFICATION_DATA structure that
-    describes the volume level and muting state of the audio endpoint device.
     Example of usage:
     ```
-    class AudioEndpointVolumeCallback(IAudioEndpointVolumeCallback):
+    # The most simple external event handler for obtaining events and data.
+    def external_event_handler(event_type: str, data: dict[str, str]):
+        print({event_type:data})
+
+    class EndpointVolumeCallbackClient(COMObject):
+        # Define the neccesary `_com_objects_` magic var to point out that
+        # we are waiting for changes from the specific device, such as
+        # "mute state" or "volume range" changed.
+        _com_objects_ = [IAudioEndpointVolumeCallback]
+
+        def __init__(self, external_event_handler: Callable[str]=None):
+            self.external_event_handler = external_event_handler
+
         def OnNotify(self, pNotify):
-            print('Volume:', pNotify.fMasterVolume)
-            print('Muted:', pNotify.bMuted)
+            print('Volume:', pNotify.fMasterVolume) # Device volume data
+            print('Muted:', pNotify.bMuted) # Mute state of device
+
+            # Top `print`-s are for example, in real case we may transfer the
+            # `notified` data from system to our external handler like this:
+            if self.self.external_event_handler:
+                self.external_event_handler(pNotify.contents)
     ```
 
-
-    Returns:
-    - HRESULT: If the method succeeds, it returns S_OK.
+    :Returns:
+    - <b>HRESULT</b>: If the method succeeds, it returns S_OK. If it fails,
+    it returns an error code.
 
 
     Docs:
@@ -57,6 +72,16 @@ class IAudioEndpointVolumeCallback(IUnknown):
         ),
     )
 
+    if TYPE_CHECKING:
+        def OnNotify(self, pNotifyData: AUDIO_VOLUME_NOTIFICATION_DATA) -> None:
+            '''
+            The OnNotify method notifies the client that the volume level or
+            muting state of the audio endpoint device has changed.
+
+            Docs: https://learn.microsoft.com/en-gb/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolumecallback-onnotify
+            '''
+            ...
+
 
 class IAudioEndpointVolume(IUnknown):
     """
@@ -66,209 +91,13 @@ class IAudioEndpointVolume(IUnknown):
     interface of an endpoint device by calling the `IMMDevice::Activate`
     method with parameter `iid` set to `REFIID IID_IAudioEndpointVolume`.
 
-    Example of initialization:
+    Example of device initialization:
     ```
     audio_endpoint_volume = audio_device.Activate(
         IAudioEndpointVolume._iid_, comtypes.CLSCTX_ALL, None
     )
     ```
     Where `audio_device` is an instance of `IMMDevice` interface.
-
-
-
-    Methods:
-    - RegisterControlChangeNotify: The RegisterControlChangeNotify method
-    registers a client's notification interface to receive notifications of
-    changes in the volume level or muting state of the audio stream that flows
-    through an audio endpoint device.
-    Example of usage:
-    ```
-    class AudioEndpointVolumeCallback(IAudioEndpointVolumeCallback):
-        def OnNotify(self, pNotify):
-            print('Volume:', pNotify.fMasterVolume)
-            print('Muted:', pNotify.bMuted)
-
-    audio_endpoint_volume.RegisterControlChangeNotify(AudioEndpointVolumeCallback())
-    ```
-
-
-    - UnregisterControlChangeNotify: The UnregisterControlChangeNotify method
-    deletes a client's notification interface from the list of clients that
-    receive notifications of changes in the volume level or muting state of the
-    audio stream that flows through an audio endpoint device.
-    Example of usage:
-    ```
-    audio_endpoint_volume.UnregisterControlChangeNotify(AudioEndpointVolumeCallback())
-    ```
-    Where `AudioEndpointVolumeCallback` is an instance of
-    `IAudioEndpointVolumeCallback` interface.
-
-
-    - GetChannelCount: The GetChannelCount method gets the number of channels
-    in the audio stream that enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    channel_count = audio_endpoint_volume.GetChannelCount()
-    print(channel_count)
-    ```
-    Where `channel_count` is the number of channels in the audio stream.
-
-
-    - SetMasterVolumeLevel: The SetMasterVolumeLevel method sets the master
-    volume level of the audio stream that enters or leaves the audio endpoint
-    device.
-    Example of usage:
-    ```
-    audio_endpoint_volume.SetMasterVolumeLevel(-10.0, None)
-    ```
-    Where `-10.0` is the volume level in decibels.
-
-
-    - SetMasterVolumeLevelScalar: The SetMasterVolumeLevelScalar method sets
-    the master volume level, in decibels, of the audio stream that enters or
-    leaves the audio endpoint device.
-    Example of usage:
-    ```
-    audio_endpoint_volume.SetMasterVolumeLevelScalar(0.5, None)
-    ```
-    Where `0.5` is the volume level in decibels.
-
-
-    - GetMasterVolumeLevel: The GetMasterVolumeLevel method gets the master
-    volume level of the audio stream that enters or leaves the audio endpoint
-    device.
-    Example of usage:
-    ```
-    master_volume = audio_endpoint_volume.GetMasterVolumeLevel()
-    print(master_volume)
-    ```
-    Where `master_volume` is the master volume level in decibels.
-
-
-    - GetMasterVolumeLevelScalar: The GetMasterVolumeLevelScalar method gets
-    the master volume level, in decibels, of the audio stream that enters or
-    leaves the audio endpoint device.
-    Example of usage:
-    ```
-    master_volume = audio_endpoint_volume.GetMasterVolumeLevelScalar()
-    print(master_volume)
-    ```
-    Where `master_volume` is the master volume level in decibels.
-
-
-    - SetChannelVolumeLevel: The SetChannelVolumeLevel method sets the volume
-    level, in decibels, of the specified channel in the audio stream that
-    enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    audio_endpoint_volume.SetChannelVolumeLevel(0, -10.0, None)
-    ```
-    Where `0` is the channel number and `-10.0` is the volume level in decibels.
-
-
-    - SetChannelVolumeLevelScalar: The SetChannelVolumeLevelScalar method sets
-    the volume level, in decibels, of the specified channel in the audio stream
-    that enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    audio_endpoint_volume.SetChannelVolumeLevelScalar(0, 0.5, None)
-    ```
-    Where `0` is the channel number and `0.5` is the volume level in decibels.
-
-
-    - GetChannelVolumeLevel: The GetChannelVolumeLevel method gets the volume
-    level, in decibels, of the specified channel in the audio stream that
-    enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    channel_volume = audio_endpoint_volume.GetChannelVolumeLevel(0)
-    print(channel_volume)
-    ```
-    Where `0` is the channel number and `channel_volume` is the volume level in
-    decibels.
-
-
-    - GetChannelVolumeLevelScalar: The GetChannelVolumeLevelScalar method gets
-    the volume level, in decibels, of the specified channel in the audio stream
-    that enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    channel_volume = audio_endpoint_volume.GetChannelVolumeLevelScalar(0)
-    print(channel_volume)
-    ```
-    Where `0` is the channel number and `channel_volume` is the volume level in
-    decibels.
-
-
-    - SetMute: The SetMute method sets the muting state of the audio stream
-    that enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    audio_endpoint_volume.SetMute(True, None)
-    ```
-    Where `True` is the muting state.
-
-
-    - GetMute: The GetMute method gets the muting state of the audio stream
-    that enters or leaves the audio endpoint device.
-    Example of usage:
-    ```
-    mute_status = audio_endpoint_volume.GetMute()
-    print(mute_status)
-    ```
-    Where `mute_status` is the muting state.
-
-
-    - GetVolumeStepInfo: The GetVolumeStepInfo method gets the range and
-    increment of the volume settings of the audio stream that enters or leaves
-    the audio endpoint device.
-    Example of usage:
-    ```
-    step, step_count = audio_endpoint_volume.GetVolumeStepInfo()
-    print(step, step_count)
-    ```
-    Where `step` is the range and `step_count` is the increment of the volume
-    settings.
-
-
-    - VolumeStepUp: The VolumeStepUp method increases the volume level of the
-    audio stream by one step.
-    Example of usage:
-    ```
-    audio_endpoint_volume.VolumeStepUp(None)
-    ```
-    Where `None` is the event context.
-
-
-    - VolumeStepDown: The VolumeStepDown method decreases the volume level of
-    the audio stream by one step.
-    Example of usage:
-    ```
-    audio_endpoint_volume.VolumeStepDown(None)
-    ```
-    Where `None` is the event context.
-
-
-    - QueryHardwareSupport: The QueryHardwareSupport method gets information
-    about the hardware support of the audio endpoint device.
-    Example of usage:
-    ```
-    hardware_support = audio_endpoint_volume.QueryHardwareSupport()
-    print(hardware_support)
-    ```
-    Where `hardware_support` is the information about the hardware support.
-
-
-    - GetVolumeRange: The GetVolumeRange method gets the volume range, in
-    decibels, of the audio stream that enters or leaves the audio endpoint
-    device.
-    Example of usage:
-    ```
-    min_volume, max_volume, incr = audio_endpoint_volume.GetVolumeRange()
-    print(min_volume, max_volume, incr)
-    ```
-    Where `min_volume` is the minimum volume, `max_volume` is the maximum
-    volume, and `incr` is the increment of the volume range.
 
 
     Docs: https://learn.microsoft.com/en-gb/windows/win32/api/endpointvolume/nn-endpointvolume-iaudioendpointvolume
@@ -329,7 +158,7 @@ class IAudioEndpointVolume(IUnknown):
             [],
             HRESULT,
             "SetChannelVolumeLevelScalar",
-            (["in"], DWORD, "nChannel"),
+            (["in"], UINT, "nChannel"),
             (["in"], c_float, "fLevelDB"),
             (["in"], POINTER(GUID), "pguidEventContext"),
         ),
@@ -344,7 +173,7 @@ class IAudioEndpointVolume(IUnknown):
             [],
             HRESULT,
             "GetChannelVolumeLevelScalar",
-            (["in"], DWORD, "nChannel"),
+            (["in"], UINT, "nChannel"),
             (["out"], POINTER(c_float), "pfLevelDB"),
         ),
         COMMETHOD(
@@ -378,11 +207,189 @@ class IAudioEndpointVolume(IUnknown):
             [],
             HRESULT,
             "GetVolumeRange",
-            (["out"], POINTER(c_float), "pfMin"),
-            (["out"], POINTER(c_float), "pfMax"),
-            (["out"], POINTER(c_float), "pfIncr"),
+            (["out"], POINTER(c_float), "pflVolumeMindB"),
+            (["out"], POINTER(c_float), "pflVolumeMaxdB"),
+            (["out"], POINTER(c_float), "pflVolumeIncrementdB"),
         ),
     )
+
+    if TYPE_CHECKING:
+        def RegisterControlChangeNotify(self, pNotify: IAudioEndpointVolumeCallback) -> None:
+            '''
+            The RegisterControlChangeNotify method registers a client's notification callback interface.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-registercontrolchangenotify
+            '''
+            ...
+
+        def UnregisterControlChangeNotify(self, pNotify: IAudioEndpointVolumeCallback) -> None:
+            '''
+            The UnregisterControlChangeNotify method deletes the registration
+            of a client's notification callback interface that the client
+            registered in a previous call to the
+            IAudioEndpointVolume::RegisterControlChangeNotify method.
+            
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-unregistercontrolchangenotify
+            '''
+            ...
+
+        def GetChannelCount(self) -> int:
+            '''
+            The GetChannelCount method gets a count of the channels in the audio
+            stream that enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelcount
+            '''
+            ...
+        
+
+        def SetMasterVolumeLevel(self, fLevelDB: float, pguidEventContext: GUID) -> None:
+            '''
+            The SetMasterVolumeLevel method sets the master volume level,
+            in decibels, of the audio stream that enters or leaves the
+            audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-setmastervolumelevel
+            '''
+            ...
+
+        def SetMasterVolumeLevelScalar(self, fLevel: float, pguidEventContext: GUID):
+            '''
+            The SetMasterVolumeLevelScalar method sets the master volume level
+            of the audio stream that enters or leaves the audio endpoint device.
+            The volume level is expressed as a normalized, audio-tapered
+            value in the range from 0.0 to 1.0.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-setmastervolumelevelscalar
+            '''
+            ...
+
+        def GetMasterVolumeLevel(self) -> float:
+            '''
+            The GetMasterVolumeLevel method gets the master volume level,
+            in decibels, of the audio stream that enters or leaves the
+            audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getmastervolumelevel
+            '''
+            ...
+
+        def GetMasterVolumeLevelScalar(self) -> float:
+            '''
+            The GetMasterVolumeLevelScalar method gets the master volume level
+            of the audio stream that enters or leaves the audio endpoint device.
+            The volume level is expressed as a normalized, audio-tapered value
+            in the range from 0.0 to 1.0.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getmastervolumelevelscalar
+            '''
+            ...
+
+        def SetChannelVolumeLevel(
+                self, nChannel: int, fLevelDB: float, pguidEventContext: GUID
+                ) -> None:
+            '''
+            The SetChannelVolumeLevel method sets the volume level, in decibels,
+            of the specified channel of the audio stream that enters or leaves
+            the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-setchannelvolumelevel
+            '''
+            ...
+
+        def SetChannelVolumeLevelScalar(
+                self, nChannel: int, fLevelDB: float, pguidEventContext: GUID
+                ) -> None:
+            '''
+            The SetChannelVolumeLevelScalar method sets the normalized,
+            audio-tapered volume level of the specified channel in the audio
+            stream that enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-setchannelvolumelevelscalar
+            '''
+            ...
+
+        def GetChannelVolumeLevel(self, nChannel: int) -> float:
+            '''
+            The GetChannelVolumeLevel method gets the volume level, in decibels,
+            of the specified channel in the audio stream that enters or leaves
+            the audio endpoint device.
+            
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelvolumelevel
+            '''
+            ...
+
+        def GetChannelVolumeLevelScalar(self, nChannel: int) -> float:
+            '''
+            The GetChannelVolumeLevelScalar method gets the normalized,
+            audio-tapered volume level of the specified channel of the audio
+            stream that enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getchannelvolumelevelscalar
+            '''
+            ...
+
+        def SetMute(self, bMute: bool, pguidEventContext: GUID) -> None:
+            '''
+            The SetMute method sets the muting state of the audio stream that
+            enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-setmute
+            '''
+            ...
+
+        def GetMute(self) -> bool:
+            '''
+            The GetMute method gets the muting state of the audio stream that
+            enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getmute
+            '''
+            ...
+
+        def GetVolumeStepInfo(self) -> tuple[str, str]:
+            '''
+            The GetVolumeStepInfo method gets information about the current
+            step in the volume range.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getvolumestepinfo
+            '''
+            ...
+
+        def VolumeStepUp(self, pguidEventContext: GUID) -> None:
+            '''
+            The VolumeStepUp method increments, by one step, the volume level of the audio stream that enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-volumestepup
+            '''
+            ...
+
+        def VolumeStepDown(self, pguidEventContext: GUID) -> None:
+            '''
+            The VolumeStepDown method decrements, by one step, the volume
+            level of the audio stream that enters or leaves the audio endpoint
+            device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-volumestepdown
+            '''
+            ...
+
+        def QueryHardwareSupport(self) -> EEndpointHardwareSupport:
+            '''
+            The QueryHardwareSupport method queries the audio endpoint device for its hardware-supported functions.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-queryhardwaresupport
+            '''
+            ...
+        
+        def GetVolumeRange(self) -> tuple[float, float, float]:
+            '''
+            The GetVolumeRange method gets the volume range, in decibels,
+            of the audio stream that enters or leaves the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/endpointvolume/nf-endpointvolume-iaudioendpointvolume-getvolumerange
+            '''
+            ...
 
 
 class IPropertyStore(IUnknown):
@@ -392,6 +399,7 @@ class IPropertyStore(IUnknown):
     A client obtains a reference to the IPropertyStore interface of a property
     store by calling the `IMMDevice::OpenPropertyStore` method. The property
     store represents the collection of properties of an audio endpoint device.
+
     Example of initialization:
     ```
     property_store = audio_device.OpenPropertyStore(0)
@@ -401,60 +409,6 @@ class IPropertyStore(IUnknown):
     - STGM_READ = 0x00000000 (0): Opens the property store in read mode.
     - STGM_WRITE = 0x00000001 (1): Opens the property store in write mode.
     - STGM_READWRITE = 0x00000002 (2): Opens the property store in read/write mode.
-
-
-    Methods:
-    - GetCount: The GetCount method retrieves the number of properties in the
-    property store.
-    Example of usage:
-    ```
-    count = property_store.GetCount()
-    print(count)
-    ```
-    Where `count` is the number of properties in the property store.
-
-
-    - GetAt: The GetAt method retrieves a property key from the property store
-    at the specified index.
-    Example of usage:
-    ```
-    key = property_store.GetAt(0)
-    print(key)
-    ```
-    Where `0` is the index of the property key and `key` is the property key.
-
-
-    - GetValue: The GetValue method retrieves the value of a property in the
-    property store.
-    Example of usage:
-    ```
-    key = property_store.GetAt(0)
-    value = property_store.GetValue(key)
-    print(value)
-    ```
-    Where `0` is the index of the property key, `key` is the property key, and
-    `value` is the value of the property.
-
-
-    - SetValue: The SetValue method sets the value of a property in the property
-    store.
-    Example of usage:
-    ```
-    key = property_store.GetAt(0)
-    value = property_store.GetValue(key)
-    property_store.SetValue(key)
-    ```
-    Where `0` is the index of the property key, `key` is the property key, and
-    `value` is the value of the property.
-
-
-    - Commit: The Commit method saves a property to the property store.
-    Example of usage:
-    ```
-    property_store.Commit()
-    ```
-    Where `property_store` is the instance of `IPropertyStore` interface.
-
 
     Docs: https://learn.microsoft.com/en-gb/windows/win32/api/propsys/nn-propsys-ipropertystore
     """
@@ -486,6 +440,48 @@ class IPropertyStore(IUnknown):
         COMMETHOD([], HRESULT, "Commit"),
     )
 
+    if TYPE_CHECKING:
+        def GetCount(self) -> str:
+            '''
+            This method returns a count of the number of properties that
+            are attached to the file.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/propsys/nf-propsys-ipropertystore-getcount
+            '''
+            ...
+
+        def GetAt(self, iProp: str) -> PROPERTYKEY:
+            '''
+            Gets a property key from the property array of an item.
+            
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/propsys/nf-propsys-ipropertystore-getat
+            '''
+            ...
+
+        def GetValue(self, key: PROPERTYKEY) -> PROPVARIANT:
+            '''
+            This method retrieves the data for a specific property.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/propsys/nf-propsys-ipropertystore-getvalue
+            '''
+            ...
+
+        def SetValue(self, key: PROPERTYKEY, propvar: PROPVARIANT) -> None:
+            '''
+            This method sets a property value or replaces or removes an existing value.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/propsys/nf-propsys-ipropertystore-setvalue
+            '''
+            ...
+
+        def Commit(self) -> None:
+            '''
+            After a change has been made, this method saves the changes.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/propsys/nf-propsys-ipropertystore-commit
+            '''
+            ...
+
 
 class IMMDevice(IUnknown):
     _iid_ = GUID("{D666063F-1587-4E43-81F1-B948E807363F}")
@@ -496,7 +492,7 @@ class IMMDevice(IUnknown):
             "Activate",
             (["in"], POINTER(GUID), "iid"),
             (["in"], DWORD, "dwClsCtx"),
-            (["in"], POINTER(DWORD), "pActivationParams"),
+            (["in"], POINTER(PROPVARIANT), "pActivationParams"),
             (["out"], POINTER(POINTER(IUnknown)), "ppInterface"),
         ),
         COMMETHOD(
@@ -509,6 +505,41 @@ class IMMDevice(IUnknown):
         COMMETHOD([], HRESULT, "GetId", (["out"], POINTER(LPWSTR), "ppstrId")),
         COMMETHOD([], HRESULT, "GetState", (["out"], POINTER(DWORD), "pdwState")),
     )
+
+    if TYPE_CHECKING:
+        def Activate(self, iid: GUID, dwClsCtx: str, pActivationParams: PROPVARIANT) -> IAudioEndpointVolume | IUnknown:
+            '''
+            The Activate method creates a COM object with the specified interface.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-activate
+            '''
+            ...
+
+        def OpenPropertyStore(self, stgmAccess: str) -> IPropertyStore:
+            '''
+            The OpenPropertyStore method retrieves an interface to the device's
+            property store.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-openpropertystore
+            '''
+            ...
+
+        def GetId(self) -> GUID:
+            '''
+            The GetId method retrieves an endpoint ID string that identifies
+            the audio endpoint device.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-getid
+            '''
+            ...
+
+        def GetState(self) -> str:
+            '''
+            The GetState method retrieves the current device state.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevice-getstate
+            '''
+            ...
 
 
 class IMMDeviceCollection(IUnknown):
@@ -523,6 +554,25 @@ class IMMDeviceCollection(IUnknown):
             (["out"], POINTER(POINTER(IMMDevice)), "ppDevice"),
         ),
     )
+
+    if TYPE_CHECKING:
+        def GetCount(self) -> int:
+            '''
+            The GetCount method retrieves a count of the devices in the device
+            collection.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevicecollection-getcount
+            '''
+            ...
+
+        def Item(self, nDevice: int) -> IMMDevice:
+            '''
+            The Item method retrieves a pointer to the specified item in the
+            device collection.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdevicecollection-item
+            '''
+            ...
 
 
 class IMMNotificationClient(IUnknown):
@@ -550,10 +600,56 @@ class IMMNotificationClient(IUnknown):
             HRESULT,
             "OnPropertyValueChanged",
             (["in"], LPCWSTR, "pwstrDeviceId"),
-            #   (['in'], POINTER(GUID), 'key'))
-            (["in"], POINTER(PROPERTYKEY), "key"),
+            (["in"], PROPERTYKEY, "key"),
         ),
     )
+
+    if TYPE_CHECKING:
+        def OnDeviceStateChanged(self, pwstrDeviceId: GUID, dwNewState: str) -> None:
+            '''
+            The OnDeviceStateChanged method indicates that the state of an
+            audio endpoint device has changed.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immnotificationclient-ondevicestatechanged
+            '''
+            ...
+
+        def OnDeviceAdded(self, pwstrDeviceId: GUID) -> None:
+            '''
+            The OnDeviceAdded method indicates that a new audio endpoint device
+            has been added.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immnotificationclient-ondeviceadded
+            '''
+            ...
+
+        def OnDeviceRemoved(self, pwstrDeviceId: GUID) -> None:
+            '''
+            The OnDeviceRemoved method indicates that an audio endpoint device
+            has been removed.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immnotificationclient-ondeviceremoved
+            '''
+            ...
+
+        def OnDefaultDeviceChanged(self, flow: EDataFlow, role: ERole) -> None:
+            '''
+            The OnDefaultDeviceChanged method notifies the client that the
+            default audio endpoint device for a particular device role has
+            changed.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immnotificationclient-ondefaultdevicechanged
+            '''
+            ...
+        
+        def OnPropertyValueChanged(self, pwstrDeviceId: GUID, key: PROPERTYKEY) -> None:
+            '''
+            The OnPropertyValueChanged method indicates that the value of a
+            property belonging to an audio endpoint device has changed.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immnotificationclient-onpropertyvaluechanged
+            '''
+            ...
 
 
 class IMMDeviceEnumerator(IUnknown):
@@ -597,6 +693,54 @@ class IMMDeviceEnumerator(IUnknown):
         ),
     )
 
+    if TYPE_CHECKING:
+        def EnumAudioEndpoints(self, dataFlow: EDataFlow, dwStateMask: EAudioDeviceState) -> IMMDeviceCollection:
+            '''
+            The EnumAudioEndpoints method generates a collection of audio
+            endpoint devices that meet the specified criteria.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdeviceenumerator-enumaudioendpoints
+            '''
+            ...
+        
+        def GetDefaultAudioEndpoint(self, dataFlow: EDataFlow, dwStateMask: EAudioDeviceState) -> IMMDeviceCollection:
+            '''
+            The GetDefaultAudioEndpoint method retrieves the default audio
+            endpoint for the specified data-flow direction and role.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdeviceenumerator-getdefaultaudioendpoint
+            '''
+            ...
+
+        def GetDevice(self, pwstrId: GUID) -> IMMDevice:
+            '''
+            The GetDevice method retrieves an audio endpoint device that is
+            identified by an endpoint ID string.
+
+            https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdeviceenumerator-getdevice
+            '''
+            ...
+
+        def RegisterEndpointNotificationCallback(self, pClient: IMMNotificationClient) -> None:
+            '''
+            The RegisterEndpointNotificationCallback method registers a
+            client's notification callback interface.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdeviceenumerator-registerendpointnotificationcallback
+            '''
+            ...
+
+        def UnregisterEndpointNotificationCallback(self, pClient: IMMNotificationClient) -> None:
+            '''
+            The UnregisterEndpointNotificationCallback method deletes the
+            registration of a notification interface that the client registered
+            in a previous call to the
+            IMMDeviceEnumerator::RegisterEndpointNotificationCallback method.
+
+            Docs: https://learn.microsoft.com/en-us/windows/win32/api/mmdeviceapi/nf-mmdeviceapi-immdeviceenumerator-unregisterendpointnotificationcallback
+            '''
+            ...
+
 
 class IPolicyConfig(IUnknown):
     clsid = GUID("{870af99c-171d-4f9e-af0d-e63df40c2bc9}")
@@ -618,7 +762,12 @@ class IPolicyConfig(IUnknown):
             (["in"], BOOL, "bDefault"),
             (["out"], POINTER(POINTER(WAVEFORMATEX)), "pFormat"),
         ),
-        COMMETHOD([], HRESULT, "ResetDeviceFormat", (["in"], LPCWSTR, "pwstrDeviceId")),
+        COMMETHOD(
+            [],
+            HRESULT,
+            "ResetDeviceFormat",
+            (["in"], LPCWSTR, "pwstrDeviceId")
+        ),
         COMMETHOD(
             [],
             HRESULT,
@@ -633,15 +782,15 @@ class IPolicyConfig(IUnknown):
             "GetProcessingPeriod",
             (["in"], LPCWSTR, "pwstrDeviceId"),
             (["in"], BOOL, "bDefault"),
-            (["out"], POINTER(REFERENCE_TIME), "hnsDefaultDevicePeriod"),
-            (["out"], POINTER(REFERENCE_TIME), "hnsMinimumDevicePeriod"),
+            (["out"], POINTER(REFERENCE_TIME), "pmftDefaultPeriod"),
+            (["out"], POINTER(REFERENCE_TIME), "pmftMinimumPeriod"),
         ),
         COMMETHOD(
             [],
             HRESULT,
             "SetProcessingPeriod",
             (["in"], LPCWSTR, "pwstrDeviceId"),
-            (["in"], POINTER(REFERENCE_TIME), "hnsDevicePeriod"),
+            (["in"], POINTER(REFERENCE_TIME), "pmftPeriod"),
         ),
         COMMETHOD(
             [],
@@ -688,3 +837,59 @@ class IPolicyConfig(IUnknown):
             (["in"], BOOL, "bVisible"),
         ),
     )
+
+    if TYPE_CHECKING:
+        def GetMixFormat(self, pwstrDeviceId: GUID) -> WAVEFORMATEX:
+            ...
+
+        def GetDeviceFormat(
+                self, pwstrDeviceId: GUID, bDefault: bool
+            ) -> WAVEFORMATEX:
+            ...
+
+        def ResetDeviceFormat(self, pwstrDeviceId: GUID) -> None:
+            ...
+
+        def SetDeviceFormat(
+                self,
+                pwstrDeviceId: GUID,
+                pEndpointFormat: WAVEFORMATEX,
+                pMixFormat: WAVEFORMATEX
+            ) -> None:
+            ...
+
+        def GetProcessingPeriod(
+                self, pwstrDeviceId: GUID, bDefault: bool
+            ) -> tuple[REFERENCE_TIME, REFERENCE_TIME]:
+            ...
+
+        def SetProcessingPeriod(
+                self, pwstrDeviceId: GUID, pmftPeriod: REFERENCE_TIME
+            ) -> None:
+            ...
+
+        def GetShareMode(self, pwstrDeviceId: GUID) -> DEVICE_SHARED_MODE:
+            ...
+
+        def SetShareMode(
+                self, pwstrDeviceId: GUID, pMode: DEVICE_SHARED_MODE
+            ) -> None:
+            ...
+
+        def GetPropertyValue(
+                self, pwstrDeviceId: GUID, key: IPolicyPropertyKey
+            ) -> IPolicyPropertyKey:
+            ...
+
+        def SetPropertyValue(
+                self, pwstrDeviceId: GUID,
+                key: IPolicyPropertyKey,
+                pValue: IPolicyPropertyKey
+            ) -> None:
+            ...
+
+        def SetDefaultEndpoint(self, pwstrDeviceId: GUID, eRole: ERole) -> None:
+            ...
+
+        def SetEndpointVisibility(self, pwstrDeviceId: GUID, bVisible: bool) -> None:
+            ...

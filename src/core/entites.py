@@ -3,8 +3,6 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from src.core.exceptions import VolumeOutOfRangeError
-
 
 @dataclass
 class Microphone:
@@ -15,25 +13,25 @@ class Microphone:
     id: str
     name: str
     volume: float
-    is_muted: bool
-    is_active: bool
-    is_default: bool
-
-    def toggle_mute(self) -> None:
-        """Internal mute toggler for mic object."""
-        self.is_muted = not self.is_muted
-
-    def change_volume(self, new_level: float) -> None:
-        """Internal volume changer for mic object."""
-        if not 0 <= new_level <= 100:
-            raise VolumeOutOfRangeError(new_level)
-        self.volume = new_level
+    muted: bool
+    active: bool
+    default: bool
 
 
 @dataclass(frozen=True)
-class HotKey:
+class ToogleHotKey:
     """
-    Represents general hotkey object.
+    Represents general toggle only hotkey object.
+    """
+
+    key_sequence: str
+    action: str
+
+
+@dataclass(frozen=True)
+class WalkieHotKey:
+    """
+    Represents general toggle only hotkey object.
     """
 
     key_sequence: str

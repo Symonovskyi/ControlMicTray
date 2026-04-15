@@ -80,7 +80,7 @@ class Ui_AboutWindow(object):
         self.Copyright.setText(
             _translate(
                 "AboutWindow",
-                "Copyright © 2024\n" "Simonovskiy & Lastivka\n" "All rights reserved",
+                "Copyright © 2024\nSimonovskiy & Lastivka\nAll rights reserved",
             )
         )
         self.WebSite.setText(_translate("AboutWindow", "controlmictray.pp.ua"))

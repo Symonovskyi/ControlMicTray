@@ -1,7 +1,7 @@
 # src/core/repositories.py
 
 import abc
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Callable
 
 from src.core.entites import Microphone, AppSettings
 
@@ -36,7 +36,15 @@ class AudioDeviceRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get_all_devices(self) -> Tuple[Microphone]:
+    def initialize(self) -> None:
+        raise NotImplementedError
+    
+    @abc.abstractmethod
+    def uninitialize(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_all_devices(self):
         """
         Loads input devices collection from system.
 
@@ -49,12 +57,12 @@ class AudioDeviceRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_device_by_id(self, mic_id: str) -> Optional[Microphone]:
+    def get_device_by_id(self, device_id: str):
         """
         Returns the input device object by its ID.
         
         Args:
-            mic_id (str): system unique ID of the device.
+            device_id (str): system unique ID of the device.
 
         Returns:
             Optional[Microphone]: the `Microphone` object. If not found, returns `None`.
@@ -62,7 +70,7 @@ class AudioDeviceRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_default_device(self) -> Optional[Microphone]:
+    def get_default_device(self):
         """
         Returns the current default input device set in system.
 
@@ -72,11 +80,23 @@ class AudioDeviceRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_device_mute(self, is_muted: bool, mic_id: str=None) -> bool:
-        """
-        Changes the mute state of device with `mic_id` to `is_muted` state.
+    def set_default_device(self, device_id: str) -> bool:
+        raise NotImplementedError
 
-        If the `mic_id` is not specified, muting effect will be done for the
+    @abc.abstractmethod
+    def get_device_mute(self, device_id: str=None) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_device_volume(self, device_id: str=None) -> float:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_device_mute(self, is_muted: bool, device_id: str=None) -> bool:
+        """
+        Changes the mute state of device with `device_id` to `is_muted` state.
+
+        If the `device_id` is not specified, muting effect will be done for the
         current active input device, e.g. "device by default".
 
         Returns:
@@ -85,24 +105,26 @@ class AudioDeviceRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_device_volume(self, level: float, mic_id: str=None) -> bool:
+    def set_device_volume(self, level: float, device_id: str=None) -> bool:
         """
-        Changes the volume scalar of device with `mic_id` to `level`.
+        Changes the volume scalar of device with `device_id` to `level`.
         
-        If the `mic_id` is not specified, volume changing effect will be done
+        If the `device_id` is not specified, volume changing effect will be done
         for the current active input device, e.g. "device by default".
 
         Returns:
             bool: success/unsuccess volume changing.
         """
         raise NotImplementedError
+    
+    @abc.abstractmethod
+    def register_devices_event_handler(self, external_event_handler: Callable) -> None:
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def set_device_as_default(self, mic_id: str) -> bool:
-        """
-        Changes the current active input device to device with `mic_id`.
+    def unregister_devices_event_handler(self) -> None:
+        raise NotImplementedError
 
-        Returns:
-            bool: success/unsuccess setting device as default.
-        """
+    @abc.abstractmethod
+    def get_device_name(self, device_id: str) -> str:
         raise NotImplementedError

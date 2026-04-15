@@ -1,10 +1,11 @@
 # src/adapters/audio/factory.py
 
 import platform
-from typing import Type, Any
+# from typing import Type
+from src.core.repositories import AudioDeviceRepository
 
 
-def get_audio_adapter() -> Type[Any]:
+def get_audio_adapter() -> AudioDeviceRepository:
     """
     Returns the appropriate audio API wrapper based on the current operating system.
 
@@ -17,11 +18,11 @@ def get_audio_adapter() -> Type[Any]:
     system = platform.system().lower()
 
     if system == "windows":
-        # from src.adapters.audio.windows import WinAudioAPI
-        # return WinAudioAPI
-        raise NotImplementedError(
-                f"Audio API wrapper is not available for platform: {system}"
-            )
+        from adapters.audio.windows.api.coreaudio import WinAudioAPI
+        return WinAudioAPI
+        # raise NotImplementedError(
+        #         f"Audio API wrapper is not available for platform: {system}"
+        #     )
 
     elif system == "darwin":
         # from src.adapters.audio.macos import MacOSAudioAPI

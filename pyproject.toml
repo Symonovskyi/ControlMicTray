@@ -1,7 +1,7 @@
 [project]
 name = "controlmictray"
-version = "3.13.2"
-description = "Add your description here"
+version = "2025.07.15.beta"
+description = "Cross-platform microphone tray control (beta: Win only)"
 authors = [
     { name = "lastochka364", email = "70896036+lastochka364@users.noreply.github.com" }
 ]
@@ -12,12 +12,13 @@ dependencies = [
     "PyQt6-sip==13.10.2",
     "comtypes==1.4.11",
     "future==1.0.0",
-    "keyboard==0.11.0",
     "ordered-set==4.1.0",
     "psutil==7.0.0",
     "winshell==0.6",
     "zstandard==0.23.0",
-    "pywin32>=310",
+    "pynput>=1.8.1",
+    "keyboard>=0.13.5",
+    "mouse>=0.7.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.13"
