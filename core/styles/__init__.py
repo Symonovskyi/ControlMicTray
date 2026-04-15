@@ -1,4 +1,27 @@
+from typing import TYPE_CHECKING
+from core.styles.icons import Icons, QIcon
+
+if TYPE_CHECKING:
+    from core.widgets import TrayIcon, SettingsWindow, AboutWindow
+
 class BaseStyle:
+    # for typing
+    theme_id                :int
+    primary_color           :str
+    secondary_color         :str
+    accent_color            :str
+    accent_hover_color      :str
+    background_color        :str
+    text_color              :str
+    button_color            :str
+    button_hover_color      :str
+    border_color            :str
+    neutral_color           :str
+    underline_color         :str
+    highlighted_color       :str
+    on_color                :str
+    off_color               :str
+
     font_family =           "Roboto, Arial, sans-serif"
     font_size_regular =     "14px"
     font_size_small =       "10px"
@@ -10,7 +33,9 @@ class BaseStyle:
     border_radius_medium =  "5px"
     transparent =           "rgba(0, 0, 0, 0)"
 
+
 class DarkTheme(BaseStyle):
+    theme_id =              1
     primary_color =         "#F3F3F3"
     secondary_color =       "#7D8A90"
     accent_color =          "#127D91"
@@ -26,7 +51,9 @@ class DarkTheme(BaseStyle):
     on_color =              "#22C245"
     off_color =             "#C22C22"
 
+
 class LightTheme(BaseStyle):
+    theme_id =              0
     primary_color =         "#1B1B1B"
     secondary_color =       "#7D8A90"
     accent_color =          "#127D91"
@@ -42,20 +69,53 @@ class LightTheme(BaseStyle):
     on_color =              "#22C245"
     off_color =             "#C22C22"
 
+
 class TrayIconStyles:
-    def __init__(self, qinstance):
+    def __init__(self, qinstance: TrayIcon):
         self.tray = qinstance
+        self.curr_palette = None
 
-    def set_styles(self, theme):
-        theme_colors = LightTheme if theme == 'Light' else DarkTheme
+    def update_tray_icons(self, state: bool, is_walkie: bool):
+        palette = self.curr_palette if self.curr_palette is not None else DarkTheme
 
-        primary_color =         theme_colors.primary_color
-        background_color =      theme_colors.background_color
-        border_color =          theme_colors.border_color
-        text_color =            theme_colors.text_color
+        self.tray.setIcon(Icons.get_icon(Icons.microphone_icon, palette=palette, state=state))
 
-        border =                BaseStyle.border
-        border_radius_small =   BaseStyle.border_radius_small
+        if is_walkie:
+            if self.tray.toggle_mic.isEnabled():
+                self.tray.toggle_mic.setEnabled(True)
+            self.tray.toggle_mic.setEnabled(False)
+            self.tray.toggle_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=False))
+            self.tray.walkie_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=True))
+        else:
+            if not self.tray.toggle_mic.isEnabled():
+                self.tray.toggle_mic.setEnabled(True)
+            self.tray.toggle_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=state))
+            self.tray.walkie_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=False))
+
+        for action in self.tray.device_action_group.actions():
+            if action.isChecked():
+                action.setIcon(Icons.get_icon(Icons.dot_icon, palette=palette))
+            else:
+                action.setIcon(QIcon())
+
+    def set_styles(self, palette: BaseStyle):
+        self.curr_palette = palette
+
+        primary_color =         palette.primary_color
+        background_color =      palette.background_color
+        border_color =          palette.border_color
+        text_color =            palette.text_color
+
+        border =                palette.border
+        border_radius_small =   palette.border_radius_small
+
+        def q_icon(icon: Icons) -> str:
+            return Icons.get_icon(icon, palette=palette)
+
+        self.tray.devices_menu.setIcon(q_icon(Icons.microphone_icon))
+        self.tray.settings_action.setIcon(q_icon(Icons.settings_icon))
+        self.tray.about_action.setIcon(q_icon(Icons.about_icon))
+        self.tray.exit_action.setIcon(q_icon(Icons.exit_icon))
 
         self.tray.menu.setStyleSheet(f"""
             QMenu {{
@@ -69,21 +129,19 @@ class TrayIconStyles:
         """)
 
 class SettingsWindowStyles:
-    def __init__(self, qinstance, settings_instance=None):
-        self.settings_win_qwidget = qinstance
-        self.settings_win = self.settings_win_qwidget.settings_UI
+    def __init__(self, qinstance: SettingsWindow):
+        self._settings_win_qwidget = qinstance
+        self._settings_win = self._settings_win_qwidget.settings_UI
 
-    def set_styles(self, theme):
-        theme_colors = LightTheme if theme == 'Light' else DarkTheme
-
-        text_color =            theme_colors.text_color
-        background_color =      theme_colors.background_color
-        underline_color =       theme_colors.underline_color
-        neutral_color =         theme_colors.neutral_color
-        accent_hover_color =    theme_colors.accent_hover_color
-        button_color =          theme_colors.button_color
-        button_hover_color =    theme_colors.button_hover_color
-        highlighted_color =     theme_colors.highlighted_color
+    def set_styles(self, palette: BaseStyle):
+        text_color =            palette.text_color
+        background_color =      palette.background_color
+        underline_color =       palette.underline_color
+        neutral_color =         palette.neutral_color
+        accent_hover_color =    palette.accent_hover_color
+        button_color =          palette.button_color
+        button_hover_color =    palette.button_hover_color
+        highlighted_color =     palette.highlighted_color
 
         font_family =           BaseStyle.font_family
         font_size_regular =     BaseStyle.font_size_regular
@@ -92,6 +150,9 @@ class SettingsWindowStyles:
         border_radius_none =    BaseStyle.border_radius_none
         border_radius_medium =  BaseStyle.border_radius_medium
         border_radius_small =   BaseStyle.border_radius_small
+
+        icon = Icons.get_icon(Icons.frame_icon, palette=palette)
+        self._settings_win_qwidget.setWindowIcon(icon)
 
         qcheckbox_styles = f"""
             QCheckBox::indicator:unchecked {{
@@ -107,12 +168,12 @@ class SettingsWindowStyles:
             }}
         """
 
-        self.settings_win.NightTheme.setStyleSheet(qcheckbox_styles)
-        self.settings_win.EnableProgram.setStyleSheet(qcheckbox_styles)
-        self.settings_win.PrivacyStatus.setStyleSheet(qcheckbox_styles)
-        self.settings_win.EnableMic.setStyleSheet(qcheckbox_styles)
+        self._settings_win.NightTheme.setStyleSheet(qcheckbox_styles)
+        self._settings_win.EnableProgram.setStyleSheet(qcheckbox_styles)
+        self._settings_win.PrivacyStatus.setStyleSheet(qcheckbox_styles)
+        self._settings_win.EnableMic.setStyleSheet(qcheckbox_styles)
 
-        self.settings_win_qwidget.setStyleSheet(f"""
+        self._settings_win_qwidget.setStyleSheet(f"""
             QWidget {{
                 color: {text_color};
                 background-color: {background_color};
@@ -122,7 +183,7 @@ class SettingsWindowStyles:
             }}
         """)
 
-        self.settings_win.AlertsType.setStyleSheet(f"""
+        self._settings_win.AlertsType.setStyleSheet(f"""
             QComboBox {{
                 border-bottom: {border} {underline_color};
             }}
@@ -144,7 +205,7 @@ class SettingsWindowStyles:
             }}
         """)
 
-        self.settings_win_qwidget.hotkey_mic.setStyleSheet(f"""
+        self._settings_win_qwidget.btn_hotkey_mic.setStyleSheet(f"""
             QLineEdit {{
                 border-bottom: {border} {underline_color};
             }}
@@ -154,7 +215,7 @@ class SettingsWindowStyles:
             }}
         """)
 
-        self.settings_win_qwidget.hotkey_walkie.setStyleSheet(f"""
+        self._settings_win_qwidget.btn_hotkey_walkie.setStyleSheet(f"""
             QLineEdit {{
                 border-bottom: {border} {underline_color};
             }}
@@ -164,7 +225,7 @@ class SettingsWindowStyles:
             }}
         """)
 
-        self.settings_win.LanguageCode.setStyleSheet(f"""
+        self._settings_win.LanguageCode.setStyleSheet(f"""
             QComboBox {{
                 border-bottom: {border} {underline_color};
             }}
@@ -186,7 +247,7 @@ class SettingsWindowStyles:
             }}
         """)
 
-        self.settings_win.UrlUpdates.setStyleSheet(f"""
+        self._settings_win.UrlUpdates.setStyleSheet(f"""
             QPushButton {{
                 color: {button_color};
                 border-bottom: {border} {highlighted_color};
@@ -199,20 +260,18 @@ class SettingsWindowStyles:
         """)
 
 class AboutWindowStyles:
-    def __init__(self, qinstance):
-        self.about_win_qwidget = qinstance
-        self.about_win = self.about_win_qwidget.about_UI
+    def __init__(self, qinstance: AboutWindow):
+        self._about_win_qwidget = qinstance
+        self._about_win = self._about_win_qwidget.about_UI
 
-    def set_styles(self, theme):
-        theme_colors = LightTheme if theme == 'Light' else DarkTheme
-
-        text_color =            theme_colors.text_color
-        background_color =      theme_colors.background_color
-        button_color =          theme_colors.button_color
-        button_hover_color =    theme_colors.button_hover_color
-        accent_color =          theme_colors.accent_color
-        accent_hover_color =    theme_colors.accent_hover_color
-        highlighted_color =     theme_colors.highlighted_color
+    def set_styles(self, palette: BaseStyle):
+        text_color =            palette.text_color
+        background_color =      palette.background_color
+        button_color =          palette.button_color
+        button_hover_color =    palette.button_hover_color
+        accent_color =          palette.accent_color
+        accent_hover_color =    palette.accent_hover_color
+        highlighted_color =     palette.highlighted_color
 
         font_family =           BaseStyle.font_family
         font_size_regular =     BaseStyle.font_size_regular
@@ -222,7 +281,12 @@ class AboutWindowStyles:
         border_none =           BaseStyle.border_none
         transparent =           BaseStyle.transparent
 
-        self.about_win_qwidget.setStyleSheet(f"""
+        icon = Icons.get_icon(Icons.frame_icon, palette=palette)
+        logo_obj = self._about_win.Logo
+        logo_obj.setPixmap(icon.pixmap(logo_obj.width(), logo_obj.height()))
+        self._about_win_qwidget.setWindowIcon(icon)
+
+        self._about_win_qwidget.setStyleSheet(f"""
             QWidget {{
                 color: {text_color};
                 background-color: {background_color};
@@ -232,13 +296,13 @@ class AboutWindowStyles:
             }}
         """)
 
-        self.about_win.LogoFrame.setStyleSheet(f"""
+        self._about_win.LogoFrame.setStyleSheet(f"""
             QLabel {{
                 background-color: {transparent};
             }}
         """)
 
-        self.about_win.WebSite.setStyleSheet(f"""
+        self._about_win.WebSite.setStyleSheet(f"""
             QPushButton {{
                 color: {accent_color};
                 text-align: {text_align_left};
@@ -250,7 +314,7 @@ class AboutWindowStyles:
         """)
 
 
-        self.about_win.Email.setStyleSheet(f"""
+        self._about_win.Email.setStyleSheet(f"""
             QPushButton {{
                 color: {accent_color};
                 text-align: {text_align_left};
@@ -261,7 +325,7 @@ class AboutWindowStyles:
             }}
         """)
 
-        self.about_win.UrlPrivacyPolicy.setStyleSheet(f"""
+        self._about_win.UrlPrivacyPolicy.setStyleSheet(f"""
             QPushButton {{
                 color: {button_color};
                 border-bottom: {border} {highlighted_color};
@@ -273,7 +337,7 @@ class AboutWindowStyles:
             }}
         """)
 
-        self.about_win.Copyright.setStyleSheet(f"""
+        self._about_win.Copyright.setStyleSheet(f"""
             QLabel {{
                 color: {text_color};
                 font-size: {font_size_small};
