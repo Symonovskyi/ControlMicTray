@@ -82,9 +82,9 @@ class TrayIconStyles:
 
         if is_walkie:
             if self.tray.toggle_mic.isEnabled():
-                self.tray.toggle_mic.setEnabled(True)
-            self.tray.toggle_mic.setEnabled(False)
-            self.tray.toggle_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=False))
+                self.tray.toggle_mic.setEnabled(False)
+
+            self.tray.toggle_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=state))
             self.tray.walkie_mic.setIcon(Icons.get_icon(Icons.switch_icon, palette=palette, state=True))
         else:
             if not self.tray.toggle_mic.isEnabled():

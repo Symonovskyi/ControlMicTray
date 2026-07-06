@@ -6,7 +6,7 @@ class SharedAudioHotkeySignals(QObject):
     # INTENTS
     # Emitters: UI or HotkeyService
     # Subscribers: AudioHotkeyOrchestrator
-    int_toggle_mic = pyqtSignal(bool)             # tray icon click\tray menu click\hotkey btn click
+    int_toggle_mic = pyqtSignal()                 # tray icon click\tray menu click\hotkey btn click
     int_change_mode = pyqtSignal(bool)            # request app for mode change to (true: walkie, false: toggle)
     int_walkie_press = pyqtSignal()               # hotkey walkie pressed
     int_walkie_release = pyqtSignal()             # hotkey walkie released

@@ -60,9 +60,9 @@ class TrayIcon(QSystemTrayIcon):
         self.activated.connect(self._on_tray_icon_click)
 
         self.toggle_mic.triggered.connect(self._toggler)
-        self.toggle_mic.setCheckable(True)
+        self.toggle_mic.setCheckable(False)
         self.walkie_mic.triggered.connect(self._mode_switcher)
-        self.walkie_mic.setCheckable(True)
+        self.walkie_mic.setCheckable(False)
 
         self._bus.shared.int_hotkey_toggle_mic.connect(self._on_tray_icon_click)
 
@@ -133,18 +133,14 @@ class TrayIcon(QSystemTrayIcon):
     def _on_tray_icon_click(self, reason):
         """Handle single click on tray icon (only in normal mode)."""
         if reason == self.ActivationReason.Trigger and not self.is_walkie:
-            muted = self.toggle_mic.isChecked()
-            self.toggle_mic.setChecked(not muted)
-
-            self._bus.shared.int_toggle_mic.emit(not muted)
+            self._bus.shared.int_toggle_mic.emit()
 
     def _toggler(self):
-        muted = self.toggle_mic.isChecked()
-        self._bus.shared.int_toggle_mic.emit(muted)
+        self._bus.shared.int_toggle_mic.emit()
 
     def _mode_switcher(self):
         """Switch between normal and walkie-talkie modes."""
-        self._bus.shared.int_change_mode.emit(self.walkie_mic.isChecked())
+        self._bus.shared.int_change_mode.emit(not self.is_walkie)
 
     def _on_initial_state_loaded(self, data: dict):
         """Установка начального состояния при загрузке из БД."""

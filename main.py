@@ -9,7 +9,7 @@ from PyQt6.QtCore import QThread
 from core.widgets import TrayIcon, SettingsWindow, AboutWindow
 
 from core.events import EventBus
-from core.controllers.audio import AudioHotkeyOrchestrator
+from core.orchestrators.audio import AudioHotkeyOrchestrator
 
 from core.services.audio import AudioInputService
 from core.services.autorun import AutorunService

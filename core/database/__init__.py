@@ -50,7 +50,6 @@ class DatabaseManager:
 
         if not self.user_exists():
             self.insert_initial_data()
-            self.insert_user()
         else:
             self.update_about_data()
 
@@ -114,11 +113,6 @@ class DatabaseManager:
         """
         self.execute_sql(sql_commands)
 
-    def insert_user(self):
-        """Insert current user into database."""
-        sql_command = f"INSERT INTO 'User' (UserName) VALUES ('{self._user_name}');"
-        self.execute_sql(sql_command)
-
     def insert_initial_data(self):
         """Insert default application settings."""
         sql_commands = f"""
@@ -126,7 +120,7 @@ class DatabaseManager:
         INSERT INTO "Alerts" (AlertsType, StandardSound, OwnSound) VALUES ('Off', '\\Sound\\StandardSound.mp3', NULL);
         INSERT INTO "Autorun" (EnableProgram, EnableMic, MicStatus, WalkieStatus) VALUES (1, 0, 1, 0);
         INSERT INTO "Hotkey" (HotkeyMic, HotkeyWalkie) VALUES ('Scroll_lock', 'Pause');
-        INSERT INTO "Settings" (LanguageCode, Theme, PrivacyStatus, ForcedMute) VALUES ('ru', 1, 0, 1);
+        INSERT INTO "Settings" (LanguageCode, Theme, PrivacyStatus, ForcedMute) VALUES ('ru', 1, 0, 0);
         INSERT INTO "About" (ProgramVersion, WebSite, Email, Copyright, UrlPrivacyPolicy) VALUES ('v.2024.04.04', 'https://controlmictray.pp.ua', 'i@controlmictray.pp.ua', 'Copyright © 2024\nSymonovskyi & Lastivka\nAll rights reserved', 'https://controlmictray.pp.ua/PrivacyPolicy.html');
         """
         self.execute_sql(sql_commands)
