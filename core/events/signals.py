@@ -16,7 +16,7 @@ class SharedAudioHotkeySignals(QObject):
     int_open_settings = pyqtSignal()              # open settings window from tray
     int_open_about = pyqtSignal()                 # open about window from tray
 
-    int_hotkey_toggle_mic = pyqtSignal(object)    # HotkeyService -> tray._toggler()
+    # int_hotkey_toggle_mic = pyqtSignal(object)    # HotkeyService -> tray._toggler() ### NOT USED ANYMORE
 
     # COMMANDS
     # Emitters: AudioHotkeyOrchestrator

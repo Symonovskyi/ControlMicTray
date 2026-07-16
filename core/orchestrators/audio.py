@@ -223,6 +223,7 @@ class AudioHotkeyOrchestrator(QObject):
     def _on_answ_bind_hotkeys(self, mode: bool, hotkey: str):
         if not hotkey:
             logging.error(f"Failed to bind hotkey for mode: {'Walkie' if mode else 'Toggle'}")
+            
 
     def cleanup(self):
         self._debounce_timer.stop()

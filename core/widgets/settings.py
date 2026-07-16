@@ -42,7 +42,7 @@ class SettingsWindow(QWidget):
         self._bus.shared.int_open_settings.connect(self.show)
 
         self.settings_UI.NightTheme.clicked.connect(self._on_theme_checkbox_changed)
-        self.settings_UI.EnableProgram.clicked.connect(self._on_theme_checkbox_changed)
+        self.settings_UI.EnableProgram.clicked.connect(self._on_autorun_checkbox_changed)
         self.settings_UI.PrivacyStatus.clicked.connect(self._on_privacy_status_changed)
         self.settings_UI.EnableMic.clicked.connect(self._on_startup_mute_checkbox_changed)
         self.settings_UI.UrlUpdates.clicked.connect(self._on_updates_url_click)

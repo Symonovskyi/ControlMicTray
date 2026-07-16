@@ -13,8 +13,9 @@ class HotkeyService:
 
         self.__mic_hotkey_obj = None
         
-        # Для мыши в режиме рации нам нужно хранить два хука (на нажатие и отпускание)
-        self.__walkie_hotkey_obj = None
+        # В режиме рации нам нужно хранить два хука (на нажатие и отпускание)
+        self.__walkie_keyboard_press_obj = None
+        self.__walkie_keyboard_release_obj = None
         self.__walkie_mouse_press_obj = None
         self.__walkie_mouse_release_obj = None
 
@@ -46,6 +47,8 @@ class HotkeyService:
                     types=(mouse.DOWN,)
                 )
                 self.__is_mouse_toggle = True
+
+                hotkey = trigger
             else:
                 # КЛАВИАТУРА
                 self.__mic_hotkey_obj = keyboard.add_hotkey(
@@ -73,7 +76,10 @@ class HotkeyService:
     # --- Walkie-Talkie Mode ---
     def __register_walkie_hotkey(self, hotkey: str):
         if not hotkey or hotkey == 'unmapped':
-            self.__walkie_hotkey_obj = None
+            self.__walkie_mouse_press_obj = None
+            self.__walkie_mouse_release_obj = None
+            self.__walkie_keyboard_press_obj = None
+            self.__walkie_keyboard_release_obj = None
             self._bus.shared.answ_bind_hotkeys.emit(True, None)
             return
 
@@ -93,12 +99,18 @@ class HotkeyService:
                     buttons=(lib_btn,), types=(mouse.UP,)
                 )
                 self.__is_mouse_walkie = True
+
+                hotkey = trigger
             else:
                 # КЛАВИАТУРА
-                self.__walkie_hotkey_obj = keyboard.hook_key(
-                    key=trigger, # Используем только триггер
-                    keydown_callback=lambda: self._bus.shared.int_walkie_press.emit(),
-                    keyup_callback=lambda: self._bus.shared.int_walkie_release.emit(),
+                self.__walkie_keyboard_press_obj = keyboard.add_hotkey(
+                    hotkey=hotkey,
+                    callback=lambda: self._bus.shared.int_walkie_press.emit()
+                )
+                self.__walkie_keyboard_release_obj = keyboard.add_hotkey(
+                    hotkey=hotkey,
+                    callback=lambda: self._bus.shared.int_walkie_release.emit(),
+                    trigger_on_release=True
                 )
                 self.__is_mouse_walkie = False
             
@@ -117,10 +129,11 @@ class HotkeyService:
             self.__walkie_mouse_press_obj = None
             self.__walkie_mouse_release_obj = None
         else:
-            if self.__walkie_hotkey_obj:
-                try: keyboard.unhook(self.__walkie_hotkey_obj)
-                except Exception: pass
-                self.__walkie_hotkey_obj = None
+            try:
+                if self.__walkie_keyboard_press_obj: keyboard.remove_hotkey(self.__walkie_keyboard_press_obj)
+                if self.__walkie_keyboard_release_obj: keyboard.remove_hotkey(self.__walkie_keyboard_release_obj)
+            except Exception:
+                pass
 
     def switch_hotkey_handler(self, walkie_enabled: bool, hotkey: str):
         if not hotkey or hotkey in ('', 'Del', 'Backspace', 'unmapped'):

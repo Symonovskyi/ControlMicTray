@@ -42,12 +42,12 @@ class HotkeyButton(QPushButton):
         self.toggled.connect(self._on_toggled)
 
     def set_hotkey(self, hotkey: str):
-        self._current_hotkey = hotkey if hotkey else "unmapped"
-        self.setText(self._current_hotkey.upper())
+        self._current_hotkey = hotkey if hotkey else self._current_hotkey
+        self.setText(self._current_hotkey)
 
     def _on_toggled(self, checked: bool):
         if checked:
-            self.setText("Нажмите клавишу...")
+            self.setText("Нажмите клавишу мыши\клавиатуры...")
             self._held_modifiers.clear()
             self._held_main_key = None
             self.grabKeyboard() 
@@ -57,30 +57,29 @@ class HotkeyButton(QPushButton):
 
     # --- mouse processing ---
     def mousePressEvent(self, e: QMouseEvent):
-        if not self.isChecked():
-            if e.button() == Qt.MouseButton.LeftButton:
+
+        try:
+            btn = e.button()
+            if not self.isChecked():
                 super().mousePressEvent(e)
-            return
-
-        btn = e.button()
-        
-        if btn == Qt.MouseButton.LeftButton or btn == Qt.MouseButton.RightButton:
-            self._finalize_hotkey("unmapped")
-            return
-
-        if btn in QT_MOUSE_MAP:
-            # ЗАЩИТА ОТ СМЕШИВАНИЯ: Если зажаты модификаторы клавиатуры - сброс
-            if self._held_modifiers or self._held_main_key:
+            
+            if btn == Qt.MouseButton.LeftButton or btn == Qt.MouseButton.RightButton:
                 self._finalize_hotkey("unmapped")
                 return
 
-            mapped_btn = QT_MOUSE_MAP[btn]
-            self._finalize_hotkey(mapped_btn)
+            if btn in QT_MOUSE_MAP.keys():
+                # ЗАЩИТА ОТ СМЕШИВАНИЯ: Если зажаты модификаторы клавиатуры - сброс
+                self._held_modifiers = set()
+                self._held_main_key = None
+                mapped_btn = QT_MOUSE_MAP[btn]
+                self._finalize_hotkey(mapped_btn)
+        except Exception as e:
+            print(e)
 
     # --- keyboard processing ---
     def keyPressEvent(self, e: QKeyEvent):
         if not self.isChecked() or e.isAutoRepeat():
-            return super().keyPressEvent(e)
+            super().keyPressEvent(e)
 
         key = e.key()
         
@@ -107,14 +106,14 @@ class HotkeyButton(QPushButton):
 
     def keyReleaseEvent(self, e: QKeyEvent):
         if not self.isChecked() or e.isAutoRepeat():
-            return super().keyReleaseEvent(e)
+            super().keyReleaseEvent(e)
 
         if not self._held_main_key:
             self._finalize_hotkey("unmapped")
             return
-
-        final_str = self._build_hotkey_string(self._held_main_key)
-        self._finalize_hotkey(final_str)
+        else:
+            final_str = self._build_hotkey_string(self._held_main_key)
+            self._finalize_hotkey(final_str)
 
     # --- misc methods ---
     def _build_hotkey_string(self, main_key: str) -> str:
